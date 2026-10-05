@@ -2,7 +2,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@400;500;700&display=swap">
 <style>
-/* Темний бордовий градієнт, золото, кремові плашки — як на обкладинках школи.
+/* Бордовий градієнт, золото, кремові плашки — стиль обкладинок школи.
    Одна візуальна тема: лендинг завжди темний. */
 :root{
   --ink:#120807;
@@ -19,14 +19,10 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--ink);color:var(--cream);
-  font-family:var(--body);font-size:16px;line-height:1.6;
-  overflow-x:hidden;
-}
-.wrap{max-width:1140px;margin:0 auto;padding-inline:20px}
+body{margin:0;background:var(--ink);color:var(--cream);
+  font-family:var(--body);font-size:16px;line-height:1.6;overflow-x:hidden}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
 
-/* ── тло: повільний градієнт + формули ── */
 .bg{position:fixed;inset:0;z-index:-2;background:
   radial-gradient(120% 90% at 18% 0%, var(--wine-3) 0%, transparent 55%),
   radial-gradient(110% 80% at 88% 18%, var(--wine-2) 0%, transparent 50%),
@@ -34,114 +30,94 @@ body{
   animation:drift 22s ease-in-out infinite alternate}
 @keyframes drift{to{filter:hue-rotate(8deg) saturate(1.12)}}
 .formulas{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.formulas span{
-  position:absolute;font-family:var(--disp);font-weight:600;
-  color:var(--gold);opacity:.05;white-space:nowrap;
-  animation:float 18s ease-in-out infinite}
+.formulas span{position:absolute;font-family:var(--disp);font-weight:600;
+  color:var(--gold);opacity:.045;white-space:nowrap;animation:float 18s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}
   50%{transform:translateY(-26px) rotate(var(--r,0deg))}}
 
-/* ── загальне ── */
 h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:-.02em;
-  line-height:1.08;text-wrap:balance;margin:0}
+  line-height:1.1;text-wrap:balance;margin:0}
 .eyebrow{display:inline-block;background:var(--cream);color:var(--wine);
-  font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
   padding:7px 14px;border-radius:4px}
 .gold{color:var(--gold-br)}
-section{padding-block:clamp(60px,9vw,110px);position:relative}
-.reveal{opacity:0;transform:translateY(26px);
-  transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
+section{padding-block:clamp(52px,8vw,96px);position:relative}
+.reveal{opacity:0;transform:translateY(24px);
+  transition:opacity .75s cubic-bezier(.2,.7,.3,1),transform .75s cubic-bezier(.2,.7,.3,1)}
 .reveal.on{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
-  .reveal{opacity:1;transform:none;transition:none}
-  .bg,.formulas span{animation:none}
-}
+  .reveal{opacity:1;transform:none;transition:none}.bg,.formulas span{animation:none}}
 
-/* ── кнопка ── */
-.btn{
-  display:inline-flex;align-items:center;gap:10px;
-  background:linear-gradient(135deg,var(--gold-br),var(--gold));
-  color:#2A1412;font-family:var(--disp);font-weight:800;font-size:15px;
-  letter-spacing:.01em;padding:17px 30px;border:0;border-radius:10px;
-  cursor:pointer;text-decoration:none;position:relative;
-  box-shadow:0 0 0 0 rgba(243,206,126,.5);
-  transition:transform .25s,box-shadow .35s;
-  animation:pulse 3.2s ease-out infinite}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  background:linear-gradient(135deg,var(--gold-br),var(--gold));color:#2A1412;
+  font-family:var(--disp);font-weight:800;font-size:15px;
+  padding:17px 30px;border:0;border-radius:10px;cursor:pointer;text-decoration:none;
+  transition:transform .25s,box-shadow .35s;animation:pulse 3.2s ease-out infinite}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(243,206,126,.42)}
-  70%{box-shadow:0 0 0 18px rgba(243,206,126,0)}
-  100%{box-shadow:0 0 0 0 rgba(243,206,126,0)}}
+  70%{box-shadow:0 0 0 18px rgba(243,206,126,0)}100%{box-shadow:0 0 0 0 rgba(243,206,126,0)}}
 .btn:hover{transform:translateY(-2px) scale(1.02)}
 .btn:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
 
 /* ── герой ── */
-.hero{padding-top:clamp(40px,7vw,78px);padding-bottom:clamp(50px,7vw,90px)}
-.hero-grid{display:grid;grid-template-columns:1fr;gap:38px;align-items:center}
-@media(min-width:900px){.hero-grid{grid-template-columns:1.08fr .92fr;gap:50px}}
-.hero h1{font-size:clamp(33px,6.1vw,62px);margin:20px 0 18px}
-.hero p.lead{font-size:clamp(16px,1.9vw,19px);color:var(--muted);
-  max-width:40ch;margin:0 0 30px}
+.hero{padding-top:clamp(34px,6vw,64px);padding-bottom:clamp(34px,5vw,60px)}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:30px;align-items:center}
+@media(min-width:880px){.hero-grid{grid-template-columns:1.25fr .75fr;gap:48px}}
+.hero h1{font-size:clamp(30px,5.3vw,54px);margin:18px 0 16px}
+.hero p.lead{font-size:clamp(15.5px,1.8vw,18px);color:var(--muted);max-width:42ch;margin:0 0 26px}
 .hero p.lead b{color:var(--cream);font-weight:700}
-.hero-meta{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;
-  font-size:14px;color:var(--muted)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:20px;font-size:14px;color:var(--muted)}
 .hero-meta b{color:var(--gold-br);font-family:var(--disp);font-weight:600}
-.shot{position:relative;min-width:0}
-.shot::before{content:'';position:absolute;inset:-14% -8% -6% -8%;
-  background:radial-gradient(60% 55% at 50% 42%,rgba(217,169,76,.34),transparent 72%);
-  filter:blur(26px);animation:glow 6.5s ease-in-out infinite alternate}
-@keyframes glow{to{opacity:.55;transform:scale(1.07)}}
-.shot img{position:relative;width:100%;max-width:100%;display:block;border-radius:16px;
-  -webkit-mask-image:linear-gradient(180deg,#000 72%,transparent 100%);
-  mask-image:linear-gradient(180deg,#000 72%,transparent 100%)}
+
+/* фото: рамка з фіксованою пропорцією, щоб не розпливалось */
+.photo{position:relative;width:100%;max-width:340px;margin-inline:auto;
+  aspect-ratio:3/4;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 58%,rgba(18,8,7,.78) 100%)}
+.shot{position:relative}
+.shot::before{content:'';position:absolute;inset:-6% 2%;z-index:-1;
+  background:radial-gradient(58% 50% at 50% 45%,rgba(217,169,76,.3),transparent 72%);
+  filter:blur(28px);animation:glow 6.5s ease-in-out infinite alternate}
+@keyframes glow{to{opacity:.55;transform:scale(1.06)}}
 
 /* ── цифри ── */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:16px;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px}
 .stat{border:1px solid var(--line);border-radius:14px;padding:20px 18px;
   background:rgba(246,238,226,.035);min-width:0;
   transition:transform .3s,border-color .3s,background .3s}
 .stat:hover{transform:translateY(-4px);border-color:rgba(217,169,76,.5);
   background:rgba(246,238,226,.06)}
-.stat .n{font-family:var(--disp);font-weight:800;font-size:40px;
-  color:var(--gold-br);line-height:1;font-variant-numeric:tabular-nums}
+.stat .em{font-size:21px;line-height:1}
+.stat .n{font-family:var(--disp);font-weight:800;font-size:38px;color:var(--gold-br);
+  line-height:1;font-variant-numeric:tabular-nums;margin-top:9px}
 .stat .t{font-size:13.5px;color:var(--muted);margin-top:8px}
 
 /* ── викладач ── */
-.teach{display:grid;grid-template-columns:1fr;gap:34px;align-items:center}
-@media(min-width:900px){.teach{grid-template-columns:.85fr 1.15fr;gap:52px}}
-.teach-photo{position:relative;min-width:0}
-.teach-photo img{width:100%;display:block;border-radius:18px;
-  border:1px solid var(--line)}
-.teach-photo .badge{position:absolute;right:-10px;bottom:22px;
-  background:var(--cream);color:var(--wine);border-radius:12px;
-  padding:12px 16px;font-family:var(--disp);font-weight:800;line-height:1.1;
-  box-shadow:0 14px 34px rgba(0,0,0,.45)}
-.teach-photo .badge small{display:block;font-family:var(--body);font-weight:700;
-  font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.65;margin-top:3px}
-.teach h2{font-size:clamp(27px,4vw,44px);margin-bottom:18px}
-.teach p{color:var(--muted);margin:0 0 14px;max-width:52ch}
-.teach p b{color:var(--cream);font-weight:700}
+.teach{display:grid;grid-template-columns:1fr;gap:30px;align-items:center}
+@media(min-width:880px){.teach{grid-template-columns:.7fr 1.3fr;gap:50px}}
+.facts{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:11px}
+.facts li{display:flex;gap:13px;align-items:flex-start;
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  background:rgba(246,238,226,.03);font-size:15.5px;
+  transition:transform .28s,border-color .28s}
+.facts li:hover{transform:translateX(5px);border-color:rgba(217,169,76,.5)}
+.facts .e{font-size:20px;line-height:1.3;flex:none}
+.facts b{color:var(--gold-br);font-weight:700}
 
-/* ── чому 10 ── */
-.why{text-align:center}
-.why h2{font-size:clamp(27px,4.4vw,48px);margin-bottom:20px}
-.why p{color:var(--muted);max-width:60ch;margin:0 auto 14px;font-size:17px}
-.compare{display:grid;grid-template-columns:1fr;gap:14px;margin-top:40px;text-align:left}
-@media(min-width:760px){.compare{grid-template-columns:repeat(3,1fr)}}
-.cmp{border:1px solid var(--line);border-radius:14px;padding:22px;min-width:0;
-  background:rgba(18,8,7,.42);transition:transform .3s,border-color .3s}
-.cmp:hover{transform:translateY(-5px)}
-.cmp.us{border-color:var(--gold);background:
-  linear-gradient(160deg,rgba(217,169,76,.14),rgba(18,8,7,.5))}
-.cmp h3{font-size:17px;margin-bottom:12px}
-.cmp.us h3{color:var(--gold-br)}
-.cmp ul{list-style:none;padding:0;margin:0;font-size:14.5px;color:var(--muted)}
-.cmp li{padding:7px 0;border-bottom:1px solid rgba(246,238,226,.07)}
-.cmp li:last-child{border:0}
-.cmp li b{color:var(--cream);font-weight:700}
-.cmp.us li b{color:var(--gold-br)}
+/* ── порівняння ── */
+.tblwrap{overflow-x:auto;margin-top:34px;border:1px solid var(--line);border-radius:16px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{padding:15px 16px;text-align:center;border-bottom:1px solid rgba(246,238,226,.08)}
+th:first-child,td:first-child{text-align:left;color:var(--muted);font-weight:500}
+thead th{font-family:var(--disp);font-weight:600;font-size:14px;
+  background:rgba(18,8,7,.5);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+.us-col{background:linear-gradient(180deg,rgba(217,169,76,.14),rgba(217,169,76,.06));
+  color:var(--gold-br);font-weight:700}
+thead .us-col{color:var(--gold-br)}
 
-/* ── що входить ── */
-.feats{display:grid;grid-template-columns:1fr;gap:16px;margin-top:40px}
+/* ── наповнення ── */
+.feats{display:grid;grid-template-columns:1fr;gap:16px;margin-top:34px}
 @media(min-width:640px){.feats{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:980px){.feats{grid-template-columns:repeat(3,1fr)}}
 .feat{border:1px solid var(--line);border-radius:14px;padding:24px;min-width:0;
@@ -152,224 +128,189 @@ section{padding-block:clamp(60px,9vw,110px);position:relative}
   transition:opacity .35s}
 .feat:hover{transform:translateY(-5px);border-color:rgba(217,169,76,.45)}
 .feat:hover::after{opacity:1}
-.feat .ic{font-family:var(--disp);font-weight:800;color:var(--gold);
-  font-size:22px;margin-bottom:12px}
+.feat .ic{font-size:28px;margin-bottom:12px;position:relative}
 .feat h3{font-size:16.5px;margin-bottom:9px;position:relative}
 .feat p{font-size:14.5px;color:var(--muted);margin:0;position:relative}
 
 /* ── форма ── */
-.cta-sec{padding-bottom:clamp(70px,10vw,120px)}
-.card{border:1px solid var(--line);border-radius:22px;padding:clamp(26px,4vw,46px);
+.card{border:1px solid var(--line);border-radius:22px;padding:clamp(24px,4vw,44px);
   background:linear-gradient(160deg,rgba(94,42,32,.55),rgba(18,8,7,.86));
   box-shadow:0 30px 70px rgba(0,0,0,.45);position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:-55%;left:-12%;width:60%;height:200%;
   background:linear-gradient(90deg,transparent,rgba(243,206,126,.09),transparent);
   transform:rotate(16deg);animation:sweep 7s ease-in-out infinite}
 @keyframes sweep{0%,100%{left:-60%}50%{left:110%}}
-.card-grid{display:grid;grid-template-columns:1fr;gap:30px;position:relative}
-@media(min-width:860px){.card-grid{grid-template-columns:1fr 1fr;gap:48px;align-items:center}}
-.card h2{font-size:clamp(26px,3.8vw,40px);margin-bottom:14px}
-.card p{color:var(--muted);margin:0 0 10px;max-width:42ch}
-.seats{display:flex;align-items:center;gap:12px;margin-top:22px;
-  font-size:14px;color:var(--muted)}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--gold-br);
-  box-shadow:0 0 0 0 rgba(243,206,126,.6);animation:pulse 2.4s infinite}
+.card-grid{display:grid;grid-template-columns:1fr;gap:28px;position:relative}
+@media(min-width:860px){.card-grid{grid-template-columns:1fr 1fr;gap:46px;align-items:center}}
+.card h2{font-size:clamp(25px,3.6vw,38px);margin-bottom:14px}
+.card p{color:var(--muted);margin:0 0 9px;max-width:42ch}
+.seats{display:flex;align-items:center;gap:11px;margin-top:20px;font-size:14px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gold-br);animation:pulse 2.4s infinite}
 form{display:grid;gap:13px}
-label{font-size:12.5px;font-weight:700;color:var(--muted);
-  letter-spacing:.06em;text-transform:uppercase}
-input,select{width:100%;padding:14px 15px;font:inherit;font-size:15.5px;
-  color:var(--cream);background:rgba(18,8,7,.6);
-  border:1px solid rgba(246,238,226,.16);border-radius:10px;
+label{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+input,select{width:100%;padding:14px 15px;font:inherit;font-size:15.5px;color:var(--cream);
+  background:rgba(18,8,7,.6);border:1px solid rgba(246,238,226,.16);border-radius:10px;
   transition:border-color .25s,box-shadow .25s}
 input::placeholder{color:rgba(187,163,150,.6)}
-input:focus,select:focus{outline:0;border-color:var(--gold);
-  box-shadow:0 0 0 3px rgba(217,169,76,.18)}
+input:focus,select:focus{outline:0;border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,169,76,.18)}
 .fine{font-size:12.5px;color:var(--muted);margin:2px 0 0;line-height:1.5}
 .ok{display:none;text-align:center;padding:28px 10px}
 .ok h3{font-size:24px;color:var(--gold-br);margin-bottom:10px}
 .ok p{color:var(--muted);margin:0 auto;max-width:34ch}
-footer{border-top:1px solid rgba(246,238,226,.08);padding-block:26px;
-  font-size:13px;color:var(--muted)}
+footer{border-top:1px solid rgba(246,238,226,.08);padding-block:26px;font-size:13px;color:var(--muted)}
 footer a{color:var(--muted)}
 </style>
 
 <div class="bg"></div>
 <div class="formulas" aria-hidden="true">
-  <span style="top:12%;left:4%;font-size:54px;--r:-9deg">x² + y² = r²</span>
-  <span style="top:30%;right:5%;font-size:44px;--r:7deg;animation-delay:-6s">√(a² + b²)</span>
-  <span style="top:56%;left:7%;font-size:62px;--r:5deg;animation-delay:-11s">sin α</span>
-  <span style="top:74%;right:9%;font-size:50px;--r:-6deg;animation-delay:-3s">∫ f(x) dx</span>
-  <span style="top:90%;left:12%;font-size:46px;--r:8deg;animation-delay:-14s">log₂ 8 = 3</span>
+  <span style="top:14%;left:4%;font-size:52px;--r:-9deg">x² + y² = r²</span>
+  <span style="top:34%;right:5%;font-size:42px;--r:7deg;animation-delay:-6s">√(a² + b²)</span>
+  <span style="top:58%;left:7%;font-size:58px;--r:5deg;animation-delay:-11s">sin α</span>
+  <span style="top:76%;right:9%;font-size:48px;--r:-6deg;animation-delay:-3s">∫ f(x) dx</span>
+  <span style="top:92%;left:12%;font-size:44px;--r:8deg;animation-delay:-14s">log₂ 8 = 3</span>
 </div>
 
 <header class="wrap hero">
   <div class="hero-grid">
     <div>
-      <span class="eyebrow reveal">НМТ · Математика · 10–11 клас</span>
-      <h1 class="reveal">Міні-група, де вчитель <span class="gold">бачить кожного</span></h1>
-      <p class="lead reveal">Двічі на тиждень по годині наживо з Валентиною Іванівною.
-        Пам'ятки, тести та імітації НМТ — на платформі.
-        <b>До 10 учнів у групі.</b></p>
-      <a class="btn reveal" href="#form">Забронювати місце →</a>
+      <span class="eyebrow reveal">📐 НМТ · Математика · 10–11 клас</span>
+      <h1 class="reveal">Міні-група до 10 учнів із <span class="gold">Валентиною Іванівною</span></h1>
+      <p class="lead reveal">Двічі на тиждень по годині наживо 🎥
+        Пам'ятки, тести та імітації НМТ — на платформі.</p>
+      <a class="btn reveal" href="#form">🔥 Забронювати місце</a>
       <div class="hero-meta reveal">
-        <span>Старт <b>19 жовтня</b></span>
-        <span><b>1 600 ₴</b> на місяць</span>
-        <span>Місць у групі: <b>10</b></span>
+        <span>🗓 Старт <b>19 жовтня</b></span>
+        <span>💳 <b>1 600 ₴</b> на місяць</span>
+        <span>🪑 Місць: <b>10</b></span>
       </div>
     </div>
     <div class="shot reveal">
-      <img src="img/teacher-hero.jpg" width="980" height="1300"
-           alt="Валентина Іванівна Слінчук, викладачка математики">
+      <div class="photo">
+        <img src="img/teacher-hero.jpg" width="980" height="1300"
+             alt="Валентина Іванівна Слінчук, викладачка математики" fetchpriority="high">
+      </div>
     </div>
   </div>
 </header>
 
-<section class="wrap">
+<section class="wrap" style="padding-top:0">
   <div class="stats">
-    <div class="stat reveal"><div class="n" data-to="36">0</div><div class="t">років викладає математику</div></div>
-    <div class="stat reveal"><div class="n" data-to="10">0</div><div class="t">учнів у групі — максимум</div></div>
-    <div class="stat reveal"><div class="n" data-to="8">0</div><div class="t">занять наживо щомісяця</div></div>
-    <div class="stat reveal"><div class="n">к.п.н.</div><div class="t">кандидат педагогічних наук</div></div>
+    <div class="stat reveal"><div class="em">🎓</div><div class="n">к.п.н.</div>
+      <div class="t">кандидат педагогічних наук</div></div>
+    <div class="stat reveal"><div class="em">📐</div><div class="n" data-to="36">0</div>
+      <div class="t">роки досвіду в математиці</div></div>
+    <div class="stat reveal"><div class="em">🏆</div><div class="n" data-to="11">0</div>
+      <div class="t">призерів МАН всеукраїнського рівня</div></div>
+    <div class="stat reveal"><div class="em">⭐</div><div class="n" data-to="3">0</div>
+      <div class="t">стипендіати Президента України</div></div>
   </div>
 </section>
 
 <section class="wrap">
   <div class="teach">
-    <div class="teach-photo reveal">
-      <img src="img/teacher-sit.jpg" width="900" height="1150"
-           alt="Валентина Іванівна Слінчук">
-      <div class="badge">36 років<small>досвіду</small></div>
+    <div class="shot reveal">
+      <div class="photo">
+        <img src="img/teacher-sit.jpg" width="900" height="1150" loading="lazy"
+             alt="Валентина Іванівна Слінчук">
+      </div>
     </div>
     <div>
-      <span class="eyebrow reveal">Викладач</span>
-      <h2 class="reveal" style="margin-top:18px">Валентина Іванівна Слінчук</h2>
-      <p class="reveal"><b>Кандидат педагогічних наук. Тридцять шість років у математиці</b> —
-        від звичайного класу до підготовки до НМТ.</p>
-      <p class="reveal">За цей час через неї пройшли сотні випускників, і вона знає напам'ять,
-        на яких темах вони спотикаються: дроби, відсотки, текстові задачі на рух.
-        Саме туди вона дивиться першою, коли бачить новий клас.</p>
-      <p class="reveal">У групі до десяти вона встигає стежити за кожним: хто завис на темі,
-        хто третій тиждень мовчить, кого треба перепитати, поки не пізно.</p>
-    </div>
-  </div>
-</section>
-
-<section class="wrap why">
-  <span class="eyebrow reveal">Головне</span>
-  <h2 class="reveal" style="margin-top:20px">Десять — це межа,<br>після якої вас перестають пам'ятати</h2>
-  <p class="reveal">На вебінарі з тисячею глядачів дитина — цифра в лічильнику.
-    Вона може мовчати весь курс, і ніхто цього не помітить аж до результатів НМТ.</p>
-
-  <div class="compare">
-    <div class="cmp reveal">
-      <h3>Репетитор</h3>
-      <ul>
-        <li>Зустрічей на тиждень: <b>2</b></li>
-        <li>Людей на занятті: <b>1</b></li>
-        <li>Вчитель знає дитину: <b>так</b></li>
-        <li>На місяць: <b>5 000–8 000 ₴</b></li>
-      </ul>
-    </div>
-    <div class="cmp reveal">
-      <h3>Великий онлайн-курс</h3>
-      <ul>
-        <li>Зустрічей на тиждень: <b>1–2</b></li>
-        <li>Людей на занятті: <b>500+</b></li>
-        <li>Вчитель знає дитину: <b>ні</b></li>
-        <li>На місяць: <b>500–1 500 ₴</b></li>
-      </ul>
-    </div>
-    <div class="cmp us reveal">
-      <h3>Наша міні-група</h3>
-      <ul>
-        <li>Зустрічей на тиждень: <b>2</b></li>
-        <li>Людей на занятті: <b>до 10</b></li>
-        <li>Вчитель знає дитину: <b>так</b></li>
-        <li>На місяць: <b>1 600 ₴</b></li>
+      <span class="eyebrow reveal">👩‍🏫 Викладач</span>
+      <h2 class="reveal" style="font-size:clamp(26px,3.8vw,42px);margin-top:16px">
+        Валентина Іванівна Слінчук</h2>
+      <ul class="facts">
+        <li class="reveal"><span class="e">🎓</span><span><b>Кандидат педагогічних наук</b></span></li>
+        <li class="reveal"><span class="e">📐</span><span><b>36 років</b> викладає математику</span></li>
+        <li class="reveal"><span class="e">🏆</span><span><b>11 призерів</b> всеукраїнського рівня Малої академії наук</span></li>
+        <li class="reveal"><span class="e">⭐</span><span><b>3 стипендіати</b> Президента України</span></li>
+        <li class="reveal"><span class="e">👥</span><span><b>Тисячі учнів</b> за кар'єру</span></li>
       </ul>
     </div>
   </div>
 </section>
 
 <section class="wrap">
-  <span class="eyebrow reveal">Наповнення</span>
-  <h2 class="reveal" style="font-size:clamp(27px,4.2vw,46px);margin-top:20px">Що входить</h2>
-  <div class="feats">
-    <div class="feat reveal">
-      <div class="ic">01</div>
-      <h3>Заняття наживо, двічі на тиждень</h3>
-      <p>Година розбору з питаннями й відповідями. Графік узгоджуємо з групою перед стартом — підлаштовуємось під школу.</p>
-    </div>
-    <div class="feat reveal">
-      <div class="ic">02</div>
-      <h3>Пам'ятки до кожної теми</h3>
-      <p>Стисло, без води: формули, алгоритм розв'язання, типові пастки. Те, що реально беруть на іспит.</p>
-    </div>
-    <div class="feat reveal">
-      <div class="ic">03</div>
-      <h3>Імітації НМТ</h3>
-      <p>Повноцінні пробні у форматі справжнього іспиту — з таймером, бланком і розбором помилок особисто з викладачкою.</p>
-    </div>
-    <div class="feat reveal">
-      <div class="ic">04</div>
-      <h3>Тести на платформі</h3>
-      <p>Після кожної теми — закріплення. Видно одразу, що засвоїлось, а що треба повторити.</p>
-    </div>
-    <div class="feat reveal">
-      <div class="ic">05</div>
-      <h3>Особистий фідбек</h3>
-      <p>Не загальне «молодець», а конкретно: які теми тягнуть вниз і що робити далі саме цій дитині.</p>
-    </div>
-    <div class="feat reveal">
-      <div class="ic">06</div>
-      <h3>Пропустили — є запис</h3>
-      <p>Хвороба, олімпіада, тривога. Заняття не згорає: запис лишається, пам'ятка на платформі.</p>
-    </div>
+  <span class="eyebrow reveal">⚖️ Порівняння</span>
+  <h2 class="reveal" style="font-size:clamp(26px,4vw,44px);margin-top:18px">
+    Що ви отримуєте за свої гроші</h2>
+  <div class="tblwrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>👩‍🏫 Репетитор</th>
+          <th>🖥 Великий курс</th>
+          <th class="us-col">⭐ Наша група</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Занять на тиждень</td><td>2</td><td>1–2</td><td class="us-col">2</td></tr>
+        <tr><td>Учнів на занятті</td><td>1</td><td>500+</td><td class="us-col">до 10</td></tr>
+        <tr><td>Вчитель знає дитину</td><td>✅</td><td>❌</td><td class="us-col">✅</td></tr>
+        <tr><td>Імітації НМТ із розбором</td><td>❌</td><td>❌</td><td class="us-col">✅</td></tr>
+        <tr><td>Запис пропущеного</td><td>❌</td><td>✅</td><td class="us-col">✅</td></tr>
+        <tr><td>Ціна на місяць</td><td>5 000–8 000 ₴</td><td>500–1 500 ₴</td>
+          <td class="us-col">1 600 ₴</td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
-<section class="wrap cta-sec" id="form">
+<section class="wrap">
+  <span class="eyebrow reveal">📦 Наповнення</span>
+  <h2 class="reveal" style="font-size:clamp(26px,4vw,44px);margin-top:18px">Що входить</h2>
+  <div class="feats">
+    <div class="feat reveal"><div class="ic">🎥</div>
+      <h3>Заняття наживо, двічі на тиждень</h3>
+      <p>Година розбору з питаннями й відповідями. Графік узгоджуємо з групою перед стартом.</p></div>
+    <div class="feat reveal"><div class="ic">📝</div>
+      <h3>Пам'ятки до кожної теми</h3>
+      <p>Формули, алгоритм розв'язання, типові пастки. Те, що реально беруть на іспит.</p></div>
+    <div class="feat reveal"><div class="ic">🎯</div>
+      <h3>Імітації НМТ</h3>
+      <p>Пробні у форматі справжнього іспиту — з таймером, бланком і розбором помилок.</p></div>
+    <div class="feat reveal"><div class="ic">🧠</div>
+      <h3>Тести на платформі</h3>
+      <p>Після кожної теми. Видно одразу, що засвоїлось, а що треба повторити.</p></div>
+    <div class="feat reveal"><div class="ic">💬</div>
+      <h3>Особистий фідбек</h3>
+      <p>Конкретно: які теми тягнуть вниз і що робити далі саме цій дитині.</p></div>
+    <div class="feat reveal"><div class="ic">📹</div>
+      <h3>Пропустили — є запис</h3>
+      <p>Хвороба, олімпіада, тривога. Заняття не згорає, пам'ятка лишається на платформі.</p></div>
+  </div>
+</section>
+
+<section class="wrap" id="form" style="padding-bottom:clamp(64px,9vw,110px)">
   <div class="card">
     <div class="card-grid">
       <div>
-        <span class="eyebrow">Запис у групу</span>
-        <h2 style="margin-top:18px">Забронювати місце</h2>
-        <p>Залиште номер — зателефонуємо, розкажемо деталі, узгодимо графік
+        <span class="eyebrow">🔥 Запис у групу</span>
+        <h2 style="margin-top:16px">Забронювати місце</h2>
+        <p>📞 Залиште номер — зателефонуємо, розкажемо деталі, узгодимо графік
           і подивимось рівень дитини.</p>
-        <p>Безкоштовно і ні до чого не зобов'язує.</p>
-        <div class="seats"><span class="dot"></span> Старт 19 жовтня · у групі 10 місць</div>
+        <p>✅ Безкоштовно і ні до чого не зобов'язує.</p>
+        <div class="seats"><span class="dot"></span> 🗓 Старт 19 жовтня · у групі 10 місць</div>
       </div>
-
       <div>
         <form id="lead" novalidate>
-          <div>
-            <label for="name">Ваше ім'я</label>
-            <input id="name" name="name" type="text" required placeholder="Ірина" autocomplete="name">
-          </div>
-          <div>
-            <label for="phone">Телефон</label>
+          <div><label for="name">Ваше ім'я</label>
+            <input id="name" name="name" type="text" required placeholder="Ірина" autocomplete="name"></div>
+          <div><label for="phone">Телефон</label>
             <input id="phone" name="phone" type="tel" required placeholder="+380 __ ___ __ __"
-                   inputmode="tel" autocomplete="tel">
-          </div>
-          <div>
-            <label for="grade">Клас дитини</label>
+                   inputmode="tel" autocomplete="tel"></div>
+          <div><label for="grade">Клас дитини</label>
             <select id="grade" name="grade">
-              <option value="11">11 клас</option>
-              <option value="10">10 клас</option>
-              <option value="9">9 клас</option>
-              <option value="other">Інший</option>
-            </select>
-          </div>
+              <option value="11">11 клас</option><option value="10">10 клас</option>
+              <option value="9">9 клас</option><option value="other">Інший</option>
+            </select></div>
           <input type="hidden" id="fz_source" name="fz_source">
           <input type="hidden" id="landing_url" name="landing_url">
-          <button class="btn" type="submit" style="justify-content:center;margin-top:6px">
-            Забронювати місце
-          </button>
-          <p class="fine">Натискаючи кнопку, ви погоджуєтесь на обробку даних
-            для зв'язку щодо навчання.</p>
+          <button class="btn" type="submit" style="margin-top:6px">🚀 Забронювати місце</button>
+          <p class="fine">Натискаючи кнопку, ви погоджуєтесь на обробку даних для зв'язку щодо навчання.</p>
         </form>
         <div class="ok" id="ok">
-          <h3>Заявку прийнято</h3>
+          <h3>🎉 Заявку прийнято</h3>
           <p>Зателефонуємо найближчим часом. Якщо зручніше написати — @formula_znan в Instagram.</p>
         </div>
       </div>
@@ -378,31 +319,29 @@ footer a{color:var(--muted)}
 </section>
 
 <footer class="wrap">
-  Формула знань · підготовка до НМТ з математики ·
+  📐 Формула знань · підготовка до НМТ з математики ·
   <a href="https://www.instagram.com/formula.znan/" target="_blank" rel="noopener">Instagram</a>
 </footer>
 
 <script>
-/* ── поява блоків ── */
 const io = new IntersectionObserver((es) => {
-  es.forEach((e, i) => {
+  es.forEach((e) => {
     if (!e.isIntersecting) return;
     const d = [...e.target.parentElement.children].indexOf(e.target);
-    e.target.style.transitionDelay = Math.min(d, 6) * 70 + 'ms';
+    e.target.style.transitionDelay = Math.min(d, 6) * 65 + 'ms';
     e.target.classList.add('on');
     io.unobserve(e.target);
   });
 }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-/* ── лічильники ── */
 const co = new IntersectionObserver((es) => {
   es.forEach(e => {
     if (!e.isIntersecting) return;
     const el = e.target, to = +el.dataset.to;
     co.unobserve(el);
     if (!isFinite(to)) return;
-    const t0 = performance.now(), dur = 1100;
+    const t0 = performance.now(), dur = 1000;
     (function step(t) {
       const p = Math.min((t - t0) / dur, 1);
       el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
@@ -412,12 +351,10 @@ const co = new IntersectionObserver((es) => {
 }, { threshold: .5 });
 document.querySelectorAll('.stat .n[data-to]').forEach(el => co.observe(el));
 
-/* ── мітка джерела: fz_source з адреси, інакше прямий захід ──
-   Формат як у решті воронки: [L_|T_|F_]s<канал>[_c<id кампанії>] */
+/* мітка джерела: [G_]s<канал>[_c<id>] — як у решті воронки */
 (function () {
   const q = new URLSearchParams(location.search);
-  const CH = { facebook: 'sfb', fb: 'sfb', ig: 'sig', instagram: 'sig',
-               tiktok: 'stt', tt: 'stt' };
+  const CH = { facebook:'sfb', fb:'sfb', ig:'sig', instagram:'sig', tiktok:'stt', tt:'stt' };
   let tag = q.get('fz_source');
   if (!tag) {
     const src = (q.get('utm_source') || '').toLowerCase();
@@ -429,34 +366,25 @@ document.querySelectorAll('.stat .n[data-to]').forEach(el => co.observe(el));
   document.getElementById('landing_url').value = location.href.slice(0, 250);
 })();
 
-/* ── форма ──
-   ЩОБ ЗАПРАЦЮВАЛО НА NETLIFY: заміни ENDPOINT на свій і розкоментуй fetch.
-   Воронка та сама, що в zayavka.html — мітка fz_source їде в полі. */
-const ENDPOINT = '';   // напр. 'https://ваш-домен/api/lead'
+/* ЩОБ ЗАЯВКИ ЙШЛИ: впиши свій ENDPOINT (той самий, що в zayavka.html) */
+const ENDPOINT = '';
 const form = document.getElementById('lead');
 form.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
   if (!data.name.trim() || data.phone.replace(/\D/g, '').length < 9) {
-    const bad = !data.name.trim() ? 'name' : 'phone';
-    const el = document.getElementById(bad);
-    el.focus();
-    el.style.borderColor = '#E0796A';
+    const el = document.getElementById(!data.name.trim() ? 'name' : 'phone');
+    el.focus(); el.style.borderColor = '#E0796A';
     setTimeout(() => el.style.borderColor = '', 1600);
     return;
   }
   const btn = form.querySelector('button');
   btn.disabled = true; btn.textContent = 'Надсилаємо…';
   try {
-    if (ENDPOINT) {
-      await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-    }
+    if (ENDPOINT) await fetch(ENDPOINT, { method:'POST',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
     if (window.fbq) fbq('track', 'Lead');
-  } catch (e) { /* заявку все одно показуємо прийнятою, номер уже в нас */ }
+  } catch (e) {}
   form.hidden = true;
   document.getElementById('ok').style.display = 'block';
 });
