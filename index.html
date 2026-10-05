@@ -5,14 +5,8 @@
 /* Бордовий градієнт, золото, кремові плашки — стиль обкладинок школи.
    Одна візуальна тема: лендинг завжди темний. */
 :root{
-  --ink:#120807;
-  --wine:#2A1412;
-  --wine-2:#45201A;
-  --wine-3:#5E2A20;
-  --gold:#D9A94C;
-  --gold-br:#F3CE7E;
-  --cream:#F6EEE2;
-  --muted:#BBA396;
+  --ink:#120807; --wine:#2A1412; --wine-2:#45201A; --wine-3:#5E2A20;
+  --gold:#D9A94C; --gold-br:#F3CE7E; --cream:#F6EEE2; --muted:#BBA396;
   --line:rgba(217,169,76,.22);
   --disp:'Unbounded',Impact,'Arial Black',sans-serif;
   --body:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -27,168 +21,218 @@ body{margin:0;background:var(--ink);color:var(--cream);
   radial-gradient(120% 90% at 18% 0%, var(--wine-3) 0%, transparent 55%),
   radial-gradient(110% 80% at 88% 18%, var(--wine-2) 0%, transparent 50%),
   linear-gradient(170deg, var(--wine) 0%, var(--ink) 62%);
-  animation:drift 22s ease-in-out infinite alternate}
-@keyframes drift{to{filter:hue-rotate(8deg) saturate(1.12)}}
+  animation:drift 20s ease-in-out infinite alternate}
+@keyframes drift{to{filter:hue-rotate(10deg) saturate(1.15) brightness(1.06)}}
 .formulas{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 .formulas span{position:absolute;font-family:var(--disp);font-weight:600;
-  color:var(--gold);opacity:.045;white-space:nowrap;animation:float 18s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}
-  50%{transform:translateY(-26px) rotate(var(--r,0deg))}}
+  color:var(--gold);opacity:.05;white-space:nowrap;
+  animation:float 16s ease-in-out infinite;will-change:transform}
+@keyframes float{0%,100%{transform:translateY(var(--p,0px)) rotate(var(--r,0deg))}
+  50%{transform:translateY(calc(var(--p,0px) - 26px)) rotate(var(--r,0deg))}}
 
 h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:-.02em;
   line-height:1.1;text-wrap:balance;margin:0}
 .eyebrow{display:inline-block;background:var(--cream);color:var(--wine);
   font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-  padding:7px 14px;border-radius:4px}
-.gold{color:var(--gold-br)}
-section{padding-block:clamp(52px,8vw,96px);position:relative}
-.reveal{opacity:0;transform:translateY(24px);
-  transition:opacity .75s cubic-bezier(.2,.7,.3,1),transform .75s cubic-bezier(.2,.7,.3,1)}
+  padding:7px 14px;border-radius:4px;position:relative;overflow:hidden}
+.eyebrow::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);
+  transform:translateX(-120%);animation:wipe 4.5s ease-in-out infinite}
+@keyframes wipe{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+.gold{background:linear-gradient(100deg,var(--gold-br) 25%,#FFF6E0 45%,var(--gold-br) 65%);
+  background-size:260% 100%;-webkit-background-clip:text;background-clip:text;
+  color:transparent;animation:shine 5s linear infinite}
+@keyframes shine{to{background-position:-260% 0}}
+
+section{padding-block:clamp(34px,4.4vw,56px);position:relative}
+.reveal{opacity:0;transform:translateY(22px);
+  transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
 .reveal.on{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
-  .reveal{opacity:1;transform:none;transition:none}.bg,.formulas span{animation:none}}
+  .reveal{opacity:1;transform:none;transition:none}
+  .bg,.formulas span,.gold,.eyebrow::after,.cut img,.btn{animation:none}}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
   background:linear-gradient(135deg,var(--gold-br),var(--gold));color:#2A1412;
   font-family:var(--disp);font-weight:800;font-size:15px;
   padding:17px 30px;border:0;border-radius:10px;cursor:pointer;text-decoration:none;
-  transition:transform .25s,box-shadow .35s;animation:pulse 3.2s ease-out infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(243,206,126,.42)}
-  70%{box-shadow:0 0 0 18px rgba(243,206,126,0)}100%{box-shadow:0 0 0 0 rgba(243,206,126,0)}}
-.btn:hover{transform:translateY(-2px) scale(1.02)}
+  position:relative;overflow:hidden;
+  transition:transform .25s,box-shadow .35s;animation:pulse 3s ease-out infinite}
+.btn::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  transform:skewX(-20deg);animation:gleam 3.4s ease-in-out infinite}
+@keyframes gleam{0%,55%{left:-60%}90%,100%{left:130%}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(243,206,126,.45)}
+  70%{box-shadow:0 0 0 20px rgba(243,206,126,0)}100%{box-shadow:0 0 0 0 rgba(243,206,126,0)}}
+.btn:hover{transform:translateY(-3px) scale(1.03);
+  box-shadow:0 14px 34px rgba(217,169,76,.35)}
 .btn:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
 
 /* ── герой ── */
-.hero{padding-top:clamp(34px,6vw,64px);padding-bottom:clamp(34px,5vw,60px)}
-.hero-grid{display:grid;grid-template-columns:1fr;gap:30px;align-items:center}
-@media(min-width:880px){.hero-grid{grid-template-columns:1.25fr .75fr;gap:48px}}
-.hero h1{font-size:clamp(30px,5.3vw,54px);margin:18px 0 16px}
-.hero p.lead{font-size:clamp(15.5px,1.8vw,18px);color:var(--muted);max-width:42ch;margin:0 0 26px}
-.hero p.lead b{color:var(--cream);font-weight:700}
-.hero-meta{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:20px;font-size:14px;color:var(--muted)}
+.hero{padding-top:clamp(28px,4.5vw,52px);padding-bottom:clamp(20px,3vw,34px)}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:18px;align-items:center}
+@media(min-width:880px){.hero-grid{grid-template-columns:1.22fr .78fr;gap:40px}}
+.hero h1{font-size:clamp(29px,4.9vw,50px);margin:16px 0 14px}
+.hero .who{font-size:clamp(15px,1.7vw,17.5px);color:var(--muted);max-width:44ch;margin:0 0 20px}
+.hero .who b{color:var(--cream);font-weight:700}
+.pills{display:grid;gap:9px;margin:0 0 24px;padding:0;list-style:none;max-width:46ch}
+.pills li{display:flex;gap:11px;align-items:center;font-size:15px;color:var(--cream);
+  border:1px solid var(--line);border-radius:10px;padding:11px 14px;
+  background:rgba(246,238,226,.035);transition:border-color .3s,transform .3s,background .3s}
+.pills li:hover{border-color:rgba(217,169,76,.55);transform:translateX(4px);
+  background:rgba(217,169,76,.08)}
+.pills .e{font-size:18px;flex:none}
+.hero-meta{display:flex;flex-wrap:wrap;gap:9px 20px;margin-top:18px;font-size:14px;color:var(--muted)}
 .hero-meta b{color:var(--gold-br);font-family:var(--disp);font-weight:600}
 
-/* фото: рамка з фіксованою пропорцією, щоб не розпливалось */
-.photo{position:relative;width:100%;max-width:340px;margin-inline:auto;
-  aspect-ratio:3/4;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
-.photo img{width:100%;height:100%;object-fit:cover;display:block}
-.photo::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 58%,rgba(18,8,7,.78) 100%)}
-.shot{position:relative}
-.shot::before{content:'';position:absolute;inset:-6% 2%;z-index:-1;
-  background:radial-gradient(58% 50% at 50% 45%,rgba(217,169,76,.3),transparent 72%);
-  filter:blur(28px);animation:glow 6.5s ease-in-out infinite alternate}
-@keyframes glow{to{opacity:.55;transform:scale(1.06)}}
+/* вирізаний портрет із золотим світінням по контуру */
+.cut{position:relative;max-width:380px;margin-inline:auto}
+.cut::before{content:'';position:absolute;inset:4% 6% 10%;z-index:0;border-radius:50%;
+  background:radial-gradient(55% 48% at 50% 44%,rgba(217,169,76,.42),transparent 70%);
+  filter:blur(34px);animation:halo 5.5s ease-in-out infinite alternate}
+@keyframes halo{to{opacity:.55;transform:scale(1.1)}}
+.cut img{position:relative;z-index:1;width:100%;display:block;
+  filter:drop-shadow(0 0 16px rgba(243,206,126,.5)) drop-shadow(0 0 46px rgba(217,169,76,.26));
+  animation:rim 4.5s ease-in-out infinite alternate}
+@keyframes rim{to{filter:drop-shadow(0 0 26px rgba(243,206,126,.8))
+  drop-shadow(0 0 72px rgba(217,169,76,.42))}}
 
 /* ── цифри ── */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px}
-.stat{border:1px solid var(--line);border-radius:14px;padding:20px 18px;
-  background:rgba(246,238,226,.035);min-width:0;
-  transition:transform .3s,border-color .3s,background .3s}
-.stat:hover{transform:translateY(-4px);border-color:rgba(217,169,76,.5);
-  background:rgba(246,238,226,.06)}
-.stat .em{font-size:21px;line-height:1}
-.stat .n{font-family:var(--disp);font-weight:800;font-size:38px;color:var(--gold-br);
-  line-height:1;font-variant-numeric:tabular-nums;margin-top:9px}
-.stat .t{font-size:13.5px;color:var(--muted);margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(166px,1fr));gap:13px}
+.stat{border:1px solid var(--line);border-radius:14px;padding:18px 17px;
+  background:rgba(246,238,226,.035);min-width:0;position:relative;overflow:hidden;
+  transition:transform .3s,border-color .3s,background .3s,box-shadow .3s}
+.stat::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;
+  background:radial-gradient(80% 70% at 50% 0%,rgba(217,169,76,.2),transparent 70%)}
+.stat:hover{transform:translateY(-5px);border-color:rgba(217,169,76,.6);
+  box-shadow:0 16px 34px rgba(0,0,0,.4)}
+.stat:hover::after{opacity:1}
+.stat .em{font-size:20px;line-height:1;position:relative}
+.stat .n{font-family:var(--disp);font-weight:800;font-size:36px;color:var(--gold-br);
+  line-height:1;font-variant-numeric:tabular-nums;margin-top:8px;position:relative}
+.stat .t{font-size:13px;color:var(--muted);margin-top:7px;position:relative}
 
 /* ── викладач ── */
-.teach{display:grid;grid-template-columns:1fr;gap:30px;align-items:center}
-@media(min-width:880px){.teach{grid-template-columns:.7fr 1.3fr;gap:50px}}
-.facts{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:11px}
+.teach{display:grid;grid-template-columns:1fr;gap:22px;align-items:center}
+@media(min-width:880px){.teach{grid-template-columns:.72fr 1.28fr;gap:44px}}
+.soft{position:relative;max-width:340px;margin-inline:auto}
+.soft::before{content:'';position:absolute;inset:6%;z-index:0;border-radius:50%;
+  background:radial-gradient(55% 50% at 50% 45%,rgba(217,169,76,.3),transparent 72%);
+  filter:blur(32px);animation:halo 6.5s ease-in-out infinite alternate}
+.soft img{position:relative;z-index:1;width:100%;display:block}
+.facts{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}
 .facts li{display:flex;gap:13px;align-items:flex-start;
-  border:1px solid var(--line);border-radius:12px;padding:14px 16px;
-  background:rgba(246,238,226,.03);font-size:15.5px;
-  transition:transform .28s,border-color .28s}
-.facts li:hover{transform:translateX(5px);border-color:rgba(217,169,76,.5)}
-.facts .e{font-size:20px;line-height:1.3;flex:none}
+  border:1px solid var(--line);border-radius:12px;padding:13px 16px;
+  background:rgba(246,238,226,.03);font-size:15.5px;position:relative;overflow:hidden;
+  transition:transform .3s,border-color .3s,background .3s}
+.facts li::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;
+  background:linear-gradient(90deg,rgba(217,169,76,.16),transparent 60%)}
+.facts li:hover{transform:translateX(7px);border-color:rgba(217,169,76,.6)}
+.facts li:hover::after{opacity:1}
+.facts .e{font-size:20px;line-height:1.3;flex:none;position:relative}
+.facts span:last-child{position:relative}
 .facts b{color:var(--gold-br);font-weight:700}
 
 /* ── порівняння ── */
-.tblwrap{overflow-x:auto;margin-top:34px;border:1px solid var(--line);border-radius:16px}
-table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
-th,td{padding:15px 16px;text-align:center;border-bottom:1px solid rgba(246,238,226,.08)}
+.tblwrap{overflow-x:auto;margin-top:24px;border:1px solid var(--line);border-radius:16px}
+table{border-collapse:collapse;width:100%;min-width:580px;font-size:15px}
+th,td{padding:14px 16px;text-align:center;border-bottom:1px solid rgba(246,238,226,.08);
+  transition:background .25s}
 th:first-child,td:first-child{text-align:left;color:var(--muted);font-weight:500}
 thead th{font-family:var(--disp);font-weight:600;font-size:14px;
   background:rgba(18,8,7,.5);white-space:nowrap}
 tbody tr:last-child td{border-bottom:0}
-.us-col{background:linear-gradient(180deg,rgba(217,169,76,.14),rgba(217,169,76,.06));
+tbody tr:hover td{background:rgba(246,238,226,.05)}
+.us-col{background:linear-gradient(180deg,rgba(217,169,76,.15),rgba(217,169,76,.06));
   color:var(--gold-br);font-weight:700}
-thead .us-col{color:var(--gold-br)}
+tbody tr:hover .us-col{background:rgba(217,169,76,.24)}
 
 /* ── наповнення ── */
-.feats{display:grid;grid-template-columns:1fr;gap:16px;margin-top:34px}
+.feats{display:grid;grid-template-columns:1fr;gap:14px;margin-top:24px}
 @media(min-width:640px){.feats{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:980px){.feats{grid-template-columns:repeat(3,1fr)}}
-.feat{border:1px solid var(--line);border-radius:14px;padding:24px;min-width:0;
+.feat{border:1px solid var(--line);border-radius:14px;padding:22px;min-width:0;
   background:rgba(246,238,226,.03);position:relative;overflow:hidden;
-  transition:transform .3s,border-color .3s}
-.feat::after{content:'';position:absolute;inset:0;opacity:0;
-  background:radial-gradient(70% 60% at 20% 0%,rgba(217,169,76,.16),transparent 70%);
-  transition:opacity .35s}
-.feat:hover{transform:translateY(-5px);border-color:rgba(217,169,76,.45)}
+  transition:transform .32s,border-color .32s,box-shadow .32s}
+.feat::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;
+  background:radial-gradient(75% 65% at 22% 0%,rgba(217,169,76,.2),transparent 70%)}
+.feat:hover{transform:translateY(-6px);border-color:rgba(217,169,76,.55);
+  box-shadow:0 18px 40px rgba(0,0,0,.42)}
 .feat:hover::after{opacity:1}
-.feat .ic{font-size:28px;margin-bottom:12px;position:relative}
-.feat h3{font-size:16.5px;margin-bottom:9px;position:relative}
+.feat .ic{font-size:27px;margin-bottom:10px;position:relative;
+  transition:transform .35s}
+.feat:hover .ic{transform:scale(1.18) rotate(-7deg)}
+.feat h3{font-size:16.5px;margin-bottom:8px;position:relative}
 .feat p{font-size:14.5px;color:var(--muted);margin:0;position:relative}
 
 /* ── форма ── */
-.card{border:1px solid var(--line);border-radius:22px;padding:clamp(24px,4vw,44px);
-  background:linear-gradient(160deg,rgba(94,42,32,.55),rgba(18,8,7,.86));
-  box-shadow:0 30px 70px rgba(0,0,0,.45);position:relative;overflow:hidden}
+.card{border-radius:22px;padding:clamp(22px,3.6vw,42px);position:relative;overflow:hidden;
+  background:linear-gradient(160deg,rgba(94,42,32,.6),rgba(18,8,7,.88));
+  box-shadow:0 30px 70px rgba(0,0,0,.45)}
+.card::after{content:'';position:absolute;inset:0;border-radius:22px;padding:1px;
+  background:linear-gradient(130deg,rgba(243,206,126,.7),rgba(217,169,76,.1) 40%,
+    rgba(243,206,126,.6) 70%,rgba(217,169,76,.1));
+  background-size:260% 260%;animation:border 7s linear infinite;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+@keyframes border{to{background-position:260% 260%}}
 .card::before{content:'';position:absolute;top:-55%;left:-12%;width:60%;height:200%;
-  background:linear-gradient(90deg,transparent,rgba(243,206,126,.09),transparent);
+  background:linear-gradient(90deg,transparent,rgba(243,206,126,.1),transparent);
   transform:rotate(16deg);animation:sweep 7s ease-in-out infinite}
 @keyframes sweep{0%,100%{left:-60%}50%{left:110%}}
-.card-grid{display:grid;grid-template-columns:1fr;gap:28px;position:relative}
-@media(min-width:860px){.card-grid{grid-template-columns:1fr 1fr;gap:46px;align-items:center}}
-.card h2{font-size:clamp(25px,3.6vw,38px);margin-bottom:14px}
-.card p{color:var(--muted);margin:0 0 9px;max-width:42ch}
-.seats{display:flex;align-items:center;gap:11px;margin-top:20px;font-size:14px;color:var(--muted)}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--gold-br);animation:pulse 2.4s infinite}
-form{display:grid;gap:13px}
+.card-grid{display:grid;grid-template-columns:1fr;gap:26px;position:relative;z-index:1}
+@media(min-width:860px){.card-grid{grid-template-columns:1fr 1fr;gap:44px;align-items:center}}
+.card h2{font-size:clamp(24px,3.4vw,36px);margin-bottom:12px}
+.card p{color:var(--muted);margin:0 0 8px;max-width:42ch}
+.seats{display:flex;align-items:center;gap:11px;margin-top:18px;font-size:14px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gold-br);animation:pulse 2.2s infinite}
+form{display:grid;gap:12px}
 label{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 input,select{width:100%;padding:14px 15px;font:inherit;font-size:15.5px;color:var(--cream);
   background:rgba(18,8,7,.6);border:1px solid rgba(246,238,226,.16);border-radius:10px;
-  transition:border-color .25s,box-shadow .25s}
+  transition:border-color .25s,box-shadow .25s,background .25s}
 input::placeholder{color:rgba(187,163,150,.6)}
-input:focus,select:focus{outline:0;border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,169,76,.18)}
+input:focus,select:focus{outline:0;border-color:var(--gold);
+  background:rgba(18,8,7,.8);box-shadow:0 0 0 3px rgba(217,169,76,.2)}
 .fine{font-size:12.5px;color:var(--muted);margin:2px 0 0;line-height:1.5}
-.ok{display:none;text-align:center;padding:28px 10px}
+.ok{display:none;text-align:center;padding:26px 10px}
 .ok h3{font-size:24px;color:var(--gold-br);margin-bottom:10px}
 .ok p{color:var(--muted);margin:0 auto;max-width:34ch}
-footer{border-top:1px solid rgba(246,238,226,.08);padding-block:26px;font-size:13px;color:var(--muted)}
+footer{border-top:1px solid rgba(246,238,226,.08);padding-block:22px;font-size:13px;color:var(--muted)}
 footer a{color:var(--muted)}
 </style>
 
 <div class="bg"></div>
 <div class="formulas" aria-hidden="true">
-  <span style="top:14%;left:4%;font-size:52px;--r:-9deg">x² + y² = r²</span>
-  <span style="top:34%;right:5%;font-size:42px;--r:7deg;animation-delay:-6s">√(a² + b²)</span>
-  <span style="top:58%;left:7%;font-size:58px;--r:5deg;animation-delay:-11s">sin α</span>
-  <span style="top:76%;right:9%;font-size:48px;--r:-6deg;animation-delay:-3s">∫ f(x) dx</span>
-  <span style="top:92%;left:12%;font-size:44px;--r:8deg;animation-delay:-14s">log₂ 8 = 3</span>
+  <span style="top:14%;left:4%;font-size:52px;--r:-9deg" data-s="0.22">x² + y² = r²</span>
+  <span style="top:34%;right:5%;font-size:42px;--r:7deg;animation-delay:-6s" data-s="-0.16">√(a² + b²)</span>
+  <span style="top:58%;left:7%;font-size:58px;--r:5deg;animation-delay:-11s" data-s="0.3">sin α</span>
+  <span style="top:76%;right:9%;font-size:48px;--r:-6deg;animation-delay:-3s" data-s="-0.24">∫ f(x) dx</span>
+  <span style="top:92%;left:12%;font-size:44px;--r:8deg;animation-delay:-14s" data-s="0.18">log₂ 8 = 3</span>
 </div>
 
 <header class="wrap hero">
   <div class="hero-grid">
     <div>
-      <span class="eyebrow reveal">📐 НМТ · Математика · 10–11 клас</span>
-      <h1 class="reveal">Міні-група до 10 учнів із <span class="gold">Валентиною Іванівною</span></h1>
-      <p class="lead reveal">Двічі на тиждень по годині наживо 🎥
-        Пам'ятки, тести та імітації НМТ — на платформі.</p>
+      <span class="eyebrow reveal">📐 Підготовка до НМТ з математики · 10–11 клас</span>
+      <h1 class="reveal">НМТ з математики<br>у <span class="gold">міні-групі до 10 учнів</span></h1>
+      <p class="who reveal">Веде <b>Валентина Іванівна Слінчук</b> — кандидат педагогічних
+        наук, 36 років у математиці.</p>
+      <ul class="pills">
+        <li class="reveal"><span class="e">🎥</span> Двічі на тиждень по годині — наживо</li>
+        <li class="reveal"><span class="e">📝</span> Пам'ятки, тести та імітації НМТ — на платформі</li>
+      </ul>
       <a class="btn reveal" href="#form">🔥 Забронювати місце</a>
       <div class="hero-meta reveal">
-        <span>🗓 Старт <b>19 жовтня</b></span>
+        <span>🗓 Старт <b>скоро</b></span>
         <span>💳 <b>1 600 ₴</b> на місяць</span>
-        <span>🪑 Місць: <b>10</b></span>
+        <span>🪑 Місць у групі: <b>10</b></span>
       </div>
     </div>
-    <div class="shot reveal">
-      <div class="photo">
-        <img src="img/teacher-hero.jpg" width="980" height="1300"
-             alt="Валентина Іванівна Слінчук, викладачка математики" fetchpriority="high">
-      </div>
+    <div class="cut reveal">
+      <img src="img/hero-cut.png" width="760" height="1008" fetchpriority="high"
+           alt="Валентина Іванівна Слінчук, викладачка математики">
     </div>
   </div>
 </header>
@@ -208,15 +252,13 @@ footer a{color:var(--muted)}
 
 <section class="wrap">
   <div class="teach">
-    <div class="shot reveal">
-      <div class="photo">
-        <img src="img/teacher-sit.jpg" width="900" height="1150" loading="lazy"
-             alt="Валентина Іванівна Слінчук">
-      </div>
+    <div class="soft reveal">
+      <img src="img/teach-soft.png" width="820" height="1080" loading="lazy"
+           alt="Валентина Іванівна Слінчук">
     </div>
     <div>
       <span class="eyebrow reveal">👩‍🏫 Викладач</span>
-      <h2 class="reveal" style="font-size:clamp(26px,3.8vw,42px);margin-top:16px">
+      <h2 class="reveal" style="font-size:clamp(25px,3.5vw,40px);margin-top:14px">
         Валентина Іванівна Слінчук</h2>
       <ul class="facts">
         <li class="reveal"><span class="e">🎓</span><span><b>Кандидат педагогічних наук</b></span></li>
@@ -231,17 +273,13 @@ footer a{color:var(--muted)}
 
 <section class="wrap">
   <span class="eyebrow reveal">⚖️ Порівняння</span>
-  <h2 class="reveal" style="font-size:clamp(26px,4vw,44px);margin-top:18px">
+  <h2 class="reveal" style="font-size:clamp(25px,3.6vw,42px);margin-top:14px">
     Що ви отримуєте за свої гроші</h2>
   <div class="tblwrap reveal">
     <table>
       <thead>
-        <tr>
-          <th></th>
-          <th>👩‍🏫 Репетитор</th>
-          <th>🖥 Великий курс</th>
-          <th class="us-col">⭐ Наша група</th>
-        </tr>
+        <tr><th></th><th>👩‍🏫 Репетитор</th><th>🖥 Онлайн-школи</th>
+          <th class="us-col">⭐ Наша міні-група</th></tr>
       </thead>
       <tbody>
         <tr><td>Занять на тиждень</td><td>2</td><td>1–2</td><td class="us-col">2</td></tr>
@@ -249,7 +287,7 @@ footer a{color:var(--muted)}
         <tr><td>Вчитель знає дитину</td><td>✅</td><td>❌</td><td class="us-col">✅</td></tr>
         <tr><td>Імітації НМТ із розбором</td><td>❌</td><td>❌</td><td class="us-col">✅</td></tr>
         <tr><td>Запис пропущеного</td><td>❌</td><td>✅</td><td class="us-col">✅</td></tr>
-        <tr><td>Ціна на місяць</td><td>5 000–8 000 ₴</td><td>500–1 500 ₴</td>
+        <tr><td>Ціна на місяць</td><td>2 500–4 000 ₴</td><td>1 000–2 000 ₴</td>
           <td class="us-col">1 600 ₴</td></tr>
       </tbody>
     </table>
@@ -258,7 +296,7 @@ footer a{color:var(--muted)}
 
 <section class="wrap">
   <span class="eyebrow reveal">📦 Наповнення</span>
-  <h2 class="reveal" style="font-size:clamp(26px,4vw,44px);margin-top:18px">Що входить</h2>
+  <h2 class="reveal" style="font-size:clamp(25px,3.6vw,42px);margin-top:14px">Що входить</h2>
   <div class="feats">
     <div class="feat reveal"><div class="ic">🎥</div>
       <h3>Заняття наживо, двічі на тиждень</h3>
@@ -281,16 +319,16 @@ footer a{color:var(--muted)}
   </div>
 </section>
 
-<section class="wrap" id="form" style="padding-bottom:clamp(64px,9vw,110px)">
+<section class="wrap" id="form" style="padding-bottom:clamp(48px,7vw,86px)">
   <div class="card">
     <div class="card-grid">
       <div>
         <span class="eyebrow">🔥 Запис у групу</span>
-        <h2 style="margin-top:16px">Забронювати місце</h2>
+        <h2 style="margin-top:14px">Забронювати місце</h2>
         <p>📞 Залиште номер — зателефонуємо, розкажемо деталі, узгодимо графік
           і подивимось рівень дитини.</p>
         <p>✅ Безкоштовно і ні до чого не зобов'язує.</p>
-        <div class="seats"><span class="dot"></span> 🗓 Старт 19 жовтня · у групі 10 місць</div>
+        <div class="seats"><span class="dot"></span> 🪑 У групі 10 місць · старт скоро</div>
       </div>
       <div>
         <form id="lead" novalidate>
@@ -328,11 +366,11 @@ const io = new IntersectionObserver((es) => {
   es.forEach((e) => {
     if (!e.isIntersecting) return;
     const d = [...e.target.parentElement.children].indexOf(e.target);
-    e.target.style.transitionDelay = Math.min(d, 6) * 65 + 'ms';
+    e.target.style.transitionDelay = Math.min(d, 6) * 60 + 'ms';
     e.target.classList.add('on');
     io.unobserve(e.target);
   });
-}, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+}, { rootMargin: '0px 0px -7% 0px', threshold: .08 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
 const co = new IntersectionObserver((es) => {
@@ -350,6 +388,21 @@ const co = new IntersectionObserver((es) => {
   });
 }, { threshold: .5 });
 document.querySelectorAll('.stat .n[data-to]').forEach(el => co.observe(el));
+
+/* формули трохи відстають від прокручування */
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const fx = [...document.querySelectorAll('.formulas span')];
+  let tick = false;
+  addEventListener('scroll', () => {
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(() => {
+      const y = scrollY;
+      fx.forEach(el => el.style.setProperty('--p', (y * +el.dataset.s) + 'px'));
+      tick = false;
+    });
+  }, { passive: true });
+}
 
 /* мітка джерела: [G_]s<канал>[_c<id>] — як у решті воронки */
 (function () {
