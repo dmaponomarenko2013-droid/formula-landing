@@ -306,20 +306,41 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
    вдвічі довше й гірше сприймалось. Але сама по собі прокрутка невидима,
    тому додаємо підказку над таблицею і затемнення правого краю: інакше
    колонка з нашою пропозицією для користувача просто не існує. */
+.tblbox{position:relative}
 @media(max-width:760px){
-  .tblwrap{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .tblwrap::after{content:'';position:absolute;top:1px;right:1px;bottom:1px;
-    width:54px;pointer-events:none;border-radius:0 15px 15px 0;
-    background:linear-gradient(90deg,transparent,rgba(18,8,7,.92))}
-  table{min-width:520px;font-size:14px}
-  th,td{padding:12px 11px}
-  thead th{font-size:13px}
-  .swipe{display:flex;align-items:center;gap:7px;margin-top:14px;
-    font-size:13px;color:var(--muted)}
-  .swipe .a{color:var(--gold);animation:swipe 1.8s ease-in-out infinite}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* Затемнення ставимо на ЗОВНІШНІЙ блок, інакше воно їде разом
+     із таблицею і виглядає як смуга посеред вмісту. */
+  .tblbox::after{content:'';position:absolute;top:1px;right:1px;bottom:1px;
+    width:62px;pointer-events:none;border-radius:0 15px 15px 0;
+    background:linear-gradient(90deg,rgba(18,8,7,0),rgba(18,8,7,.96));
+    transition:opacity .35s}
+  .tblbox.end::after{opacity:0}
+  /* Перша колонка лишається на місці: без неї незрозуміло,
+     про що взагалі рядок, коли таблицю прокрутили. */
+  thead th:first-child,tbody td:first-child{position:sticky;left:0;z-index:2;
+    background:#190d0b;box-shadow:1px 0 0 rgba(246,238,226,.08)}
+  thead th:first-child{z-index:3}
+  /* Вміщуємо всі три колонки в екран: прокрутка вбік лишає обрізані
+     шматки сусідніх колонок і виглядає брудно. */
+  table{min-width:0;width:100%;table-layout:fixed;font-size:13px}
+  th,td{padding:11px 5px}
+  th:first-child,td:first-child{width:31%;font-size:12.5px;line-height:1.3}
+  thead th{font-size:11.5px;white-space:normal;line-height:1.25;padding:10px 4px}
+  td{line-height:1.3}
+
+  .swipe{display:inline-flex;align-items:center;gap:9px;margin:14px 0 12px;
+    font-size:13px;font-weight:700;color:var(--gold-br);
+    border:1px solid rgba(217,169,76,.4);border-radius:999px;
+    padding:8px 15px;background:rgba(217,169,76,.08);
+    transition:opacity .35s,transform .35s}
+  .swipe .a{font-size:15px;display:inline-block;
+    animation:swipe 1.5s cubic-bezier(.4,0,.3,1) infinite}
+  .tblbox.done .swipe{opacity:0;transform:translateY(-6px)}
+  .tblbox.fits .swipe{display:none}
 }
 @media(min-width:761px){.swipe{display:none}}
-@keyframes swipe{0%,100%{transform:translateX(0)}50%{transform:translateX(7px)}}
+@keyframes swipe{0%,100%{transform:translateX(0)}45%{transform:translateX(9px)}}
 
 @media(max-width:560px){
   /* формули сильно заважали читати заголовок на вузькому екрані */
@@ -449,8 +470,9 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
   <span class="eyebrow reveal">⚖️ Порівняння</span>
   <h2 class="reveal" style="font-size:clamp(25px,3.6vw,42px);margin-top:14px">
     Що ви отримуєте за свої гроші</h2>
-  <div class="swipe">Гортайте таблицю <span class="a">→</span></div>
-  <div class="tblwrap reveal">
+  <div class="tblbox reveal">
+  <div class="swipe"><span class="a">→</span> Гортайте вбік — там наша колонка</div>
+  <div class="tblwrap">
     <table>
       <thead>
         <tr><th></th><th>👩‍🏫 Репетитор</th><th>🖥 Онлайн-школи</th>
@@ -465,6 +487,7 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
         <tr><td>Ціна на місяць</td><td data-h="Репетитор">2 500–4 000 ₴</td><td data-h="Онлайн-школа">1 000–2 000 ₴</td><td class="us-col" data-h="Наша міні-група">1 600 ₴</td></tr>
       </tbody>
     </table>
+  </div>
   </div>
 </section>
 
@@ -700,6 +723,24 @@ const FZ_TOKEN = (() => {
   }, { threshold: .3 });
   o.observe(el);
 })();
+
+/* Підказка про прокрутку зникає, щойно людина почала гортати,
+   а затемнення правого краю — коли таблиця догорнута до кінця. */
+document.querySelectorAll('.tblbox').forEach(box => {
+  const w = box.querySelector('.tblwrap');
+  if (!w) return;
+  const upd = () => {
+    // Таблиця вміщується в екран — гортати нічого, підказку прибираємо.
+    const fits = w.scrollWidth <= w.clientWidth + 4;
+    box.classList.toggle('fits', fits);
+    if (w.scrollLeft > 12) box.classList.add('done');
+    box.classList.toggle('end', fits ||
+      w.scrollLeft + w.clientWidth >= w.scrollWidth - 6);
+  };
+  w.addEventListener('scroll', upd, { passive: true });
+  addEventListener('resize', upd, { passive: true });
+  upd();
+});
 
 const form = document.getElementById('lead');
 const okBox = document.getElementById('ok');
