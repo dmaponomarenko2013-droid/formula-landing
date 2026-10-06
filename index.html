@@ -302,28 +302,24 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
   font-size:12.5px;color:rgba(187,163,150,.6)}
 
 /* ── мобільна версія ─────────────────────────────────────────────────
-   Головне: таблиця порівняння. Вона гортається вбік, але на телефоні
-   цього ніхто не помічає — і колонка з нашою пропозицією лишається
-   за екраном. Тому кожен рядок стає карткою, де видно всі три значення. */
+   Таблиця лишається горизонтально прокручуваною — картками виходило
+   вдвічі довше й гірше сприймалось. Але сама по собі прокрутка невидима,
+   тому додаємо підказку над таблицею і затемнення правого краю: інакше
+   колонка з нашою пропозицією для користувача просто не існує. */
 @media(max-width:760px){
-  .tblwrap{border:0;overflow:visible;margin-top:20px}
-  table{min-width:0;display:block;font-size:15px}
-  thead{display:none}
-  tbody,tbody tr,tbody td{display:block}
-  tbody tr{border:1px solid var(--line);border-radius:14px;margin-bottom:12px;
-    background:rgba(246,238,226,.03);overflow:hidden}
-  tbody td:first-child{font-family:var(--disp);font-weight:600;font-size:15px;
-    color:var(--cream);background:rgba(18,8,7,.5);padding:12px 16px;text-align:left}
-  tbody td:not(:first-child){display:flex;justify-content:space-between;
-    align-items:center;gap:16px;text-align:right;padding:11px 16px;
-    border-bottom:1px solid rgba(246,238,226,.07)}
-  tbody td:not(:first-child)::before{content:attr(data-h);color:var(--muted);
-    font-size:13.5px;font-weight:500;text-align:left;white-space:nowrap}
-  tbody td.us-col{background:linear-gradient(90deg,rgba(217,169,76,.18),
-    rgba(217,169,76,.07));color:var(--gold-br);font-weight:700}
-  tbody td.us-col::before{color:var(--gold)}
-  tbody tr td:last-child{border-bottom:0}
+  .tblwrap{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tblwrap::after{content:'';position:absolute;top:1px;right:1px;bottom:1px;
+    width:54px;pointer-events:none;border-radius:0 15px 15px 0;
+    background:linear-gradient(90deg,transparent,rgba(18,8,7,.92))}
+  table{min-width:520px;font-size:14px}
+  th,td{padding:12px 11px}
+  thead th{font-size:13px}
+  .swipe{display:flex;align-items:center;gap:7px;margin-top:14px;
+    font-size:13px;color:var(--muted)}
+  .swipe .a{color:var(--gold);animation:swipe 1.8s ease-in-out infinite}
 }
+@media(min-width:761px){.swipe{display:none}}
+@keyframes swipe{0%,100%{transform:translateX(0)}50%{transform:translateX(7px)}}
 
 @media(max-width:560px){
   /* формули сильно заважали читати заголовок на вузькому екрані */
@@ -347,16 +343,18 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
   .teach .shot{display:none}
   /* Головне фото навпаки — на всю ширину колонки, а не маленьким
      квадратиком посеред порожнечі. */
-  .hero-grid .shot{max-width:none}
+  .hero-grid .shot{max-width:min(100%,320px)}
   .hero-grid .frame{aspect-ratio:3/4}
 }
 
-/* Зелень — лісу на портреті й підручника в руках — била по бордовій
-   палітрі. Шар color зводить її в тепле, обличчя майже не чіпає. */
-.frame img{filter:saturate(.76) contrast(1.04) sepia(.14) hue-rotate(-12deg)}
-.frame::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
-  mix-blend-mode:color;background:linear-gradient(180deg,
-    rgba(94,42,32,.14) 0%, rgba(94,42,32,.34) 42%, rgba(69,32,26,.72) 100%)}
+/* Зелений підручник у руках бив по бордовій палітрі. Шар color зводить
+   його в тепле, але тільки на головному фото і слабко — інакше кадр
+   втрачає колір і виглядає сірим. */
+.hero-grid .frame img{filter:saturate(.88) contrast(1.03) sepia(.07) hue-rotate(-8deg)}
+.hero-grid .frame::before{content:'';position:absolute;inset:0;z-index:1;
+  pointer-events:none;mix-blend-mode:color;background:linear-gradient(180deg,
+    rgba(94,42,32,0) 0%, rgba(94,42,32,.18) 46%, rgba(94,42,32,.42) 100%)}
+.teach .frame img{filter:saturate(.92) contrast(1.02) sepia(.05)}
 </style>
 </head>
 <body>
@@ -451,6 +449,7 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
   <span class="eyebrow reveal">⚖️ Порівняння</span>
   <h2 class="reveal" style="font-size:clamp(25px,3.6vw,42px);margin-top:14px">
     Що ви отримуєте за свої гроші</h2>
+  <div class="swipe">Гортайте таблицю <span class="a">→</span></div>
   <div class="tblwrap reveal">
     <table>
       <thead>
