@@ -1,4 +1,39 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Формула знань · Міні-групи</title>
+<meta name="description" content="Підготовка до НМТ з математики в міні-групах до 10 учнів із кандидатом педагогічних наук. Двічі на тиждень наживо, 200 ₴ за заняття.">
+<link rel="canonical" href="https://grupy.formulaznan.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grupy.formulaznan.com/">
+<meta property="og:locale" content="uk_UA">
+<meta property="og:title" content="НМТ з математики в міні-групі до 10 учнів">
+<meta property="og:description" content="Двічі на тиждень наживо з кандидатом педагогічних наук. 200 ₴ за заняття.">
+<meta property="og:image" content="https://grupy.formulaznan.com/img/hero.jpg">
+
+<!-- Meta Pixel. Той самий ID, що й dataset для Conversions API,
+     інакше серверні та браузерні події не склеяться. -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1046082147792987');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=1046082147792987&ev=PageView&noscript=1"></noscript>
+
+<!-- Microsoft Clarity: записи сесій, щоб бачити, де люди кидають сторінку -->
+<script>
+(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window,document,"clarity","script","yfmyrlzn1o");
+</script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@400;500;700&display=swap">
 <style>
@@ -266,6 +301,8 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
 .copy{border-top:1px solid rgba(246,238,226,.07);margin-top:28px;padding-top:18px;
   font-size:12.5px;color:rgba(187,163,150,.6)}
 </style>
+</head>
+<body>
 
 <div class="bg"></div>
 <div class="formulas" aria-hidden="true">
@@ -530,8 +567,22 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
   }, { passive: true });
 }
 
-/* мітка джерела: [G_]s<канал>[_c<id>] — як у решті воронки */
-(function () {
+/* ── Атрибуція і Meta ──────────────────────────────────────────────────
+   Контракт той самий, що на start.formulaznan.com:
+     /click — віддає fbc/fbp одразу при заході, щоб Meta мала що зіставляти;
+     /lead  — заявка. Сервер повертає lead_id і сам шле серверну подію Lead
+              з event_id = "lead-<id>". Браузер шле свою з тим самим eventID,
+              і Meta склеює їх в одну. Без збігу заявка рахується двічі,
+              а оптимізація псується. */
+const API = 'https://worker-production-0a51.up.railway.app';
+
+function cookie(name){
+  const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return m ? m.pop() : '';
+}
+
+/* мітка джерела: G_s<канал>[_c<id>] — як у решті воронки */
+const FZ_SOURCE = (() => {
   const q = new URLSearchParams(location.search);
   const CH = { facebook:'sfb', fb:'sfb', ig:'sig', instagram:'sig', tiktok:'stt', tt:'stt' };
   let tag = q.get('fz_source');
@@ -541,13 +592,63 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const ch = CH[src] || (q.get('fbclid') ? 'sfb' : 'sdr');
     tag = 'G_' + ch + (/^\d{6,}$/.test(camp) ? '_c' + camp : '');
   }
-  document.getElementById('fz_source').value = tag;
-  document.getElementById('landing_url').value = location.href.slice(0, 250);
+  return tag.slice(0, 64);
+})();
+document.getElementById('fz_source').value = FZ_SOURCE;
+document.getElementById('landing_url').value = location.href.slice(0, 250);
+
+/* Токен кліка: 8 символів [a-z0-9] — рівно той формат, який приймає бот.
+   Шлемо одразу при заході, а не в момент заявки, щоб fbc/fbp уже лежали
+   в базі, коли людина дозріє і залишить номер. */
+const FZ_TOKEN = (() => {
+  try {
+    let t = sessionStorage.getItem('fz_tok');
+    if (t) return t;
+    const abc = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    t = Array.from({ length: 8 }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
+    sessionStorage.setItem('fz_tok', t);
+
+    const fbclid = new URLSearchParams(location.search).get('fbclid');
+    const send = () => {
+      // fbclid із посилання головніший за куку: кука може лишитись
+      // від попередньої реклами і зіпсує атрибуцію свіжого кліка
+      let fbc = fbclid ? '' : cookie('_fbc');
+      if (!fbc && fbclid) fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+      fetch(API + '/click', {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: t, fbc: fbc || null, fbp: cookie('_fbp') || null,
+          source: FZ_SOURCE, url: location.href.slice(0, 512)
+        })
+      }).catch(() => {});
+    };
+    // даємо пікселю до 2 с поставити _fbp — з ним Meta зіставляє точніше
+    let tries = 0;
+    (function wait(){
+      if (cookie('_fbp') || tries >= 10) return send();
+      tries++; setTimeout(wait, 200);
+    })();
+    return t;
+  } catch (e) { return ''; }
 })();
 
-/* ЩОБ ЗАЯВКИ ЙШЛИ: впиши свій ENDPOINT (той самий, що в zayavka.html) */
-const ENDPOINT = '';
+/* Дійшов до форми — сигнал Meta, що візит якісний.
+   Окрема від Lead подія: на неї добре вчиться алгоритм, поки заявок мало. */
+(() => {
+  const el = document.getElementById('form');
+  if (!el) return;
+  const o = new IntersectionObserver(es => {
+    if (!es.some(e => e.isIntersecting)) return;
+    o.disconnect();
+    if (window.fbq) fbq('track', 'ViewContent', { content_name: 'grupy_form' });
+  }, { threshold: .3 });
+  o.observe(el);
+})();
+
 const form = document.getElementById('lead');
+const okBox = document.getElementById('ok');
+
 form.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
@@ -558,13 +659,65 @@ form.addEventListener('submit', async (ev) => {
     return;
   }
   const btn = form.querySelector('button');
+  const label = btn.innerHTML;
   btn.disabled = true; btn.textContent = 'Надсилаємо…';
+
+  let leadId = null, failed = false;
   try {
-    if (ENDPOINT) await fetch(ENDPOINT, { method:'POST',
-      headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-    if (window.fbq) fbq('track', 'Lead');
-  } catch (e) {}
+    const r = await fetch(API + '/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:   data.name.trim(),
+        phone:  data.phone.trim(),
+        grade:  data.grade || null,
+        source: FZ_SOURCE,
+        token:  FZ_TOKEN,
+        url:    location.href.slice(0, 512)
+      })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (j && j.ok) leadId = j.lead_id; else failed = true;
+  } catch (e) { failed = true; }
+
+  // Заявка не дійшла — не вдаємо, що все добре: людина має куди подзвонити.
+  if (failed) {
+    btn.disabled = false; btn.innerHTML = label;
+    let err = document.getElementById('err');
+    if (!err) {
+      err = document.createElement('p');
+      err.id = 'err';
+      err.style.cssText = 'margin-top:12px;color:#E0796A;font-size:14.5px;line-height:1.5';
+      form.appendChild(err);
+    }
+    err.innerHTML = 'Не вдалося надіслати заявку. Зателефонуйте, будь ласка: ' +
+      '<a href="tel:+380737354667" style="color:#F3CE7E">+380 73 735 46 67</a>';
+    return;
+  }
+
+  // Та сама подія, що й серверна. eventID мусить збігатися з "lead-<id>".
+  if (window.fbq) {
+    const p = { content_name: 'grupy', content_category: FZ_SOURCE };
+    if (leadId) fbq('track', 'Lead', p, { eventID: 'lead-' + leadId });
+    else        fbq('track', 'Lead', p);
+  }
+
+  // Номер заявки лишається в адресі — видно в записах Clarity і в аналітиці.
+  const num = leadId ? String(leadId).padStart(2, '0') : null;
+  if (num) {
+    try {
+      const u = new URL(location.href);
+      u.searchParams.set('zayavka', num);
+      history.replaceState(null, '', u);
+    } catch (e) {}
+    const h = okBox.querySelector('h3');
+    if (h) h.textContent = '🎉 Заявку прийнято · №' + num;
+  }
+
   form.hidden = true;
-  document.getElementById('ok').style.display = 'block';
+  okBox.style.display = 'block';
+  okBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 </script>
+</body>
+</html>
