@@ -50,6 +50,11 @@ y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
 *{box-sizing:border-box}
 body{margin:0;background:var(--ink);color:var(--cream);
   font-family:var(--body);font-size:16px;line-height:1.6;overflow-x:hidden}
+/* Без цього на екранах вужче 380px сторінка їхала вбік: overflow-x на
+   самому body до вікна не доходить. clip, а не hidden — hidden робить
+   html контейнером прокрутки і ламає липку панель зверху. */
+html{overflow-x:hidden}
+@supports (overflow:clip){html,body{overflow-x:clip}}
 .wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
 
 .bg{position:fixed;inset:0;z-index:-2;background:
