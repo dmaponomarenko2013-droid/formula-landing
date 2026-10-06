@@ -300,6 +300,63 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
 .legal{color:rgba(187,163,150,.6);font-size:12.5px;line-height:1.6;margin-top:18px}
 .copy{border-top:1px solid rgba(246,238,226,.07);margin-top:28px;padding-top:18px;
   font-size:12.5px;color:rgba(187,163,150,.6)}
+
+/* ── мобільна версія ─────────────────────────────────────────────────
+   Головне: таблиця порівняння. Вона гортається вбік, але на телефоні
+   цього ніхто не помічає — і колонка з нашою пропозицією лишається
+   за екраном. Тому кожен рядок стає карткою, де видно всі три значення. */
+@media(max-width:760px){
+  .tblwrap{border:0;overflow:visible;margin-top:20px}
+  table{min-width:0;display:block;font-size:15px}
+  thead{display:none}
+  tbody,tbody tr,tbody td{display:block}
+  tbody tr{border:1px solid var(--line);border-radius:14px;margin-bottom:12px;
+    background:rgba(246,238,226,.03);overflow:hidden}
+  tbody td:first-child{font-family:var(--disp);font-weight:600;font-size:15px;
+    color:var(--cream);background:rgba(18,8,7,.5);padding:12px 16px;text-align:left}
+  tbody td:not(:first-child){display:flex;justify-content:space-between;
+    align-items:center;gap:16px;text-align:right;padding:11px 16px;
+    border-bottom:1px solid rgba(246,238,226,.07)}
+  tbody td:not(:first-child)::before{content:attr(data-h);color:var(--muted);
+    font-size:13.5px;font-weight:500;text-align:left;white-space:nowrap}
+  tbody td.us-col{background:linear-gradient(90deg,rgba(217,169,76,.18),
+    rgba(217,169,76,.07));color:var(--gold-br);font-weight:700}
+  tbody td.us-col::before{color:var(--gold)}
+  tbody tr td:last-child{border-bottom:0}
+}
+
+@media(max-width:560px){
+  /* формули сильно заважали читати заголовок на вузькому екрані */
+  .formulas span{opacity:.028!important}
+  /* стрілка відривалась від тексту, коли підпис кнопки переносився */
+  .btn .arr{display:none}
+  .btn{padding-inline:20px}
+  /* «10–11 клас» орфанився другим рядком у плашці */
+  .hide-s{display:none}
+  h1{text-wrap:balance}
+  /* у кадрі було забагато порожнечі навколо викладачки */
+  .shot .frame img{transform:scale(1.13);transform-origin:50% 26%}
+  .foot ul{gap:13px}
+  .foot ul + p{margin-top:16px}
+}
+
+@media(max-width:760px){
+  /* Світлий портрет на зеленому фоні вибивався з бордової сторінки
+     і на вузькому екрані висів окремо від імені. На мобільному його
+     прибираємо: ім'я і список фактів працюють і без нього. */
+  .teach .shot{display:none}
+  /* Головне фото навпаки — на всю ширину колонки, а не маленьким
+     квадратиком посеред порожнечі. */
+  .hero-grid .shot{max-width:none}
+  .hero-grid .frame{aspect-ratio:3/4}
+}
+
+/* Зелень — лісу на портреті й підручника в руках — била по бордовій
+   палітрі. Шар color зводить її в тепле, обличчя майже не чіпає. */
+.frame img{filter:saturate(.76) contrast(1.04) sepia(.14) hue-rotate(-12deg)}
+.frame::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  mix-blend-mode:color;background:linear-gradient(180deg,
+    rgba(94,42,32,.14) 0%, rgba(94,42,32,.34) 42%, rgba(69,32,26,.72) 100%)}
 </style>
 </head>
 <body>
@@ -330,7 +387,7 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
 <header class="wrap hero">
   <div class="hero-grid">
     <div>
-      <span class="eyebrow reveal">📐 Підготовка до НМТ з математики · 10–11 клас</span>
+      <span class="eyebrow reveal">📐 Підготовка до НМТ з математики <span class="hide-s">· 10–11 клас</span></span>
       <h1 class="reveal">НМТ з математики<br>у <span class="gold">міні-групі до 10 учнів</span></h1>
       <p class="who reveal">Веде <b>Валентина Іванівна Слінчук</b> — кандидат педагогічних
         наук, 36 років у математиці.</p>
@@ -401,13 +458,12 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
           <th class="us-col">⭐ Наша міні-група</th></tr>
       </thead>
       <tbody>
-        <tr><td>Занять на тиждень</td><td>2</td><td>1–2</td><td class="us-col">2</td></tr>
-        <tr><td>Учнів на занятті</td><td>1</td><td>500+</td><td class="us-col">до 10</td></tr>
-        <tr><td>Вчитель знає дитину</td><td>✅</td><td>❌</td><td class="us-col">✅</td></tr>
-        <tr><td>Імітації НМТ із розбором</td><td>❌</td><td>❌</td><td class="us-col">✅</td></tr>
-        <tr><td>Запис пропущеного</td><td>❌</td><td>✅</td><td class="us-col">✅</td></tr>
-        <tr><td>Ціна на місяць</td><td>2 500–4 000 ₴</td><td>1 000–2 000 ₴</td>
-          <td class="us-col">1 600 ₴</td></tr>
+        <tr><td>Занять на тиждень</td><td data-h="Репетитор">2</td><td data-h="Онлайн-школа">1–2</td><td class="us-col" data-h="Наша міні-група">2</td></tr>
+        <tr><td>Учнів на занятті</td><td data-h="Репетитор">1</td><td data-h="Онлайн-школа">500+</td><td class="us-col" data-h="Наша міні-група">до 10</td></tr>
+        <tr><td>Вчитель знає дитину</td><td data-h="Репетитор">✅</td><td data-h="Онлайн-школа">❌</td><td class="us-col" data-h="Наша міні-група">✅</td></tr>
+        <tr><td>Імітації НМТ із розбором</td><td data-h="Репетитор">❌</td><td data-h="Онлайн-школа">❌</td><td class="us-col" data-h="Наша міні-група">✅</td></tr>
+        <tr><td>Запис пропущеного</td><td data-h="Репетитор">❌</td><td data-h="Онлайн-школа">✅</td><td class="us-col" data-h="Наша міні-група">✅</td></tr>
+        <tr><td>Ціна на місяць</td><td data-h="Репетитор">2 500–4 000 ₴</td><td data-h="Онлайн-школа">1 000–2 000 ₴</td><td class="us-col" data-h="Наша міні-група">1 600 ₴</td></tr>
       </tbody>
     </table>
   </div>
