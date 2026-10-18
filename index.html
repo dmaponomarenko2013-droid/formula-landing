@@ -735,7 +735,8 @@ const FZ_TOKEN = (() => {
     if (!es.some(e => e.isIntersecting)) return;
     o.disconnect();
     if (window.fbq) fbq('track', 'ViewContent', { content_name: 'grupy_form' });
-    if (window.ttq) ttq.track('ViewContent', { content_name: 'grupy_form' });
+    if (window.ttq) ttq.track('ViewContent', { content_id: 'grupy',
+      content_type: 'product', content_name: 'grupy_form' });
   }, { threshold: .3 });
   o.observe(el);
 })();
@@ -827,7 +828,8 @@ form.addEventListener('submit', async (ev) => {
   // Головна подія оптимізації TikTok. event_id той самий, що в Meta —
   // знадобиться, коли підключимо Events API, щоб не рахувати двічі.
   if (window.ttq) {
-    const tp = { content_name: 'grupy', content_category: FZ_SOURCE };
+    const tp = { content_id: 'grupy', content_type: 'product',
+                 content_name: 'grupy', content_category: FZ_SOURCE };
     if (leadId) ttq.track('SubmitForm', tp, { event_id: 'lead-' + leadId });
     else        ttq.track('SubmitForm', tp);
   }
