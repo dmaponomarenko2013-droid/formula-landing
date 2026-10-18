@@ -814,6 +814,16 @@ form.addEventListener('submit', async (ev) => {
     else        fbq('track', 'Lead', p);
   }
 
+  // Advanced Matching вручну. Автосканування форми працює через раз,
+  // а для пікселя без серверної частини телефон — єдиний надійний ключ,
+  // за яким TikTok упізнає свого користувача. Хешує SDK, у відкритому
+  // вигляді номер нікуди не йде. Формат мусить бути E.164: +380XXXXXXXXX.
+  if (window.ttq) {
+    const d = (data.phone || '').replace(/\D/g, '');
+    const nine = d.slice(-9);
+    if (nine.length === 9) ttq.identify({ phone_number: '+380' + nine });
+  }
+
   // Головна подія оптимізації TikTok. event_id той самий, що в Meta —
   // знадобиться, коли підключимо Events API, щоб не рахувати двічі.
   if (window.ttq) {
