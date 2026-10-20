@@ -758,19 +758,27 @@ const FZ_TOKEN = (() => {
   } catch (e) { return ''; }
 })();
 
-/* Дійшов до форми — сигнал Meta, що візит якісний.
-   Окрема від Lead подія: на неї добре вчиться алгоритм, поки заявок мало. */
+/* Взявся заповнювати форму — сигнал, що візит якісний.
+   Окрема від Lead подія: на неї добре вчиться алгоритм, поки заявок мало.
+
+   Ловимо ДОТИК до поля, а не прокрутку до форми. Раніше тут стояв
+   IntersectionObserver, і подія спрацьовувала в кожного, хто просто
+   догорнув сторінку. TikTok чесно оптимізувався під неї й пригнав
+   найдешевших гортальників: 41 подія, 0 заявок, $50. Дотик до поля
+   означає намір, і саме за ним алгоритму є сенс полювати. */
 (() => {
   const el = document.getElementById('form');
   if (!el) return;
-  const o = new IntersectionObserver(es => {
-    if (!es.some(e => e.isIntersecting)) return;
-    o.disconnect();
+  let sent = false;
+  const fire = () => {
+    if (sent) return;
+    sent = true;
     if (window.fbq) fbq('track', 'ViewContent', { content_name: 'grupy_form' });
     if (window.ttq) ttq.track('ViewContent', { content_id: 'grupy',
       content_type: 'product', content_name: 'grupy_form' });
-  }, { threshold: .3 });
-  o.observe(el);
+  };
+  el.querySelectorAll('input:not([type=hidden]), select, textarea')
+    .forEach(f => f.addEventListener('focus', fire, { once: true, passive: true }));
 })();
 
 /* Підказка про прокрутку зникає, щойно людина почала гортати,
