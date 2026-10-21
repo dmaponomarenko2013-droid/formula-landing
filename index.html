@@ -872,6 +872,14 @@ form.addEventListener('submit', async (ev) => {
                  content_name: 'grupy', content_category: FZ_SOURCE };
     if (leadId) ttq.track('SubmitForm', tp, { event_id: 'lead-' + leadId });
     else        ttq.track('SubmitForm', tp);
+
+    /* Дубль тієї самої заявки на ClickButton. Не косметика, а обхід:
+       TikTok не дає вибрати SubmitForm як подію оптимізації, поки та не
+       набере обсягу, а ClickButton уже доступний. Шлемо рівно там само —
+       після підтвердженої заявки, — тож подія означає те саме, що й
+       SubmitForm. Прибрати, коли SubmitForm розблокується. */
+    if (leadId) ttq.track('ClickButton', tp, { event_id: 'lead-' + leadId });
+    else        ttq.track('ClickButton', tp);
   }
 
   // Номер заявки лишається в адресі — видно в записах Clarity і в аналітиці.
