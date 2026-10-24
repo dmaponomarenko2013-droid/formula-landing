@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="uk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Підготовка до НМТ з математики у міні-групі до 10 учнів. Валентина Іванівна Слінчук — кандидат педагогічних наук, 36 років досвіду. Перший урок безкоштовно.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Математичка в школі не готує до НМТ?">
+<meta property="og:description" content="А Валентина Іванівна — готує. Міні-група до 10 учнів, 8 занять — 1600 грн. Перший урок безкоштовно.">
+<meta property="og:locale" content="uk_UA">
+<meta name="theme-color" content="#140706">
 <!-- Meta Pixel. Той самий ID, що й dataset для Conversions API,
      інакше серверні та браузерні події не склеяться. -->
 <script>
@@ -32,7 +42,6 @@ y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <title>Іванівна готує</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Rubik:wght@400;500&display=swap">
@@ -298,6 +307,15 @@ footer a:hover, .fine a:hover{color:var(--gold)}
   .turn .row{grid-template-columns:1fr;gap:0}
   .turn .figure{max-width:320px;order:-1}
   .facts{padding-bottom:clamp(28px,6vw,44px);margin-top:18px}
+  /* на вузькому екрані фон із формулами перестає бути фоном і лізе
+     поверх змісту — лишаємо кілька дрібних елементів по краях */
+  .mathbg i{opacity:.055!important;font-size:13px!important}
+  .mathbg .big{font-size:40px!important}
+  .mathbg i:nth-of-type(n+4){display:none}
+  .mathbg svg{opacity:.07;width:58%!important}
+  .coin{width:72px}
+  .coin .v{font-size:15px}
+  .coin .s{font-size:8.5px;letter-spacing:.04em}
 }
 @media (max-width:420px){ .frow{grid-template-columns:1fr} }
 @media (prefers-reduced-motion:reduce){
