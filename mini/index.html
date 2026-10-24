@@ -686,33 +686,18 @@ const FZ_TOKEN = (() => {
       return;
     }
 
-    /* Серверну подію Lead шле бот із тим самим event_id — Meta склеює їх
-       в одну, інакше заявка рахується двічі й оптимізація псується. */
-    var p = { content_name: 'mini_grupy', content_category: FZ_SOURCE, value: 1, currency: 'UAH' };
-    if (window.fbq) {
-      if (leadId) fbq('track', 'Lead', p, { eventID: 'lead-' + leadId });
-      else        fbq('track', 'Lead', p);
-    }
+    /* Телефон віддаємо TikTok тут, поки він ще в полі: на сторінці подяки
+       його вже немає, а identify покращує зіставлення. */
     if (window.ttq) {
       var nine = ph.replace(/\D/g, '').slice(-9);
       if (nine.length === 9) ttq.identify({ phone_number: '+380' + nine });
-      var tp = { content_id: 'mini', content_type: 'product',
-                 content_name: 'mini', content_category: FZ_SOURCE };
-      if (leadId) {
-        ttq.track('SubmitForm', tp, { event_id: 'lead-' + leadId });
-        ttq.track('ClickButton', tp, { event_id: 'lead-' + leadId });
-      } else {
-        ttq.track('SubmitForm', tp);
-        ttq.track('ClickButton', tp);
-      }
     }
 
-    form.hidden = true;
-    promo.hidden = true;
-    done.querySelector('.t').textContent = 'Записали ✅';
-    dt.textContent = nm + ', зателефонуємо сьогодні на ' + ph + '. Перший урок безкоштовний' +
-      (caught ? ', а знижку 100 ₴ ми за вами закріпили — курс 1500 ₴.' : ' — платити наперед не треба.');
-    done.hidden = false;
+    /* Самі події Lead — на сторінці подяки. По-перше, редірект може
+       обірвати запит, що пішов за мить до переходу. По-друге, окремий URL
+       зручно вішати як Custom Conversion у Meta й TikTok. */
+    location.href = 'thanks.html?lead=' + encodeURIComponent(leadId || '') +
+      '&src=' + encodeURIComponent(FZ_SOURCE) + (caught ? '&promo=coin100' : '');
   });
 })();
 </script>

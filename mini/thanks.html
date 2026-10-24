@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="uk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#140706">
+<!-- Meta Pixel. Той самий ID, що й dataset для Conversions API,
+     інакше серверні та браузерні події не склеяться. -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1046082147792987');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=1046082147792987&ev=PageView&noscript=1"></noscript>
+
+<!-- TikTok Pixel: браузерна частина. Серверної (Events API) поки немає,
+     тому частина подій губиться на iOS і в блокувальниках — це очікувано. -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('DBABECBC77UAEK31CAG0');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+
+<!-- Microsoft Clarity: записи сесій, щоб бачити, де люди кидають сторінку -->
+<script>
+(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window,document,"clarity","script","yfmyrlzn1o");
+</script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<title>Записали · Формула знань</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Rubik:wght@400;500&display=swap">
+<style>
+/* Окрема сторінка саме заради власного URL: на неї зручно вішати
+   Custom Conversion у Meta й TikTok — вони бачать перехід, а не подію
+   всередині сторінки. Події Lead теж шлемо звідси, а не з форми:
+   редірект може обірвати запит, що пішов за мить до переходу. */
+:root{
+  --ink:#140706;--panel:#1E0C0B;--panel-2:#180A09;--line:#3C1A17;
+  --gold:#E8B84B;--gold-hi:#F8D98F;--cream:#F6EFE5;--muted:#A98B83;--dim:#7A6058;
+  --f-d:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-b:"Rubik","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  min-height:100svh;display:grid;place-items:center;
+  padding:max(22px,env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-left,0px))
+          max(22px,env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-right,0px));
+  background:
+    radial-gradient(70% 50% at 50% 0%, #4C1B17 0%, #14070600 72%),
+    radial-gradient(50% 40% at 50% 92%, rgba(232,184,75,.1), transparent 70%),
+    var(--ink);
+  color:var(--cream);font-family:var(--f-b);line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.card{width:100%;max-width:560px;text-align:center;position:relative}
+.ring{width:clamp(96px,22vw,124px);aspect-ratio:1;margin:0 auto;border-radius:50%;
+  display:grid;place-content:center;font-size:clamp(42px,9vw,56px);
+  background:radial-gradient(circle at 34% 28%, #FFF0CB 0%, var(--gold) 58%, #C9922F 100%);
+  box-shadow:0 14px 36px rgba(232,184,75,.4), 0 0 0 10px rgba(232,184,75,.12);
+  animation:pop .55s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+h1{font-family:var(--f-d);font-weight:900;margin:26px 0 0;line-height:1.02;
+  letter-spacing:-.02em;font-size:clamp(28px,6.6vw,46px);text-wrap:balance}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{margin-top:16px;color:var(--muted);font-size:clamp(15px,2.4vw,17px);
+  max-width:40ch;margin-inline:auto}
+.promo{margin-top:20px;border:1px solid var(--gold);border-radius:14px;
+  background:linear-gradient(135deg,rgba(232,184,75,.18),rgba(232,184,75,.05));
+  padding:14px 18px;font-size:15px}
+.promo b{color:var(--gold)}
+.steps{margin-top:26px;display:grid;gap:10px;text-align:left}
+.step{display:flex;gap:13px;align-items:center;border:1px solid var(--line);
+  border-radius:14px;background:var(--panel);padding:15px 17px}
+.step .ico{font-size:22px;flex:none}
+.step .k{font-family:var(--f-d);font-weight:700;font-size:15px;line-height:1.25}
+.step .v{margin-top:4px;color:var(--muted);font-size:13.5px;line-height:1.45}
+.cta{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.btn{font-family:var(--f-d);font-weight:700;font-size:15px;border-radius:999px;
+  padding:15px 24px;text-decoration:none;transition:transform .18s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn.main{background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:#2A1110;
+  box-shadow:0 10px 26px rgba(232,184,75,.28)}
+.btn.ghost{border:1px solid var(--line);color:var(--cream)}
+.foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);
+  color:var(--dim);font-size:12px;line-height:1.7}
+.foot a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.foot a:hover{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="card">
+  <div class="ring">✅</div>
+
+  <h1>Записали!<br><em>Чекайте дзвінка</em></h1>
+  <p class="lede">Зателефонуємо сьогодні з номера <b>+380 73 735 46 67</b>. Запишіть його, щоб не пропустити.</p>
+
+  <div class="promo" id="promo" hidden>
+    🎉 Знижку 100 ₴ закріпили за вами — курс <b>1500 ₴</b> замість 1600.
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <span class="ico">📞</span>
+      <div>
+        <div class="k">Коротка розмова</div>
+        <div class="v">Запитаємо про рівень дитини й розкажемо, як проходять заняття.</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="ico">🗓</span>
+      <div>
+        <div class="k">Безкоштовний урок</div>
+        <div class="v">Підберемо зручний час і додамо дитину в групу на пробне заняття.</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="ico">💳</span>
+      <div>
+        <div class="k">Оплата — тільки після</div>
+        <div class="v">Платити наперед не треба. Вирішите після першого уроку.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta">
+    <a class="btn main" href="https://t.me/formula_znan_bot">Написати в Telegram</a>
+    <a class="btn ghost" href="./">На головну</a>
+  </div>
+
+  <p class="foot">
+    Формула знань · підготовка до НМТ з математики<br>
+    <a href="offer.html">Публічна оферта</a> · <a href="privacy.html">Політика конфіденційності</a><br>
+    ФОП Мітнічук Богдан Олександрович · РНОКПП 3680908252
+  </p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var q = new URLSearchParams(location.search),
+      leadId = q.get('lead'),
+      src = (q.get('src') || '').slice(0, 64);
+
+  if (q.get('promo') === 'coin100') document.getElementById('promo').hidden = false;
+
+  /* Серверну подію Lead шле бот із тим самим event_id — Meta склеює їх в одну.
+     Без збігу заявка рахується двічі й оптимізація псується. */
+  var p = { content_name: 'mini_grupy', content_category: src, value: 1, currency: 'UAH' };
+  if (window.fbq) {
+    if (leadId) fbq('track', 'Lead', p, { eventID: 'lead-' + leadId });
+    else        fbq('track', 'Lead', p);
+  }
+  if (window.ttq) {
+    var tp = { content_id: 'mini', content_type: 'product',
+               content_name: 'mini', content_category: src };
+    if (leadId) {
+      ttq.track('SubmitForm', tp, { event_id: 'lead-' + leadId });
+      ttq.track('ClickButton', tp, { event_id: 'lead-' + leadId });
+    } else {
+      ttq.track('SubmitForm', tp);
+      ttq.track('ClickButton', tp);
+    }
+  }
+})();
+</script>
