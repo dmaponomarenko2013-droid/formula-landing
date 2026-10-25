@@ -340,6 +340,17 @@ footer a:hover, .fine a:hover{color:var(--gold)}
   .card h3{margin-top:0;font-size:15.5px;line-height:1.25}
   .card h3 br{display:none}
 
+  /* «8 занять — 1600 грн» не влазить у ширину телефона одним рядком,
+     тому на мобільному це два яруси: підпис і сама ціна. Тире ховаємо —
+     на початку другого рядка воно виглядало б як помилка. */
+  .ticket .big{font-size:clamp(21px,6vw,30px);line-height:1.12}
+  .ticket .big .dash{display:none}
+  .ticket .big .lbl{display:block;font-size:.64em;opacity:.9}
+  .ticket .big span:not(.lbl):not(.dash){display:block;margin-top:2px}
+  /* підпис на кнопках тримаємо в один рядок: інакше ракета зривається вниз */
+  button.go{font-size:clamp(13px,3.7vw,16.5px);white-space:nowrap;
+    padding-inline:14px}
+  .sticky button{font-size:clamp(13px,3.7vw,15.5px);white-space:nowrap}
   .price{padding-block:26px}
   .ticket{padding:20px 18px}
   .ticket .big{font-size:clamp(22px,6.4vw,30px)}
@@ -476,7 +487,7 @@ footer a:hover, .fine a:hover{color:var(--gold)}
 <section class="price">
   <div class="inner">
     <div class="ticket rise">
-      <p class="big" id="priceLine">8 занять — <span>1600 грн</span></p>
+      <p class="big" id="priceLine"><span class="lbl">8 занять</span><span class="dash"> — </span><span>1600 грн</span></p>
       <p class="sub">Вигідніше, ніж з репетитором — і точно ефективно 🔥</p>
     </div>
   </div>
@@ -645,9 +656,14 @@ const FZ_TOKEN = (() => {
 
   function bounds(){
     size = wrap.offsetWidth || 96;
-    /* на телефоні знизу липка кнопка — монета не має під неї залітати */
-    var pad = window.innerWidth <= 660 ? 96 : 10;
-    return { w: window.innerWidth - size - 10, h: window.innerHeight - size - pad };
+    var w = window.innerWidth - size - 10;
+    /* На телефоні монета тримається верхньої частини екрана: знизу липка
+       кнопка, а в зоні форми вона зависала просто над полями й заважала
+       їх натискати. */
+    if (window.innerWidth <= 660) {
+      return { w: w, h: Math.max(70, window.innerHeight * 0.56 - size) };
+    }
+    return { w: w, h: window.innerHeight - size - 10 };
   }
   function place(){ wrap.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)'; }
 
@@ -699,7 +715,7 @@ const FZ_TOKEN = (() => {
     wrap.classList.add('gone');
     setTimeout(function(){ if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 500);
 
-    priceLine.innerHTML = '8 занять — <s>1600</s><span class="was">1500 грн</span>';
+    priceLine.innerHTML = '<span class="lbl">8 занять</span>' + '<span class="dash"> — </span><s>1600</s>' + '<span class="was">1500 грн</span>';
     promo.innerHTML = '🎉 Знижку спіймано! Тепер для вас курс коштує <b>1500 грн</b> замість 1600. ' +
       'Залиште заявку — знижка закріпиться за вами.';
     promo.hidden = false;
