@@ -300,23 +300,82 @@ footer a:hover, .fine a:hover{color:var(--gold)}
 .ticket s{color:var(--muted);text-decoration-thickness:2px;margin-right:6px;font-weight:700}
 .ticket .was{display:inline-block;animation:promoIn .5s ease}
 
+/* ── телефон ──────────────────────────────────────
+   Батько не гортає вісім екранів. На вузькому екрані все стискається:
+   плитки стають рядками «іконка + текст», відступи між секціями вдвічі
+   менші, а записатися можна будь-коли — знизу зʼявляється липка кнопка. */
 @media (max-width:660px){
+  .school{padding-top:26px}
   .school .inner{grid-template-columns:1fr;gap:0}
-  .school .copy{padding-bottom:18px}
-  .school .figure{max-width:330px;justify-self:center}
+  .school .copy{padding-bottom:10px}
+  .school h1{margin-top:14px;font-size:clamp(27px,7.6vw,38px)}
+  .school .figure{max-width:286px;justify-self:center}
+
+  .turn{padding-top:26px}
+  .turn h2{font-size:clamp(25px,7vw,36px)}
   .turn .row{grid-template-columns:1fr;gap:0}
-  .turn .figure{max-width:320px;order:-1}
-  .facts{padding-bottom:clamp(28px,6vw,44px);margin-top:18px}
-  /* на вузькому екрані фон із формулами перестає бути фоном і лізе
-     поверх змісту — лишаємо кілька дрібних елементів по краях */
-  .mathbg i{opacity:.055!important;font-size:13px!important}
-  .mathbg .big{font-size:40px!important}
+  .turn .figure{max-width:238px;order:-1}
+  .facts{padding-bottom:26px;margin-top:14px;gap:8px}
+  .fact{padding:12px 14px;gap:11px}
+  .fact .ico{font-size:20px}
+  .fact .k{font-size:14.5px}
+  .fact .v{font-size:12.5px;margin-top:3px}
+  .joke{font-size:11px}
+
+  .mg{padding-block:30px}
+  .mg h2{font-size:clamp(23px,6.4vw,32px)}
+  .mg h2 br{display:none}
+  /* Три пункти — одним блоком зі смужками-роздільниками, а не трьома
+     плитками: плитки з іконкою згори забирали три екрани гортання,
+     цей блок уміщається в один разом із заголовком. */
+  .cards{margin-top:16px;gap:0;grid-template-columns:1fr;
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    background:var(--panel)}
+  .card{display:flex;align-items:center;gap:13px;padding:14px 15px;
+    border:0;border-radius:0;background:transparent}
+  .card + .card{border-top:1px solid var(--line)}
+  .card:hover{transform:none;box-shadow:none}
+  .card::before{display:none}
+  .card .ico{font-size:23px;line-height:1;flex:none}
+  .card h3{margin-top:0;font-size:15.5px;line-height:1.25}
+  .card h3 br{display:none}
+
+  .price{padding-block:26px}
+  .ticket{padding:20px 18px}
+  .ticket .big{font-size:clamp(22px,6.4vw,30px)}
+  .ticket .sub{margin-top:9px;font-size:13.5px}
+
+  .cta{padding-top:30px;padding-bottom:104px}  /* місце під липку кнопку */
+  .cta h2{font-size:clamp(24px,6.6vw,34px)}
+  .cta .lede{margin-top:10px;font-size:14.5px}
+  form{margin-top:16px}
+  .fine{font-size:11.5px}
+  footer{margin-top:22px;font-size:11px;gap:6px}
+
+  /* фон із формулами на вузькому екрані лізе поверх змісту */
+  .mathbg i{opacity:.05!important;font-size:12px!important}
+  .mathbg .big{font-size:34px!important}
   .mathbg i:nth-of-type(n+4){display:none}
-  .mathbg svg{opacity:.07;width:58%!important}
-  .coin{width:72px}
-  .coin .v{font-size:15px}
-  .coin .s{font-size:8.5px;letter-spacing:.04em}
+  .mathbg svg{opacity:.06;width:54%!important}
+
+  .coin{width:66px}
+  .coin .v{font-size:14px}
+  .coin .s{font-size:8px;letter-spacing:.03em;margin-top:2px}
 }
+
+/* липка кнопка — тільки на телефоні й тільки поки форму не видно */
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:55;display:none;
+  padding:10px max(14px,env(safe-area-inset-left,0px))
+          max(12px,env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-right,0px));
+  background:linear-gradient(to top,rgba(20,7,6,.97) 62%,rgba(20,7,6,0));
+  transform:translateY(120%);transition:transform .32s cubic-bezier(.2,.8,.3,1)}
+.sticky.on{transform:none}
+.sticky button{width:100%;font-family:var(--f-d);font-weight:700;font-size:15.5px;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:#2A1110;
+  border:0;border-radius:999px;padding:16px 18px;cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.sticky button:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+@media (max-width:660px){ .sticky{display:block} }
 @media (max-width:420px){ .frow{grid-template-columns:1fr} }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -464,6 +523,10 @@ footer a:hover, .fine a:hover{color:var(--gold)}
   </div>
 </section>
 
+<div class="sticky" id="sticky">
+  <button type="button" id="stickyBtn">Записати на безкоштовний урок 🚀</button>
+</div>
+
 <div class="coin-wrap" id="coinWrap">
   <button class="coin" id="coin" type="button" aria-label="Злови знижку 100 гривень на курс">
     <span class="v">−100 ₴</span>
@@ -547,6 +610,27 @@ const FZ_TOKEN = (() => {
     });
   }
 
+  /* ── липка кнопка на телефоні ────────────────
+     Зʼявляється, щойно перший екран поїхав угору, і ховається, коли форма
+     вже на видноті: дві кнопки поруч тільки заважали б. */
+  (function(){
+    var bar = document.getElementById('sticky'),
+        form = document.getElementById('lead');
+    document.getElementById('stickyBtn').addEventListener('click', function(){
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(function(){ var f = document.getElementById('f-name'); if (f) f.focus(); }, 500);
+    });
+    if (!('IntersectionObserver' in window)) return;
+    var formVisible = false, scrolled = false;
+    function upd(){ bar.classList.toggle('on', scrolled && !formVisible); }
+    new IntersectionObserver(function(e){
+      formVisible = e[0].isIntersecting; upd();
+    }, { threshold: .25 }).observe(form);
+    new IntersectionObserver(function(e){
+      scrolled = !e[0].isIntersecting; upd();
+    }, { threshold: .15 }).observe(document.querySelector('.school'));
+  })();
+
   /* ── літаюча знижка ──────────────────────────
      Монета дрейфує по екрану, поки її не спіймають. Швидкість навмисно
      мала: ціль має бути досяжною пальцем на телефоні, а не грою на спритність. */
@@ -561,7 +645,9 @@ const FZ_TOKEN = (() => {
 
   function bounds(){
     size = wrap.offsetWidth || 96;
-    return { w: window.innerWidth - size - 10, h: window.innerHeight - size - 10 };
+    /* на телефоні знизу липка кнопка — монета не має під неї залітати */
+    var pad = window.innerWidth <= 660 ? 96 : 10;
+    return { w: window.innerWidth - size - 10, h: window.innerHeight - size - pad };
   }
   function place(){ wrap.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)'; }
 
