@@ -1,4 +1,6 @@
-# Піддомен міні-лендингу показує вміст теки /mini без редиректу в адресі.
-# 200 — це rewrite: людина бачить mini.formulaznan.com, Netlify віддає /mini/.
-https://mini.formulaznan.com/*  /mini/:splat  200
-http://mini.formulaznan.com/*   /mini/:splat  200
+# Піддомен міні-лендингу показує вміст теки /mini, не змінюючи адреси.
+# 200 — це rewrite, а не переадресація: людина лишається на mini.formulaznan.com.
+# Знак оклику обовʼязковий: без нього Netlify віддає наявний файл (головний
+# лендинг у корені) і правило мовчки не спрацьовує.
+https://mini.formulaznan.com/*  /mini/:splat  200!
+http://mini.formulaznan.com/*   /mini/:splat  200!
