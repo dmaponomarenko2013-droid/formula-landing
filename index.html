@@ -722,6 +722,25 @@ const FZ_SOURCE = (() => {
 document.getElementById('fz_source').value = FZ_SOURCE;
 document.getElementById('landing_url').value = location.href.slice(0, 250);
 
+/* ttclid — ключ, за яким TikTok упізнає свій клік у серверній конверсії.
+   Аналог fbclid у Meta. Живе довше за візит: людина клікає ввечері, а
+   заявку лишає наступного дня, тож кладемо в localStorage на 30 днів.
+   Без нього Events API шле подію в порожнечу — зіставити її з рекламою
+   TikTok уже не зможе. */
+const TTCLID = (() => {
+  try {
+    const fromUrl = new URLSearchParams(location.search).get('ttclid');
+    if (fromUrl) {
+      localStorage.setItem('fz_ttclid',
+        JSON.stringify({ v: fromUrl, t: Date.now() }));
+      return fromUrl;
+    }
+    const saved = JSON.parse(localStorage.getItem('fz_ttclid') || 'null');
+    if (saved && saved.v && Date.now() - saved.t < 30 * 864e5) return saved.v;
+  } catch (e) {}
+  return '';
+})();
+
 /* Токен кліка: 8 символів [a-z0-9] — рівно той формат, який приймає бот.
    Шлемо одразу при заході, а не в момент заявки, щоб fbc/fbp уже лежали
    в базі, коли людина дозріє і залишить номер. */
@@ -744,14 +763,16 @@ const FZ_TOKEN = (() => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           token: t, fbc: fbc || null, fbp: cookie('_fbp') || null,
+          ttclid: TTCLID || null, ttp: cookie('_ttp') || null,
           source: FZ_SOURCE, url: location.href.slice(0, 512)
         })
       }).catch(() => {});
     };
-    // даємо пікселю до 2 с поставити _fbp — з ним Meta зіставляє точніше
+    // даємо пікселям до 2 с поставити свої куки: _fbp для Meta, _ttp для
+    // TikTok. З ними зіставлення точніше, без них подія все одно піде.
     let tries = 0;
     (function wait(){
-      if (cookie('_fbp') || tries >= 10) return send();
+      if ((cookie('_fbp') && cookie('_ttp')) || tries >= 10) return send();
       tries++; setTimeout(wait, 200);
     })();
     return t;
