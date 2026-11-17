@@ -325,6 +325,55 @@ input:focus,select:focus{outline:0;border-color:var(--gold);
 .bonus .d{color:var(--muted);font-size:14.5px;line-height:1.55;margin-top:2px}
 @media(min-width:760px){.bonus{grid-template-columns:repeat(3,1fr);gap:22px}}
 
+
+/* ── пакети оплати ── */
+.plans{display:grid;gap:15px;margin-top:clamp(20px,2.8vw,30px)}
+@media(min-width:920px){.plans{grid-template-columns:repeat(3,1fr);gap:20px}}
+
+.plan{position:relative;display:flex;flex-direction:column;gap:12px;
+  padding:clamp(20px,2.8vw,28px);border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);
+  background:linear-gradient(152deg,rgba(69,32,26,.62),rgba(42,20,18,.78));
+  transition:transform .4s cubic-bezier(.2,.7,.3,1),box-shadow .4s,border-color .4s}
+.plan::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(460px 190px at 50% -12%,rgba(217,169,76,.18),transparent 72%);
+  transition:opacity .45s}
+.plan:hover{transform:translateY(-6px);border-color:rgba(217,169,76,.5);
+  box-shadow:0 20px 48px rgba(0,0,0,.42)}
+.plan:hover::before{opacity:1}
+
+.plan .nazva{font-family:var(--disp);font-size:clamp(19px,2.5vw,23px);
+  color:var(--cream);line-height:1.2}
+.plan .koly{font-size:14px;color:var(--muted);line-height:1.55}
+.plan .dar{color:var(--gold-br);font-weight:700}
+.plan .tsina{display:flex;align-items:baseline;gap:7px;margin-top:auto;padding-top:6px}
+.plan .chyslo{font-family:var(--disp);font-size:clamp(40px,5.8vw,54px);line-height:.95;
+  background:linear-gradient(135deg,#FFE3A8,var(--gold-br) 48%,var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.plan .za{font-size:15px;color:var(--muted);font-weight:700}
+.plan .razom{font-size:13.5px;color:var(--muted);line-height:1.5}
+.plan .vyhoda{color:var(--gold-br);font-weight:700}
+
+/* найвигідніший — золота картка */
+.plan.top{border:0;background:linear-gradient(135deg,#FFEDC4,var(--gold-br) 44%,var(--gold));
+  box-shadow:0 16px 44px rgba(217,169,76,.32)}
+.plan.top .nazva{color:#2A1412}
+.plan.top .chyslo{background:none;-webkit-background-clip:border-box;
+  background-clip:border-box;color:#2A1412;-webkit-text-fill-color:#2A1412}
+.plan.top .koly,.plan.top .za,.plan.top .razom{color:rgba(42,20,18,.76)}
+.plan.top .dar,.plan.top .vyhoda{color:#5E2A20}
+.plan.top:hover{box-shadow:0 26px 58px rgba(217,169,76,.45)}
+.plan.top::after{content:'';position:absolute;top:0;left:-60%;width:38%;height:100%;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  animation:gleam 4.2s ease-in-out infinite}
+.plan .bejdzh{position:absolute;top:13px;right:13px;z-index:2;
+  font-family:var(--disp);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 12px;border-radius:999px;background:#2A1412;color:var(--gold-br);
+  box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.plans-fine{margin-top:16px;font-size:13.5px;color:var(--muted);line-height:1.6}
+@media (prefers-reduced-motion:reduce){.plan.top::after{animation:none}}
+
 /* ── підвал ── */
 footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px);
   padding-block:clamp(34px,4.5vw,52px) clamp(24px,3vw,34px)}
@@ -462,7 +511,7 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
       <a class="btn reveal" href="#form">🔥 Забронювати місце <span class="arr">→</span></a>
       <div class="hero-meta reveal">
         <span>🗓 Графік <b>підберемо під вас</b></span>
-        <span>💳 <b>1 600 ₴</b> на місяць</span>
+        <span>💳 від <b>1 300 ₴</b> на місяць</span>
         <span>🪑 Місць у групі: <b>до 10</b></span>
       </div>
     </div>
@@ -592,6 +641,38 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
       <h3>Пропустили — є запис</h3>
       <p>Хвороба, олімпіада, тривога. Заняття не згорає, пам'ятка лишається на платформі.</p></div>
   </div>
+</section>
+
+<section class="wrap" id="prices">
+  <span class="eyebrow reveal">💳 Варіанти оплати</span>
+  <h2 class="reveal" style="margin-top:14px">Чим довше — тим дешевший місяць</h2>
+  <div class="plans">
+
+    <div class="plan reveal">
+      <div class="nazva">📅 Помісячно</div>
+      <div class="koly">Оплата щомісяця, без зобов'язань</div>
+      <div class="tsina"><span class="chyslo">1 600</span><span class="za">₴/міс</span></div>
+      <div class="razom">Можна зупинитись будь-коли</div>
+    </div>
+
+    <div class="plan reveal">
+      <div class="nazva">🌿 До березня</div>
+      <div class="koly">Грудень — березень <span class="dar">+ листопад у подарунок</span></div>
+      <div class="tsina"><span class="chyslo">1 500</span><span class="za">₴/міс</span></div>
+      <div class="razom">Разом 6 000 ₴ · <span class="vyhoda">вигода 2 000 ₴</span></div>
+    </div>
+
+    <div class="plan top reveal">
+      <span class="bejdzh">🔥 Найвигідніше</span>
+      <div class="nazva">🎓 До НМТ</div>
+      <div class="koly">Грудень — травень <span class="dar">+ листопад у подарунок</span></div>
+      <div class="tsina"><span class="chyslo">1 300</span><span class="za">₴/міс</span></div>
+      <div class="razom">Разом 7 800 ₴ · <span class="vyhoda">вигода 3 400 ₴</span></div>
+    </div>
+
+  </div>
+  <p class="plans-fine">🛟 Будь-який пакет можна повернути після першого заняття,
+    якщо не підійде. Вигода порахована від помісячної оплати за той самий період.</p>
 </section>
 
 <section class="wrap" id="solo">
