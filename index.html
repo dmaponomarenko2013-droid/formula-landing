@@ -314,6 +314,17 @@ input:focus,select:focus{outline:0;border-color:var(--gold);
 .sticky-cta .btn{width:100%;padding:16px 20px;font-size:16px;animation:none}
 @media(max-width:860px){.sticky-cta.on{display:block}}
 
+
+/* ── що отримаєте відразу ── */
+.bonus{display:grid;gap:12px;padding:clamp(18px,2.6vw,26px);
+  border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(135deg,rgba(69,32,26,.5),rgba(42,20,18,.6))}
+.bonus .row{display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:start}
+.bonus .ic{font-size:21px;line-height:1.35}
+.bonus b{color:var(--cream);font-weight:800}
+.bonus .d{color:var(--muted);font-size:14.5px;line-height:1.55;margin-top:2px}
+@media(min-width:760px){.bonus{grid-template-columns:repeat(3,1fr);gap:22px}}
+
 /* ── підвал ── */
 footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px);
   padding-block:clamp(34px,4.5vw,52px) clamp(24px,3vw,34px)}
@@ -466,8 +477,9 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
 
 <section class="wrap" style="padding-top:0">
   <div class="quick reveal">
-    <h3>Залиште номер — зателефонуємо сьогодні</h3>
-    <p class="sub">Розкажемо деталі, подивимось рівень дитини й підберемо зручний графік.
+    <h3>Залиште номер — надішлемо запис уроку</h3>
+    <p class="sub">Подивитесь, як Валентина Іванівна веде групу, ще до того як щось
+      вирішувати. Зателефонуємо, подивимось рівень дитини й підберемо графік.
       Безкоштовно і ні до чого не зобов'язує.</p>
     <form id="lead-top" data-lead novalidate>
       <div><label for="q-name">Ваше ім'я</label>
@@ -481,7 +493,7 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
     </form>
     <div class="ok">
       <h3>🎉 Заявку прийнято</h3>
-      <p>Зателефонуємо найближчим часом.</p>
+      <p>Зателефонуємо найближчим часом і надішлемо запис уроку.</p>
     </div>
   </div>
 </section>
@@ -624,15 +636,39 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
   </div>
 </section>
 
+<section class="wrap" style="padding-block:clamp(14px,2.2vw,24px)">
+  <div class="bonus reveal">
+    <div class="row">
+      <span class="ic">🎥</span>
+      <div><b>Запис реального уроку — безкоштовно</b>
+        <div class="d">Надішлемо після заявки. Подивитесь, як Валентина Іванівна
+          веде групу, ще до того як щось вирішувати.</div></div>
+    </div>
+    <div class="row">
+      <span class="ic">🛟</span>
+      <div><b>Не сподобалось — повернемо гроші</b>
+        <div class="d">Якщо після першого заняття зрозумієте, що не ваше —
+          повертаємо оплату. Без з'ясувань.</div></div>
+    </div>
+    <div class="row">
+      <span class="ic">⏳</span>
+      <div><b>Знижка 100 ₴ протягом доби</b>
+        <div class="d">Оплатите за добу після дзвінка — перший місяць
+          1 500 ₴ замість 1 600 ₴.</div></div>
+    </div>
+  </div>
+</section>
+
 <section class="wrap" id="form" style="padding-bottom:clamp(48px,7vw,86px)">
   <div class="card">
     <div class="card-grid">
       <div>
         <span class="eyebrow">🔥 Запис у групу</span>
         <h2 style="margin-top:14px">Забронювати місце</h2>
-        <p>📞 Залиште номер — зателефонуємо, розкажемо деталі, узгодимо графік
-          і подивимось рівень дитини.</p>
-        <p>✅ Безкоштовно і ні до чого не зобов'язує.</p>
+        <p>📞 Залиште номер — надішлемо <b>запис реального уроку</b>,
+          зателефонуємо, узгодимо графік і подивимось рівень дитини.</p>
+        <p>✅ Безкоштовно і ні до чого не зобов'язує. Не сподобається після
+          першого заняття — повернемо гроші.</p>
         <div class="seats"><span class="dot"></span> 🪑 У групі до 10 місць · графік підберемо під вас</div>
       </div>
       <div>
@@ -654,7 +690,8 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
         </form>
         <div class="ok" id="ok">
           <h3>🎉 Заявку прийнято</h3>
-          <p>Зателефонуємо найближчим часом. Якщо зручніше написати — @formula_znan в Instagram.</p>
+          <p>Зателефонуємо найближчим часом і надішлемо запис реального уроку.
+            Якщо зручніше написати — @formula_znan в Instagram.</p>
         </div>
       </div>
     </div>
