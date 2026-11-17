@@ -295,6 +295,25 @@ input:focus,select:focus{outline:0;border-color:var(--gold);
 .ok{display:none;text-align:center;padding:26px 10px}
 .ok h3{font-size:24px;color:var(--gold-br);margin-bottom:10px}
 .ok p{color:var(--muted);margin:0 auto;max-width:34ch}
+
+/* ── швидка заявка одразу під першим екраном ── */
+.quick{padding:clamp(16px,2.4vw,24px);border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(135deg,rgba(69,32,26,.55),rgba(42,20,18,.65))}
+.quick h3{font-family:var(--disp);font-size:clamp(17px,2.6vw,21px);margin:0 0 6px;color:var(--cream)}
+.quick .sub{margin:0 0 14px;font-size:14.5px;color:var(--muted);line-height:1.55}
+.quick form{gap:10px}
+@media(min-width:680px){.quick form{grid-template-columns:1fr 1fr auto;align-items:end}}
+.quick .btn{padding:14px 28px;font-size:15.5px;animation:none;white-space:nowrap}
+@media(min-width:680px){.quick .fine{grid-column:1/-1}}
+.quick .ok{padding:14px 6px}
+
+/* ── липка кнопка на телефоні ── */
+.sticky-cta{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(18,8,7,0),rgba(18,8,7,.94) 40%)}
+.sticky-cta .btn{width:100%;padding:16px 20px;font-size:16px;animation:none}
+@media(max-width:860px){.sticky-cta.on{display:block}}
+
 /* ── підвал ── */
 footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px);
   padding-block:clamp(34px,4.5vw,52px) clamp(24px,3vw,34px)}
@@ -431,7 +450,7 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
       </ul>
       <a class="btn reveal" href="#form">🔥 Забронювати місце <span class="arr">→</span></a>
       <div class="hero-meta reveal">
-        <span>🗓 Старт <b>скоро</b></span>
+        <span>🗓 Графік <b>підберемо під вас</b></span>
         <span>💳 <b>1 600 ₴</b> на місяць</span>
         <span>🪑 Місць у групі: <b>до 10</b></span>
       </div>
@@ -444,6 +463,28 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
     </div>
   </div>
 </header>
+
+<section class="wrap" style="padding-top:0">
+  <div class="quick reveal">
+    <h3>Залиште номер — зателефонуємо сьогодні</h3>
+    <p class="sub">Розкажемо деталі, подивимось рівень дитини й підберемо зручний графік.
+      Безкоштовно і ні до чого не зобов'язує.</p>
+    <form id="lead-top" data-lead novalidate>
+      <div><label for="q-name">Ваше ім'я</label>
+        <input id="q-name" name="name" type="text" required placeholder="Ірина" autocomplete="name"></div>
+      <div><label for="q-phone">Телефон</label>
+        <input id="q-phone" name="phone" type="tel" required placeholder="+380 __ ___ __ __"
+               inputmode="tel" autocomplete="tel"></div>
+      <input type="hidden" name="fz_source"><input type="hidden" name="landing_url">
+      <button class="btn" type="submit">Зателефонуйте мені <span class="arr">→</span></button>
+      <p class="fine">Натискаючи кнопку, ви погоджуєтесь на обробку даних для зв'язку щодо навчання.</p>
+    </form>
+    <div class="ok">
+      <h3>🎉 Заявку прийнято</h3>
+      <p>Зателефонуємо найближчим часом.</p>
+    </div>
+  </div>
+</section>
 
 <section class="wrap" style="padding-top:0">
   <div class="stats">
@@ -592,10 +633,10 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
         <p>📞 Залиште номер — зателефонуємо, розкажемо деталі, узгодимо графік
           і подивимось рівень дитини.</p>
         <p>✅ Безкоштовно і ні до чого не зобов'язує.</p>
-        <div class="seats"><span class="dot"></span> 🪑 У групі до 10 місць · старт скоро</div>
+        <div class="seats"><span class="dot"></span> 🪑 У групі до 10 місць · графік підберемо під вас</div>
       </div>
       <div>
-        <form id="lead" novalidate>
+        <form id="lead" data-lead novalidate>
           <div><label for="name">Ваше ім'я</label>
             <input id="name" name="name" type="text" required placeholder="Ірина" autocomplete="name"></div>
           <div><label for="phone">Телефон</label>
@@ -619,6 +660,10 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
     </div>
   </div>
 </section>
+
+<div class="sticky-cta" id="stickyCta">
+  <a class="btn" href="#form">🔥 Забронювати місце <span class="arr">→</span></a>
+</div>
 
 <footer class="wrap">
   <div class="foot">
@@ -719,8 +764,10 @@ const FZ_SOURCE = (() => {
   }
   return tag.slice(0, 64);
 })();
-document.getElementById('fz_source').value = FZ_SOURCE;
-document.getElementById('landing_url').value = location.href.slice(0, 250);
+document.querySelectorAll('input[name="fz_source"]')
+  .forEach(i => i.value = FZ_SOURCE);
+document.querySelectorAll('input[name="landing_url"]')
+  .forEach(i => i.value = location.href.slice(0, 250));
 
 /* ttclid — ключ, за яким TikTok упізнає свій клік у серверній конверсії.
    Аналог fbclid у Meta. Живе довше за візит: людина клікає ввечері, а
@@ -820,8 +867,8 @@ document.querySelectorAll('.tblbox').forEach(box => {
   upd();
 });
 
-const form = document.getElementById('lead');
-const okBox = document.getElementById('ok');
+document.querySelectorAll('form[data-lead]').forEach((form) => {
+const okBox = form.parentElement.querySelector('.ok');
 
 form.addEventListener('submit', async (ev) => {
   ev.preventDefault();
@@ -919,6 +966,26 @@ form.addEventListener('submit', async (ev) => {
   okBox.style.display = 'block';
   okBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
+});
+
+/* Липка кнопка: з'являється, коли перший екран прокручено, і зникає
+   біля будь-якої з форм — щоб не перекривала поля вводу. */
+(() => {
+  const cta = document.getElementById('stickyCta');
+  if (!cta) return;
+  const forms = [...document.querySelectorAll('form[data-lead]')];
+  const poruch = () => forms.some(f => {
+    if (f.hidden) return false;
+    const r = f.getBoundingClientRect();
+    return r.top < innerHeight * 0.95 && r.bottom > 0;
+  });
+  const onovyty = () => {
+    cta.classList.toggle('on', scrollY > innerHeight * 0.8 && !poruch());
+  };
+  addEventListener('scroll', onovyty, { passive: true });
+  addEventListener('resize', onovyty);
+  onovyty();
+})();
 </script>
 </body>
 </html>
