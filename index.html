@@ -374,6 +374,43 @@ input:focus,select:focus{outline:0;border-color:var(--gold);
 .plans-fine{margin-top:16px;font-size:13.5px;color:var(--muted);line-height:1.6}
 @media (prefers-reduced-motion:reduce){.plan.top::after{animation:none}}
 
+
+/* ── спливне вікно з консультацією ── */
+.promo{position:fixed;inset:0;z-index:120;display:grid;place-items:center;
+  padding:18px;opacity:0;pointer-events:none;transition:opacity .35s}
+.promo.on{opacity:1;pointer-events:auto}
+.promo-tlo{position:absolute;inset:0;background:rgba(10,5,4,.72);
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.promo-box{position:relative;width:min(520px,100%);max-height:92vh;overflow:auto;
+  padding:clamp(22px,3.4vw,34px);border-radius:22px;
+  border:1px solid rgba(217,169,76,.4);
+  background:linear-gradient(152deg,#4A231C,#2A1412 62%);
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+  transform:translateY(16px) scale(.97);transition:transform .4s cubic-bezier(.2,.7,.3,1)}
+.promo.on .promo-box{transform:none}
+.promo-box::before{content:'';position:absolute;inset:0;border-radius:22px;
+  pointer-events:none;
+  background:radial-gradient(520px 200px at 50% -8%,rgba(217,169,76,.22),transparent 70%)}
+.promo-x{position:absolute;top:12px;right:12px;z-index:3;width:38px;height:38px;
+  display:grid;place-items:center;border:0;border-radius:50%;cursor:pointer;
+  background:rgba(246,238,226,.1);color:var(--cream);font-size:22px;line-height:1;
+  transition:background .25s,transform .25s}
+.promo-x:hover{background:rgba(246,238,226,.2);transform:rotate(90deg)}
+.promo h3{position:relative;font-family:var(--disp);
+  font-size:clamp(21px,3.2vw,27px);color:var(--cream);line-height:1.22;
+  margin:0 0 10px;padding-right:34px}
+.promo .opys{position:relative;color:var(--muted);font-size:15px;line-height:1.6;margin:0 0 14px}
+.promo .dar{position:relative;display:flex;gap:11px;align-items:flex-start;
+  padding:13px 15px;margin:0 0 16px;border-radius:14px;
+  border:1px solid rgba(217,169,76,.34);
+  background:linear-gradient(135deg,rgba(217,169,76,.17),rgba(217,169,76,.06))}
+.promo .dar b{color:var(--gold-br);font-weight:800}
+.promo .dar span.t{color:var(--cream);font-size:14.5px;line-height:1.5}
+.promo form{position:relative;gap:11px}
+.promo .btn{width:100%;padding:17px 22px;animation:none}
+.promo .fine{position:relative}
+.promo .ok{padding:18px 6px}
+
 /* ── підвал ── */
 footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px);
   padding-block:clamp(34px,4.5vw,52px) clamp(24px,3vw,34px)}
@@ -779,6 +816,36 @@ footer{border-top:1px solid rgba(246,238,226,.1);margin-top:clamp(20px,3vw,36px)
   </div>
 </section>
 
+<div class="promo" id="promo" aria-hidden="true">
+  <div class="promo-tlo" data-zakryty></div>
+  <div class="promo-box" role="dialog" aria-modal="true" aria-label="Безкоштовна консультація">
+    <button class="promo-x" type="button" data-zakryty aria-label="Закрити">×</button>
+    <h3>☎️ Безкоштовна консультація</h3>
+    <p class="opys">Зателефонуємо, подивимось рівень дитини, підберемо зручний
+      графік і чесно скажемо, чи підійде вам група. Без тиску й зобов'язань —
+      просто розкажемо, як усе влаштовано.</p>
+    <div class="dar">
+      <span style="font-size:20px;line-height:1.2">🎁</span>
+      <span class="t">Заповните форму зараз — <b>знижка 100 ₴</b> на перший місяць.
+        Менеджер підтвердить її на дзвінку.</span>
+    </div>
+    <form id="lead-promo" data-lead data-promo="100" novalidate>
+      <div><label for="p-name">Ваше ім'я</label>
+        <input id="p-name" name="name" type="text" required placeholder="Ірина" autocomplete="name"></div>
+      <div><label for="p-phone">Телефон</label>
+        <input id="p-phone" name="phone" type="tel" required placeholder="+380 __ ___ __ __"
+               inputmode="tel" autocomplete="tel"></div>
+      <input type="hidden" name="fz_source"><input type="hidden" name="landing_url">
+      <button class="btn" type="submit">Отримати консультацію <span class="arr">→</span></button>
+      <p class="fine">Натискаючи кнопку, ви погоджуєтесь на обробку даних для зв'язку щодо навчання.</p>
+    </form>
+    <div class="ok">
+      <h3 style="padding-right:0">🎉 Заявку прийнято</h3>
+      <p>Зателефонуємо найближчим часом, надішлемо запис уроку й підтвердимо знижку.</p>
+    </div>
+  </div>
+</div>
+
 <div class="sticky-cta" id="stickyCta">
   <a class="btn" href="#form">🔥 Забронювати місце <span class="arr">→</span></a>
 </div>
@@ -1012,7 +1079,10 @@ form.addEventListener('submit', async (ev) => {
         grade:  data.grade || null,
         source: FZ_SOURCE,
         token:  FZ_TOKEN,
-        url:    location.href.slice(0, 512)
+        url:    (form.dataset.promo
+                  ? location.href + (location.search ? '&' : '?') +
+                    'promo=' + form.dataset.promo
+                  : location.href).slice(0, 512)
       })
     });
     const j = await r.json().catch(() => ({}));
@@ -1080,11 +1150,59 @@ form.addEventListener('submit', async (ev) => {
     if (h) h.textContent = '🎉 Заявку прийнято · №' + num;
   }
 
+  try { localStorage.setItem('fz_lead', '1'); } catch (e) {}
+  const promoBox = document.getElementById('promo');
+  if (promoBox && !form.closest('#promo')) promoBox.classList.remove('on');
+
   form.hidden = true;
   okBox.style.display = 'block';
   okBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 });
+
+/* Спливне вікно: через 5 секунд, один раз на людину. Не показуємо тим,
+   хто вже лишив заявку, вже закривав вікно або саме зараз біля форми. */
+(() => {
+  const vikno = document.getElementById('promo');
+  if (!vikno) return;
+
+  const pamiat = (klyuch, znach) => {
+    try {
+      if (znach === undefined) return localStorage.getItem(klyuch);
+      localStorage.setItem(klyuch, znach);
+    } catch (e) { return null; }
+  };
+
+  if (pamiat('fz_lead') || pamiat('fz_promo')) return;
+
+  const bilyaFormy = () => [...document.querySelectorAll('form[data-lead]')]
+    .some(f => {
+      if (f.hidden || f.closest('#promo')) return false;
+      const r = f.getBoundingClientRect();
+      return r.top < innerHeight && r.bottom > 0;
+    });
+
+  const zakryty = () => {
+    vikno.classList.remove('on');
+    vikno.setAttribute('aria-hidden', 'true');
+    pamiat('fz_promo', '1');
+  };
+
+  const pokazaty = () => {
+    if (pamiat('fz_lead') || bilyaFormy()) return;
+    vikno.classList.add('on');
+    vikno.setAttribute('aria-hidden', 'false');
+    if (window.fbq) fbq('trackCustom', 'PromoShown');
+  };
+
+  vikno.querySelectorAll('[data-zakryty]').forEach(
+    el => el.addEventListener('click', zakryty));
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape' && vikno.classList.contains('on')) zakryty();
+  });
+
+  setTimeout(pokazaty, 5000);
+})();
 
 /* Липка кнопка: з'являється, коли перший екран прокручено, і зникає
    біля будь-якої з форм — щоб не перекривала поля вводу. */
