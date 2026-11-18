@@ -235,6 +235,18 @@ input:focus{outline:none;border-color:var(--gold)}
 .pl-row:first-child{border-top:0}
 .pl-v{font-family:var(--disp);font-size:17px;color:var(--gold-br);font-variant-numeric:tabular-nums}
 
+/* три кроки на старті */
+.kroky{display:grid;gap:13px}
+.krok{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;
+  padding:14px 0;border-top:1px solid var(--line)}
+.krok:first-child{border-top:0;padding-top:2px}
+.krok .n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--disp);font-size:14px;font-weight:600;
+  background:linear-gradient(135deg,rgba(217,169,76,.26),rgba(217,169,76,.1));
+  border:1px solid rgba(217,169,76,.4);color:var(--gold-br)}
+.krok b{color:var(--cream);font-weight:800;font-size:15.5px}
+.krok .d{color:var(--muted);font-size:14px;line-height:1.55;margin-top:3px}
+
 .note{font-size:13px;color:var(--muted);line-height:1.6}
 .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:99px;
   font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
@@ -283,10 +295,16 @@ input:focus{outline:none;border-color:var(--gold)}
 
 /* ── телефон: бічних колонок немає, але фон живий ── */
 @media(max-width:1099px){
-  .orb-1{left:-26vw;top:5%;width:70vw}
-  .orb-2{right:-30vw;top:48%;width:66vw}
-  .orb-3{left:-22vw;bottom:-4%;width:60vw}
-  .grid-bg{background-size:34px 34px}
+  .orb{filter:blur(42px)}
+  .orb-1{left:-20vw;top:2%;width:78vw;
+    background:radial-gradient(circle,rgba(217,169,76,.4),transparent 68%)}
+  .orb-2{right:-26vw;top:42%;width:74vw;
+    background:radial-gradient(circle,rgba(138,60,42,.9),transparent 68%)}
+  .orb-3{left:-18vw;bottom:-2%;width:70vw;
+    background:radial-gradient(circle,rgba(110,48,36,.8),transparent 68%)}
+  .grid-bg{background-size:34px 34px;
+    background-image:linear-gradient(rgba(217,169,76,.075) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(217,169,76,.075) 1px,transparent 1px)}
 }
 @media(max-width:560px){
   .mb{padding:13px 2px;font-size:15px}
@@ -374,6 +392,30 @@ input:focus{outline:none;border-color:var(--gold)}
         <div class="pl-row"><span>😬 Не склали торік</span><span class="pl-v">39 888</span></div>
       </div>
       <div class="nav"><button class="btn" id="go">Почати діагностику →</button></div>
+    </div>
+
+    <div class="card anim">
+      <h3>🧭 Як це працює</h3>
+      <div class="kroky">
+        <div class="krok">
+          <span class="n">1</span>
+          <div><b>Відповідаєш на 12 завдань</b>
+            <div class="d">Справжні завдання НМТ — ті самі, що були на іспиті.
+              Не знаєш — пропускай, це нормально.</div></div>
+        </div>
+        <div class="krok">
+          <span class="n">2</span>
+          <div><b>Одразу бачиш свій бал</b>
+            <div class="d">Рахуємо за офіційною шкалою МОН і показуємо,
+              де ти відносно середнього по Україні.</div></div>
+        </div>
+        <div class="krok">
+          <span class="n">3</span>
+          <div><b>Розбираємо на консультації</b>
+            <div class="d">Які теми тягнуть бал униз, де саме помилка
+              і що дасть найбільший приріст — по кожному завданню.</div></div>
+        </div>
+      </div>
     </div>
   </section>
 
