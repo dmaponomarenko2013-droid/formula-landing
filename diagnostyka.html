@@ -128,7 +128,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 .field{display:flex;flex-direction:column;gap:7px}
 label{font-size:13.5px;color:var(--muted);font-weight:700}
-input[type=text],input[type=number]{padding:14px 16px;border-radius:13px;
+input[type=text],input[type=number],input[type=tel]{padding:14px 16px;border-radius:13px;
   border:1px solid var(--line);background:rgba(18,8,7,.6);color:var(--cream);
   font:inherit;font-size:16px;transition:border-color .2s}
 input:focus{outline:none;border-color:var(--gold)}
@@ -528,8 +528,20 @@ input:focus{outline:none;border-color:var(--gold)}
 
     <div class="card anim" style="margin-top:16px">
       <h3>📅 Коли тобі зручно на діагностику</h3>
-      <p class="lead">Обери день і час — ми підтвердимо й надішлемо посилання.
-        Деталі по часу напишемо окремо.</p>
+      <p class="lead">Залиш контакти й обери зручний час — ми підтвердимо
+        і надішлемо посилання на зустріч.</p>
+      <div class="field">
+        <label for="t-imya">Як тебе звати</label>
+        <input type="text" id="t-imya" placeholder="Софія" autocomplete="given-name">
+      </div>
+      <div class="field">
+        <label for="t-batky">Хто буде на зустрічі з батьків</label>
+        <input type="text" id="t-batky" placeholder="мама Ірина" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="t-tel">Телефон для зв'язку — свій або батьків</label>
+        <input type="tel" id="t-tel" placeholder="+380 __ ___ __ __" inputmode="tel" autocomplete="tel">
+      </div>
       <div class="field">
         <label>День</label>
         <div class="days" id="days"></div>
@@ -834,7 +846,9 @@ function budDni(){
 }
 
 function perevirChas(){
-  $('#t-send').disabled=!(stan.den&&stan.chas);
+  const tel=$('#t-tel').value.replace(/\D/g,'').length>=9;
+  const imya=$('#t-imya').value.trim().length>1;
+  $('#t-send').disabled=!(stan.den&&stan.chas&&tel&&imya);
 }
 
 function pidbyty(){
@@ -948,12 +962,19 @@ $('#times').addEventListener('click',e=>{
   stan.chas=b.dataset.c;
   perevirChas();
 });
+['#t-imya','#t-batky','#t-tel'].forEach(s=>
+  $(s).addEventListener('input',perevirChas));
+
 $('#t-send').addEventListener('click',()=>{
   const btn=$('#t-send');
   btn.disabled=true; btn.textContent='Надсилаємо…';
   const bazhanyi=stan.denPidpys+' о '+stan.chas;
-  nadislaty({bazhanyi_chas:bazhanyi+($('#t-note').value.trim()
-    ? ' · '+$('#t-note').value.trim().slice(0,200) : '')}).then(()=>{
+  stan.profil.imya=$('#t-imya').value.trim();
+  stan.profil.telefon=$('#t-tel').value.trim();
+  nadislaty({
+    batky:$('#t-batky').value.trim(),
+    bazhanyi_chas:bazhanyi+($('#t-note').value.trim()
+      ? ' · '+$('#t-note').value.trim().slice(0,200) : '')}).then(()=>{
     $('#ok-text').textContent='Чекаємо на тебе '+bazhanyi+
       '. Підтвердимо час і надішлемо посилання на зустріч.';
     $('#ok-box').style.display='block';

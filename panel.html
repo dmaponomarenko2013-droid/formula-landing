@@ -398,7 +398,8 @@ function kartka(x){
       '<div class="k-head">'+
         '<div class="big">'+(x.rejt_nyz?x.rejt_nyz+'–'+x.rejt_verh:'—')+'</div>'+
         '<div class="who"><h2>'+esc(x.imya||x.lead_name||'без імені')+'</h2>'+
-          '<div class="c">'+esc(x.telefon||x.lead_phone||'телефону немає')+'</div>'+
+          '<div class="c">'+esc(x.telefon||x.lead_phone||'телефону немає')+
+            (x.batky?' · на зустрічі: '+esc(x.batky):'')+'</div>'+
           '<div class="c">'+koly(x.created_at)+' · '+(x.hvylyn?x.hvylyn+' хв · ':'')+
             esc(x.source||'без мітки')+'</div></div>'+
         (x.bazhanyi_chas?'<span class="tag">📅 '+esc(x.bazhanyi_chas)+'</span>':'')+
