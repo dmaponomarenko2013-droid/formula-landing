@@ -245,41 +245,49 @@ input:focus{outline:none;border-color:var(--gold)}
 @keyframes drift{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
 @keyframes orb{0%,100%{transform:translate(0,0) scale(1);opacity:.5}
   50%{transform:translate(18px,-26px) scale(1.12);opacity:.78}}
-.deco{position:fixed;top:0;bottom:0;width:min(23vw,300px);pointer-events:none;z-index:0;
-  overflow:hidden;display:none}
+/* Декор нічого не замальовує: самі формули розчиняються маскою,
+   тому фон лишається суцільним і краї не ріжуть око. */
+.deco{position:fixed;top:0;bottom:0;width:min(26vw,340px);pointer-events:none;z-index:0;
+  overflow:hidden;display:none;
+  -webkit-mask-image:radial-gradient(ellipse 72% 62% at 50% 50%,#000 10%,transparent 100%);
+  mask-image:radial-gradient(ellipse 72% 62% at 50% 50%,#000 10%,transparent 100%)}
 .deco-l{left:0} .deco-r{right:0}
-.deco::before{content:'';position:absolute;inset:0;z-index:2;
-  background:linear-gradient(180deg,var(--ink) 0%,transparent 16%,transparent 84%,var(--ink) 100%)}
-.deco-l::after{content:'';position:absolute;inset:0;z-index:2;
-  background:linear-gradient(90deg,transparent 30%,var(--ink) 96%)}
-.deco-r::after{content:'';position:absolute;inset:0;z-index:2;
-  background:linear-gradient(270deg,transparent 30%,var(--ink) 96%)}
 .deco-stream{position:absolute;inset:0;display:flex;flex-direction:column;gap:34px;
-  padding:40px 20px;animation:drift 68s linear infinite;
-  font-family:var(--body);font-size:15px;color:var(--gold);opacity:.085;
+  padding:40px 22px;animation:drift 68s linear infinite;
+  font-family:var(--body);font-size:15px;color:var(--gold);opacity:.17;
   white-space:nowrap}
 .deco-r .deco-stream{animation-duration:84s;align-items:flex-end;font-size:14px}
-.deco-stream b{font-family:var(--disp);font-size:34px;font-weight:400;opacity:.6;
+.deco-stream b{font-family:var(--disp);font-size:34px;font-weight:400;opacity:.62;
   color:var(--gold-br);display:block;line-height:1}
-.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(46px);
-  display:none}
-.orb-1{left:-70px;top:14%;width:280px;height:280px;
-  background:radial-gradient(circle,rgba(217,169,76,.3),transparent 70%);
-  animation:orb 17s ease-in-out infinite}
-.orb-2{right:-60px;top:52%;width:240px;height:240px;
-  background:radial-gradient(circle,rgba(94,42,32,.78),transparent 70%);
-  animation:orb 22s ease-in-out infinite reverse}
-/* тонка клітинка, як у зошиті */
-.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
-  background-image:linear-gradient(rgba(217,169,76,.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(217,169,76,.05) 1px,transparent 1px);
-  background-size:46px 46px;
-  mask-image:radial-gradient(1000px 680px at 50% 36%,transparent 42%,#000 100%);
-  -webkit-mask-image:radial-gradient(1000px 680px at 50% 36%,transparent 42%,#000 100%)}
-.wrap{position:relative;z-index:1}
-@media(min-width:1100px){.deco,.orb{display:block}}
 
-/* ── дрібниці для телефона ── */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(54px)}
+.orb-1{left:-14vw;top:10%;width:min(46vw,380px);aspect-ratio:1;height:auto;
+  background:radial-gradient(circle,rgba(217,169,76,.26),transparent 70%);
+  animation:orb 17s ease-in-out infinite}
+.orb-2{right:-16vw;top:54%;width:min(42vw,330px);aspect-ratio:1;height:auto;
+  background:radial-gradient(circle,rgba(122,52,38,.72),transparent 70%);
+  animation:orb 22s ease-in-out infinite reverse}
+.orb-3{left:-10vw;bottom:-6%;width:min(38vw,300px);aspect-ratio:1;height:auto;
+  background:radial-gradient(circle,rgba(94,42,32,.6),transparent 70%);
+  animation:orb 26s ease-in-out infinite}
+
+/* тонка клітинка, як у зошиті — проявляється по краях, не під текстом */
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(217,169,76,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(217,169,76,.055) 1px,transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse 62% 58% at 50% 42%,transparent 30%,#000 100%);
+  mask-image:radial-gradient(ellipse 62% 58% at 50% 42%,transparent 30%,#000 100%)}
+.wrap{position:relative;z-index:1}
+@media(min-width:1100px){.deco{display:block}}
+
+/* ── телефон: бічних колонок немає, але фон живий ── */
+@media(max-width:1099px){
+  .orb-1{left:-26vw;top:5%;width:70vw}
+  .orb-2{right:-30vw;top:48%;width:66vw}
+  .orb-3{left:-22vw;bottom:-4%;width:60vw}
+  .grid-bg{background-size:34px 34px}
+}
 @media(max-width:560px){
   .mb{padding:13px 2px;font-size:15px}
   .match-pick{gap:5px}
@@ -288,6 +296,7 @@ input:focus{outline:none;border-color:var(--gold)}
   .score-num{letter-spacing:-.02em}
   .locked-over .s{font-size:13px}
   .times{grid-template-columns:repeat(3,1fr)}
+  .card{border-radius:18px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -295,6 +304,7 @@ input:focus{outline:none;border-color:var(--gold)}
 <div class="grid-bg" aria-hidden="true"></div>
 <div class="orb orb-1" aria-hidden="true"></div>
 <div class="orb orb-2" aria-hidden="true"></div>
+<div class="orb orb-3" aria-hidden="true"></div>
 <div class="deco deco-l" aria-hidden="true">
   <div class="deco-stream">
     <b>∫</b>
