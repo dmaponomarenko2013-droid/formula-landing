@@ -107,6 +107,9 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
   font-size:11.5px;font-weight:800;border:1px solid var(--line);color:var(--gold-br);
   background:rgba(217,169,76,.1)}
 
+.k-act{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.k-act .btn{font-size:12.5px;padding:9px 14px}
+.k-act .note{font-size:12px;color:var(--muted);flex:1 1 180px;min-width:0}
 .blok{border:1px solid var(--line);border-radius:14px;padding:14px 16px;
   background:rgba(18,8,7,.3);display:flex;flex-direction:column;gap:9px}
 .blok .ttl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
@@ -348,6 +351,21 @@ function spysok(){
   }).join('');
 }
 
+/* Офіційна шкала МОН нерівномірна. Чотири зони, порахована по SHKALA:
+   5–9 → +7…8 за завдання · 10–14 → +2…3 · 15–20 → +1 (плато) · 21+ → +3…6 */
+function zonaShkaly(b){
+  if(b<5) return '⚠️ Зараз нижче порога: 5 тестових балів — мінімум, щоб скласти НМТ взагалі. '+
+    'Аргумент — «спершу виводимо за поріг, це найшвидша частина роботи».';
+  if(b<10) return '🚀 Найстрімкіша зона шкали: кожне закрите завдання дає 7–8 балів НМТ. '+
+    'Аргумент — «приріст зараз найшвидший за весь іспит, кілька тем — і бал поїде одразу».';
+  if(b<15) return 'Зона рівного приросту: завдання коштує 2–3 бали. '+
+    'Аргумент — «йде рівно, головне не спинитись перед смугою, де приріст сповільниться».';
+  if(b<21) return '⚠️ Учень на плато: між 15 і 20 завданнями шкала дає лише 1 бал за завдання. '+
+    'Аргумент — «оце й пояснює, чому бал стоїть. Цю смугу треба пройти — після двадцяти знову по 3–4».';
+  return '💎 Учень уже за плато: кожне завдання коштує 3–6 балів. '+
+    'Аргумент — «найвигідніший момент вкластися, зараз робота окупається втричі краще».';
+}
+
 function kartka(x){
   const pt=x.po_temah||{}, samo=x.samo||{}, vid=x.vidpovidi||{};
   const rozryvy=Array.isArray(x.rozryvy)?x.rozryvy:[];
@@ -406,6 +424,12 @@ function kartka(x){
         (x.bazhanyi_chas?'<span class="tag">📅 '+esc(x.bazhanyi_chas)+'</span>':'')+
       '</div>'+
 
+      '<div class="k-act">'+
+        '<button class="btn" data-act="png">🖼 Картинка для презентації</button>'+
+        '<button class="btn g" data-act="txt">📋 Текст у чат</button>'+
+        '<span class="note" id="k-act-n"></span>'+
+      '</div>'+
+
       '<div class="blok"><span class="ttl">Що сказати про бал</span>'+
         '<div class="say">'+pro+'</div>'+
         '<div class="note">Набрано '+(x.nabrano??'—')+' з '+(x.max_balu??'—')+
@@ -413,8 +437,7 @@ function kartka(x){
 
       '<div class="blok"><span class="ttl">Скільки дасть приріст</span>'+
         '<div class="pryrist">'+pryrist+'</div>'+
-        (baza<20?'<div class="note">⚠️ Учень на плато: до 20 тестових балів шкала майже стоїть. '+
-          'Аргумент — «варто перейти цю межу, далі кожне завдання коштує вчетверо більше».</div>':'')+
+        '<div class="note">'+zonaShkaly(baza)+'</div>'+
       '</div>'+
 
       '<div class="blok"><span class="ttl">Карта тем</span><div class="temy">'+
@@ -441,10 +464,215 @@ function kartka(x){
          'Бал: де зараз, де середній по країні, де мета',
          'Почати з сильних — '+(sylni.length?sylni.map(k=>TEMY[k]).slice(0,2).join(', '):'що вийшло'),
          'Потім просідання і розрив самооцінки',
-         'Плато: чому зусилля зараз дають мало, а після межі — багато',
+         'Шкала: скільки балів дає одне завдання саме в його зоні',
          'Формат груп, графік, пакети'].map(t=>'<div><span>'+esc(t)+'</span></div>').join('')+
       '</div></div>'+
     '</div>';
+}
+
+/* ─────────── картинка-дашборд для слайда презентації ─────────── */
+const PAL={card1:'#2C1513',card2:'#1C0E0B',gold:'#D9A94C',goldBr:'#F3CE7E',
+  goldHi:'#FFE3A8',cream:'#F6EEE2',muted:'#BBA396',line:'rgba(217,169,76,.30)',
+  g:'#7FBF6A',w:'#E8B44C',b:'#D9705C',n:'#8C7B71'};
+
+function rr(c,x,y,w,h,r){
+  c.beginPath(); c.moveTo(x+r,y);
+  c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+}
+function disp(c,px,w){ c.font=(w||800)+' '+px+'px Unbounded, Georgia, serif' }
+function body(c,px,w){ c.font=(w||500)+' '+px+'px Manrope, Verdana, sans-serif' }
+function kapslok(c,t,x,y,col,px){
+  disp(c,px||19,600); c.fillStyle=col;
+  try{ c.letterSpacing='2.4px' }catch(e){}
+  c.fillText(t.toUpperCase(),x,y);
+  try{ c.letterSpacing='0px' }catch(e){}
+}
+function dot(c,x,y,col,r){
+  c.beginPath(); c.arc(x,y,r||6,0,6.2832); c.fillStyle=col; c.fill();
+}
+
+/* теми в чотирьох станах, у тому самому порядку, що й у картці */
+function temyStany(x){
+  const pt=x.po_temah||{}, samo=x.samo||{}, out=[];
+  const push=(k,st,p)=>out.push({t:TEMY[k],st:st,p:p});
+  const q={g:[],w:[],b:[],n:[]};
+  Object.keys(TEMY).forEach(k=>{
+    const d=pt[k];
+    if(!d||!d.bulo){ q.n.push([k,['не знає','плаває','каже, що знає'][samo[k]??1]]); return; }
+    const ch=(d.vzyato||0)/d.bulo;
+    (ch>=.99?q.g:ch>0?q.w:q.b).push([k,ch>=.99?'усе правильно':ch>0?'частково':'не вийшло']);
+  });
+  ['g','w','b','n'].forEach(st=>q[st].forEach(([k,p])=>push(k,st,p)));
+  return out;
+}
+
+function malyuy(x){
+  const W=1664,H=680,P=52;
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const c=cv.getContext('2d');
+
+  // підложка: картка з теплим світлом у правому верхньому куті
+  const gr=c.createLinearGradient(0,0,W*.4,H);
+  gr.addColorStop(0,PAL.card1); gr.addColorStop(1,PAL.card2);
+  rr(c,3,3,W-6,H-6,32); c.fillStyle=gr; c.fill();
+  c.save(); rr(c,3,3,W-6,H-6,32); c.clip();
+  const sv=c.createRadialGradient(W-120,-60,0,W-120,-60,620);
+  sv.addColorStop(0,'rgba(217,169,76,.20)'); sv.addColorStop(1,'rgba(217,169,76,0)');
+  c.fillStyle=sv; c.fillRect(0,0,W,H);
+  c.restore();
+  rr(c,3,3,W-6,H-6,32); c.strokeStyle=PAL.line; c.lineWidth=3; c.stroke();
+
+  // шапка
+  const imya=x.imya||x.lead_name||'Без імені';
+  let ips=44; disp(c,ips);
+  while(c.measureText(imya).width>840&&ips>24){ ips-=2; disp(c,ips) }
+  c.fillStyle=PAL.cream; c.fillText(imya,P,P+62);
+  body(c,21); c.fillStyle=PAL.muted;
+  const meta=[koly(x.created_at),x.hvylyn?x.hvylyn+' хв':null,'діагностика #'+x.id]
+    .filter(Boolean).join('  ·  ');
+  c.fillText(meta,P,P+98);
+  c.textAlign='right';
+  kapslok(c,'Формула знань · НМТ математика',W-P,P+30,PAL.goldBr,18);
+  c.textAlign='left';
+
+  c.beginPath(); c.moveTo(P,186); c.lineTo(W-P,186);
+  c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
+
+  /* ── ліва колонка: бал ── */
+  const nyz=x.rejt_nyz, verh=x.rejt_verh;
+  const sered=nyz?Math.round((nyz+verh)/2):0;
+  const baza=Math.round(+x.test_bal||0);
+
+  kapslok(c,'Бал НМТ зараз',P,232,PAL.goldBr);
+  const bal=nyz?nyz+'–'+verh:'—';
+  disp(c,92);
+  const bw=c.measureText(bal).width;
+  const bg=c.createLinearGradient(P,0,P+bw,0);
+  bg.addColorStop(0,PAL.goldHi); bg.addColorStop(1,PAL.gold);
+  c.fillStyle=bg; c.fillText(bal,P,322);
+
+  body(c,21); c.fillStyle=PAL.muted;
+  c.fillText(sered>=SEREDNIY
+    ? 'вище за середній по Україні — торік 131,9'
+    : 'середній по Україні торік — 131,9',P,364);
+  body(c,20); c.fillStyle=PAL.muted;
+  c.fillText('набрано '+(x.nabrano??'—')+' з '+(x.max_balu??'—')+
+    '  ·  це ≈'+baza+' з 32 на справжньому НМТ',P,398);
+
+  if(x.meta_bal){
+    const txt='мета '+x.meta_bal+'  ·  різниця '+(x.meta_bal-sered>0?'+':'')+(x.meta_bal-sered);
+    body(c,20,700); const tw=c.measureText(txt).width;
+    rr(c,P,420,tw+40,46,23); c.fillStyle='rgba(217,169,76,.12)'; c.fill();
+    c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
+    c.fillStyle=PAL.goldBr; c.fillText(txt,P+20,450);
+  }
+
+  kapslok(c,'Що дасть приріст',P,x.meta_bal?516:486,PAL.goldBr);
+  let py=x.meta_bal?554:524;
+  [2,4,8].forEach(dd=>{
+    const nov=Math.min(32,baza+dd), pr=rejting(nov)-rejting(baza);
+    body(c,21); c.fillStyle=PAL.muted;
+    c.fillText('ще '+dd+' '+sklo(dd,'завдання','завдання','завдань'),P,py);
+    disp(c,24); c.fillStyle=PAL.goldBr;
+    c.fillText('+'+pr+' '+sklo(pr,'бал','бали','балів'),P+250,py);
+    py+=40;
+  });
+
+  // вертикальний розділювач
+  c.beginPath(); c.moveTo(636,218); c.lineTo(636,H-P);
+  c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
+
+  /* ── права колонка: карта тем ── */
+  const X1=684, X2=1168;
+  kapslok(c,'Карта тем',X1,232,PAL.goldBr);
+  const st=temyStany(x);
+  st.forEach((it,i)=>{
+    const col=i<5?X1:X2, y=268+(i%5)*44;
+    dot(c,col+7,y-6,PAL[it.st],7);
+    body(c,21,700); c.fillStyle=it.st==='n'?PAL.muted:PAL.cream;
+    c.fillText(it.t,col+26,y);
+    body(c,18); c.fillStyle=PAL.muted;
+    c.fillText(it.p,col+26,y+21);
+  });
+
+  // легенда
+  let lx=X1;
+  [['g','вийшло'],['w','частково'],['b','не вийшло'],['n','самооцінка']].forEach(([k,t])=>{
+    dot(c,lx+5,494,PAL[k],6);
+    body(c,18); c.fillStyle=PAL.muted; c.fillText(t,lx+20,500);
+    lx+=c.measureText(t).width+58;
+  });
+
+  c.beginPath(); c.moveTo(X1,528); c.lineTo(W-P,528);
+  c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
+
+  // з чого починаємо — або, якщо просідань немає, розрив самооцінки
+  const slabki=st.filter(s=>s.st==='b');
+  const rozr=Array.isArray(x.rozryvy)?x.rozryvy:[];
+  const kluch=o=>Object.keys(TEMY).find(k=>TEMY[k]===o.t);
+  let ryad=[];
+  if(slabki.length){
+    kapslok(c,'З чого починаємо',X1,566,PAL.goldBr);
+    ryad=slabki.slice(0,2).map(s=>[s.t,NASLIDKY[kluch(s)]||'']);
+  }else if(rozr.length){
+    kapslok(c,'На що звернути увагу',X1,566,PAL.goldBr);
+    ryad=[[rozr.join(', '),'учень вважає тему знайомою, але завдання з неї не вийшли']];
+  }else{
+    kapslok(c,'Сильний старт',X1,566,PAL.goldBr);
+    ryad=[['Просідань у тесті немає','далі дивимось на теми, які завданнями не перевірялись']];
+  }
+  ryad.forEach(([nz,ch],i)=>{
+    const y=600+i*32;
+    dot(c,X1+7,y-6,PAL.b,6);
+    body(c,19,700); c.fillStyle=PAL.cream; c.fillText(nz,X1+26,y);
+    const nw=c.measureText(nz).width;
+    if(ch){
+      body(c,19); c.fillStyle=PAL.muted;
+      let t=' — '+ch, max=W-P-(X1+26+nw);
+      while(c.measureText(t).width>max&&t.length>8) t=t.slice(0,-2)+'…';
+      c.fillText(t,X1+26+nw,y);
+    }
+  });
+
+  return cv;
+}
+
+async function dashbord(x){
+  try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
+  const cv=malyuy(x);
+  const imya=x.imya||x.lead_name||'bez-imeni';
+  const nazva='diagnostyka-'+String(imya).replace(/[^\p{L}\p{N}]+/gu,'-')+'-'+x.id+'.png';
+  await new Promise(res=>cv.toBlob(b=>{
+    const u=URL.createObjectURL(b), a=document.createElement('a');
+    a.href=u; a.download=nazva; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ a.remove(); URL.revokeObjectURL(u) },2000); res();
+  },'image/png'));
+  return nazva;
+}
+
+/* коротке резюме в чат батькам */
+function rezyume(x){
+  const sered=x.rejt_nyz?Math.round((x.rejt_nyz+x.rejt_verh)/2):0;
+  const baza=Math.round(+x.test_bal||0);
+  const st=temyStany(x);
+  const dobre=st.filter(s=>s.st==='g').map(s=>s.t.toLowerCase());
+  const slabo=st.filter(s=>s.st==='b').map(s=>s.t.toLowerCase());
+  const pr8=rejting(Math.min(32,baza+8))-rejting(baza);
+  const r=[];
+  r.push('Коротко по діагностиці '+(x.imya||'')+':');
+  r.push('');
+  r.push('• Бал за офіційною шкалою МОН зараз: '+(x.rejt_nyz?x.rejt_nyz+'–'+x.rejt_verh:'—')+
+    (sered>=SEREDNIY?' (вище за середній по Україні — торік 131,9)':' (середній по Україні торік — 131,9)'));
+  if(dobre.length) r.push('• Впевнено: '+dobre.slice(0,3).join(', '));
+  if(slabo.length) r.push('• Починаємо з: '+slabo.slice(0,2).join(', '));
+  r.push('• Якщо закрити ці теми — ще 8 завдань дають +'+pr8+' '+
+    sklo(pr8,'бал','бали','балів')+' за офіційною шкалою');
+  r.push('');
+  r.push('Формат: живі заняття двічі на тиждень у групі до 10 осіб, 1600 ₴ на місяць (8 занять). Записи, конспекти й тести на платформі.');
+  if(x.bazhanyi_chas) r.push('');
+  if(x.bazhanyi_chas) r.push('Ви писали, що зручно: '+x.bazhanyi_chas+'. Підтверджую час?');
+  return r.join('\n');
 }
 
 async function onovyty(){
@@ -492,6 +720,33 @@ $('#spysok').addEventListener('click',e=>{
   const x=DANI.find(d=>d.id===OBRANE);
   if(x){ kartka(x); spysok();
     if(innerWidth<1000) $('#kartka').scrollIntoView({behavior:'smooth',block:'start'}); }
+});
+
+$('#kartka').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const x=DANI.find(d=>d.id===OBRANE); if(!x) return;
+  const n=$('#k-act-n'), bulo=b.textContent;
+  try{
+    if(b.dataset.act==='png'){
+      b.disabled=true; b.textContent='Малюю…';
+      await dashbord(x);
+      if(n) n.textContent='PNG у завантаженнях — вставити у слайд «Ось що показала діагностика»';
+    }else{
+      await navigator.clipboard.writeText(rezyume(x));
+      if(n) n.textContent='Текст скопійовано — можна вставляти у чат';
+    }
+  }catch(err){
+    if(b.dataset.act==='txt'){
+      // буфер відмовив — показуємо текст, щоб можна було виділити руками
+      const p=document.createElement('textarea');
+      p.value=rezyume(x);
+      p.style.cssText='width:100%;min-height:150px;margin-top:8px;border-radius:10px;'+
+        'border:1px solid var(--line);background:rgba(18,8,7,.6);color:var(--cream);'+
+        'font:inherit;font-size:13.5px;padding:10px';
+      b.parentNode.appendChild(p); p.select();
+      if(n) n.textContent='Буфер недоступний — виділіть текст нижче';
+    }else if(n) n.textContent='Не вийшло намалювати: '+err.message;
+  }finally{ b.disabled=false; b.textContent=bulo }
 });
 
 // ключ міг лишитись із минулого разу
