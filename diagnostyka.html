@@ -2,11 +2,13 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;700;800&display=swap">
 <style>
-/* Крок за кроком: одна картка на екрані, прогрес угорі.
+/* Крок за кроком: одна картка на екрані. Результат відкриває бал,
+   решту тримає під замком до діагностики.
    Палітра — фірмова винно-золота «Формули знань», свідомо темна. */
 :root{
   --ink:#120807; --wine:#2A1412; --wine-2:#45201A; --wine-3:#5E2A20;
-  --gold:#D9A94C; --gold-br:#F3CE7E; --cream:#F6EEE2; --muted:#BBA396;
+  --gold:#D9A94C; --gold-br:#F3CE7E; --gold-hi:#FFE3A8;
+  --cream:#F6EEE2; --muted:#BBA396;
   --line:rgba(217,169,76,.22);
   --good:#7FBF6A; --warn:#E8B44C; --bad:#D9705C;
   --disp:'Unbounded',system-ui,sans-serif;
@@ -17,7 +19,8 @@
 html,body{margin:0}
 body{
   background:
-    radial-gradient(900px 500px at 50% -8%,rgba(217,169,76,.10),transparent 68%),
+    radial-gradient(1100px 620px at 50% -10%,rgba(217,169,76,.13),transparent 66%),
+    radial-gradient(700px 400px at 90% 20%,rgba(94,42,32,.5),transparent 70%),
     var(--ink);
   color:var(--cream); font-family:var(--body); line-height:1.55; min-height:100%;
 }
@@ -35,6 +38,18 @@ p{margin:0}
 .lead{color:var(--muted);font-size:clamp(15px,1.9vw,17px)}
 sub,sup{font-size:.72em;line-height:0}
 
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes shimmer{0%{background-position:-220% 0}100%{background-position:220% 0}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(217,169,76,.34)}
+  50%{box-shadow:0 0 0 16px rgba(217,169,76,0)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes sheen{0%{transform:translateX(-120%)}60%,100%{transform:translateX(320%)}}
+.anim{animation:fadeUp .5s cubic-bezier(.2,.7,.3,1) both}
+.anim:nth-child(2){animation-delay:.07s}
+.anim:nth-child(3){animation-delay:.14s}
+.anim:nth-child(4){animation-delay:.21s}
+.anim:nth-child(5){animation-delay:.28s}
+
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
   background:linear-gradient(180deg,var(--ink) 74%,transparent);padding-block:12px 16px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
@@ -43,35 +58,42 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .mark{font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:var(--gold-br);
   text-transform:uppercase}
 .timer{font-family:var(--disp);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
-.timer.low{color:var(--warn)}
-.bar{height:5px;border-radius:99px;background:rgba(246,238,226,.1);margin-top:11px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;border-radius:99px;
-  background:linear-gradient(90deg,var(--gold),var(--gold-br));
-  transition:width .45s cubic-bezier(.2,.7,.3,1)}
+.timer.low{color:var(--warn);animation:pulseGlow 1.8s infinite;border-radius:8px;padding:2px 6px}
+.bar{height:6px;border-radius:99px;background:rgba(246,238,226,.1);margin-top:11px;
+  overflow:hidden;position:relative}
+.bar i{display:block;height:100%;width:0;border-radius:99px;position:relative;
+  background:linear-gradient(90deg,var(--gold),var(--gold-hi),var(--gold));
+  background-size:220% 100%;animation:shimmer 2.6s linear infinite;
+  transition:width .5s cubic-bezier(.2,.7,.3,1)}
 .step-n{font-size:12.5px;color:var(--muted);margin-top:7px}
 
-.card{border:1px solid var(--line);border-radius:20px;
-  background:linear-gradient(152deg,rgba(69,32,26,.6),rgba(42,20,18,.76));
+.card{border:1px solid var(--line);border-radius:20px;position:relative;overflow:hidden;
+  background:linear-gradient(152deg,rgba(69,32,26,.62),rgba(42,20,18,.8));
   padding:clamp(20px,3vw,30px);display:flex;flex-direction:column;gap:16px}
+.card::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:20px;
+  background:radial-gradient(540px 220px at 50% -30%,rgba(217,169,76,.14),transparent 70%)}
+.card > *{position:relative;z-index:1}
 .card + .card{margin-top:16px}
 
 .opts{display:flex;flex-direction:column;gap:9px}
 .opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
   padding:14px 16px;border-radius:14px;cursor:pointer;border:1px solid var(--line);
   background:rgba(246,238,226,.04);color:var(--cream);font:inherit;font-size:15.5px;
-  transition:border-color .22s,background .22s}
-.opt:hover{border-color:rgba(217,169,76,.48);background:rgba(246,238,226,.07)}
+  transition:border-color .22s,background .22s,transform .18s}
+.opt:hover{border-color:rgba(217,169,76,.5);background:rgba(246,238,226,.08);
+  transform:translateX(3px)}
 .opt:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
 .opt[aria-pressed="true"]{border-color:var(--gold);
-  background:linear-gradient(135deg,rgba(217,169,76,.2),rgba(217,169,76,.07))}
+  background:linear-gradient(135deg,rgba(217,169,76,.22),rgba(217,169,76,.07))}
 .opt .k{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
-  border:1px solid var(--line);font-family:var(--disp);font-size:12px;color:var(--gold-br)}
-.opt[aria-pressed="true"] .k{background:var(--gold);color:var(--wine);border-color:var(--gold)}
+  border:1px solid var(--line);font-family:var(--disp);font-size:12px;color:var(--gold-br);
+  transition:all .22s}
+.opt[aria-pressed="true"] .k{background:var(--gold);color:var(--wine);border-color:var(--gold);
+  transform:scale(1.08)}
 
-/* завдання на відповідність */
 .match{display:flex;flex-direction:column;gap:14px}
 .match-col{display:flex;flex-direction:column;gap:7px;padding:14px 16px;border-radius:14px;
-  border:1px solid var(--line);background:rgba(18,8,7,.3)}
+  border:1px solid var(--line);background:rgba(18,8,7,.34)}
 .match-col .ttl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--muted);font-weight:800}
 .match-col ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
@@ -85,7 +107,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .mb{padding:11px 4px;border-radius:10px;border:1px solid var(--line);cursor:pointer;
   background:rgba(246,238,226,.04);color:var(--muted);font:inherit;font-weight:800;
   font-size:14px;transition:all .2s}
-.mb:hover{border-color:rgba(217,169,76,.45);color:var(--cream)}
+.mb:hover{border-color:rgba(217,169,76,.45);color:var(--cream);transform:translateY(-2px)}
 .mb:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
 .mb[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--wine)}
 
@@ -97,68 +119,115 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip{padding:9px 6px;border-radius:11px;border:1px solid var(--line);cursor:pointer;
   background:rgba(246,238,226,.04);color:var(--muted);font:inherit;font-size:13px;
   font-weight:700;transition:all .2s;text-align:center}
-.chip:hover{border-color:rgba(217,169,76,.45);color:var(--cream)}
+.chip:hover{border-color:rgba(217,169,76,.45);color:var(--cream);transform:translateY(-2px)}
 .chip:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
-.chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--wine)}
+.chip[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  border-color:var(--gold);color:var(--wine)}
 
 .field{display:flex;flex-direction:column;gap:7px}
 label{font-size:13.5px;color:var(--muted);font-weight:700}
-input[type=text],input[type=tel],input[type=number]{padding:14px 16px;border-radius:13px;
+input[type=text],input[type=number]{padding:14px 16px;border-radius:13px;
   border:1px solid var(--line);background:rgba(18,8,7,.6);color:var(--cream);
-  font:inherit;font-size:16px}
+  font:inherit;font-size:16px;transition:border-color .2s}
 input:focus{outline:none;border-color:var(--gold)}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
-  padding:16px 26px;border-radius:14px;border:0;cursor:pointer;
-  font-family:var(--disp);font-weight:600;font-size:15.5px;
-  background:linear-gradient(135deg,var(--gold-br),var(--gold));color:#2A1412;
-  transition:transform .22s,box-shadow .22s}
-.btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(217,169,76,.3)}
+  padding:16px 26px;border-radius:14px;border:0;cursor:pointer;position:relative;
+  overflow:hidden;font-family:var(--disp);font-weight:600;font-size:15.5px;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold-br) 46%,var(--gold));
+  color:#2A1412;transition:transform .22s,box-shadow .22s}
+.btn::after{content:'';position:absolute;top:0;left:0;width:35%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  animation:sheen 4.5s ease-in-out infinite}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(217,169,76,.34)}
 .btn:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
 .btn[disabled]{opacity:.42;cursor:not-allowed;transform:none;box-shadow:none}
+.btn[disabled]::after{display:none}
 .btn.ghost{background:none;border:1px solid var(--line);color:var(--muted);
   font-size:14px;padding:13px 20px}
+.btn.ghost::after{display:none}
 .btn.ghost:hover{border-color:var(--gold);color:var(--cream);box-shadow:none}
 .nav{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:4px}
 .nav .spacer{flex:1 1 auto}
 
 .fig{display:block;margin:4px auto;max-width:100%;height:auto}
 
-.score-box{text-align:center;padding:clamp(22px,3.4vw,34px) 18px;border-radius:20px;
-  border:1px solid rgba(217,169,76,.4);
-  background:linear-gradient(152deg,rgba(94,42,32,.7),rgba(42,20,18,.85));
-  position:relative;overflow:hidden}
+/* ── результат ── */
+.score-box{text-align:center;padding:clamp(26px,4vw,42px) 18px;border-radius:22px;
+  border:1px solid rgba(217,169,76,.45);position:relative;overflow:hidden;
+  background:linear-gradient(152deg,rgba(94,42,32,.78),rgba(42,20,18,.9));
+  box-shadow:0 22px 60px rgba(0,0,0,.44)}
 .score-box::before{content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(520px 200px at 50% -20%,rgba(217,169,76,.22),transparent 70%)}
-.score-lbl{position:relative;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);font-weight:700}
+  background:radial-gradient(620px 260px at 50% -22%,rgba(217,169,76,.3),transparent 70%)}
+.score-box::after{content:'';position:absolute;top:0;left:0;width:30%;height:100%;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);
+  animation:sheen 6s ease-in-out infinite}
+.score-lbl{position:relative;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:800}
 .score-num{position:relative;font-family:var(--disp);font-weight:800;line-height:1;
-  font-size:clamp(46px,10vw,74px);margin:10px 0 6px;
-  background:linear-gradient(135deg,#FFE3A8,var(--gold-br) 46%,var(--gold));
+  font-size:clamp(52px,12vw,88px);margin:12px 0 8px;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold-br) 46%,var(--gold));
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  font-variant-numeric:tabular-nums}
+  font-variant-numeric:tabular-nums;filter:drop-shadow(0 6px 24px rgba(217,169,76,.3))}
 .score-sub{position:relative;color:var(--muted);font-size:14.5px}
+.score-badge{position:relative;display:inline-flex;align-items:center;gap:7px;margin-top:14px;
+  padding:8px 15px;border-radius:999px;font-size:13px;font-weight:800;
+  border:1px solid rgba(217,169,76,.4);background:rgba(217,169,76,.12);color:var(--gold-br)}
 
 .scale{margin-top:20px}
-.scale-track{position:relative;height:38px;border-radius:12px;overflow:hidden;
+.scale-track{position:relative;height:40px;border-radius:13px;overflow:hidden;
   background:linear-gradient(90deg,#4A231C,#6B3426 38%,#8A5A2E 62%,var(--gold) 100%)}
-.scale-band{position:absolute;top:0;bottom:0;background:rgba(246,238,226,.26);
-  border-left:1px solid rgba(246,238,226,.55);border-right:1px solid rgba(246,238,226,.55)}
-.scale-avg{position:absolute;top:0;bottom:0;width:2px;background:rgba(18,8,7,.75)}
+.scale-band{position:absolute;top:0;bottom:0;background:rgba(246,238,226,.3);
+  border-left:2px solid var(--cream);border-right:2px solid var(--cream);
+  box-shadow:0 0 22px rgba(246,238,226,.4);transition:left .8s cubic-bezier(.2,.7,.3,1),
+  width .8s cubic-bezier(.2,.7,.3,1)}
+.scale-avg{position:absolute;top:0;bottom:0;width:2px;background:rgba(18,8,7,.8)}
 .scale-keys{display:flex;justify-content:space-between;margin-top:7px;font-size:12px;
   color:var(--muted);font-variant-numeric:tabular-nums}
 
-.topics{display:flex;flex-direction:column;gap:8px}
-.topic{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
-  padding:12px 14px;border-radius:13px;border:1px solid var(--line);
-  background:rgba(246,238,226,.03)}
-.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
-.dot.g{background:var(--good)} .dot.w{background:var(--warn)} .dot.b{background:var(--bad)}
-.topic .nm{font-weight:700;font-size:15px}
-.topic .st{font-size:12.5px;color:var(--muted);text-align:right}
-.gap-note{padding:14px 16px;border-radius:13px;font-size:14.5px;line-height:1.55;
-  border:1px solid rgba(217,112,92,.4);background:rgba(217,112,92,.1)}
-.gap-note b{color:var(--gold-br)}
+/* ── заблюрені блоки ── */
+.locked{position:relative;border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);background:linear-gradient(152deg,rgba(69,32,26,.5),rgba(42,20,18,.7))}
+.locked-inner{filter:blur(7px);opacity:.62;pointer-events:none;user-select:none;
+  padding:clamp(20px,3vw,28px);display:flex;flex-direction:column;gap:11px}
+.locked-over{position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  padding:22px;background:linear-gradient(180deg,rgba(18,8,7,.42),rgba(18,8,7,.72))}
+.locked-over .ico{font-size:30px;animation:floaty 3.4s ease-in-out infinite}
+.locked-over .t{font-family:var(--disp);font-size:clamp(16px,2.4vw,19px);
+  color:var(--cream);margin-top:9px;line-height:1.3}
+.locked-over .s{color:var(--muted);font-size:13.5px;margin-top:6px;max-width:33ch}
+.fake-row{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;
+  padding:11px 13px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(246,238,226,.04)}
+.fake-dot{width:10px;height:10px;border-radius:50%}
+.fake-bar{height:11px;border-radius:99px;background:rgba(246,238,226,.2)}
+
+/* ── вибір часу ── */
+.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:8px}
+.day{padding:11px 6px;border-radius:13px;border:1px solid var(--line);cursor:pointer;
+  background:rgba(246,238,226,.04);color:var(--cream);font:inherit;text-align:center;
+  transition:all .2s;display:flex;flex-direction:column;gap:3px;align-items:center}
+.day:hover{border-color:rgba(217,169,76,.5);transform:translateY(-2px)}
+.day:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
+.day .dw{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.day .dd{font-family:var(--disp);font-size:17px;font-weight:600}
+.day[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  border-color:var(--gold);color:var(--wine)}
+.day[aria-pressed="true"] .dw{color:rgba(42,20,18,.72)}
+.times{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:8px}
+.time{padding:12px 6px;border-radius:12px;border:1px solid var(--line);cursor:pointer;
+  background:rgba(246,238,226,.04);color:var(--cream);font:inherit;font-weight:700;
+  font-size:14.5px;text-align:center;transition:all .2s;font-variant-numeric:tabular-nums}
+.time:hover{border-color:rgba(217,169,76,.5);transform:translateY(-2px)}
+.time:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
+.time[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  border-color:var(--gold);color:var(--wine)}
+.ok-box{display:none;text-align:center;padding:26px 18px;border-radius:18px;
+  border:1px solid rgba(127,191,106,.4);background:rgba(127,191,106,.1)}
+.ok-box .ico{font-size:34px}
+.ok-box h3{margin-top:9px}
+.ok-box p{color:var(--muted);font-size:14.5px;margin-top:7px}
 
 .plateau{display:grid;gap:10px}
 .pl-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;
@@ -167,9 +236,11 @@ input:focus{outline:none;border-color:var(--gold)}
 .pl-v{font-family:var(--disp);font-size:17px;color:var(--gold-br);font-variant-numeric:tabular-nums}
 
 .note{font-size:13px;color:var(--muted);line-height:1.6}
-.tag{display:inline-block;padding:5px 11px;border-radius:99px;font-size:11.5px;font-weight:800;
-  letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
-  color:var(--gold-br);background:rgba(217,169,76,.1);align-self:flex-start}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:99px;
+  font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  border:1px solid var(--line);color:var(--gold-br);
+  background:linear-gradient(135deg,rgba(217,169,76,.17),rgba(217,169,76,.06));
+  align-self:flex-start}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -184,26 +255,25 @@ input:focus{outline:none;border-color:var(--gold)}
   </div>
 
   <section id="s-start">
-    <div class="card">
-      <span class="tag">Перед консультацією · 30 хвилин</span>
+    <div class="card anim">
+      <span class="tag">⏱ Перед консультацією · 30 хвилин</span>
       <h1>Діагностика рівня з математики</h1>
-      <p class="lead">Дванадцять завдань із офіційного тесту НМТ плюс коротке опитування
-        по темах програми. Пройди до консультації — щоб розмова була не загальною, а про
-        твої конкретні прогалини. Результат побачиш одразу.</p>
+      <p class="lead">Дванадцять завдань у форматі НМТ плюс коротке опитування по темах
+        програми. Пройди до консультації — щоб розмова була не загальною, а про твої
+        конкретні прогалини. Свій орієнтовний бал побачиш одразу.</p>
       <div class="plateau">
-        <div class="pl-row"><span>Завдань</span><span class="pl-v">12</span></div>
-        <div class="pl-row"><span>Часу знадобиться</span><span class="pl-v">~30 хв</span></div>
-        <div class="pl-row"><span>Середній бал НМТ-2025 з математики</span><span class="pl-v">132</span></div>
+        <div class="pl-row"><span>📝 Завдань</span><span class="pl-v">12</span></div>
+        <div class="pl-row"><span>⏳ Часу знадобиться</span><span class="pl-v">~30 хв</span></div>
+        <div class="pl-row"><span>📊 Середній бал НМТ-2026</span><span class="pl-v">131,9</span></div>
+        <div class="pl-row"><span>😬 Не склали математику торік</span><span class="pl-v">39 888</span></div>
       </div>
       <div class="nav"><button class="btn" id="go">Почати діагностику →</button></div>
-      <p class="note">Завдання взяті з офіційного тесту НМТ-2025 з ключами відповідей УЦОЯО.
-        Результат — оцінка діапазону, а не гарантія: точну шкалу МОН затверджує щороку.</p>
     </div>
   </section>
 
   <section id="s-profile" hidden>
-    <div class="card">
-      <h2>Спочатку коротко про тебе</h2>
+    <div class="card anim">
+      <h2>🎯 Спочатку коротко про тебе</h2>
       <div class="field">
         <label for="f-goal">Скільки балів потрібно для вступу</label>
         <input type="number" id="f-goal" placeholder="160" min="100" max="200" inputmode="numeric">
@@ -211,9 +281,9 @@ input:focus{outline:none;border-color:var(--gold)}
       <div class="field">
         <label>Як зараз із математикою в школі</label>
         <div class="self-opts" id="f-level">
-          <button class="chip" type="button" aria-pressed="false" data-v="low">Важко</button>
-          <button class="chip" type="button" aria-pressed="false" data-v="mid">Нормально</button>
-          <button class="chip" type="button" aria-pressed="false" data-v="high">Добре</button>
+          <button class="chip" type="button" aria-pressed="false" data-v="low">😣 Важко</button>
+          <button class="chip" type="button" aria-pressed="false" data-v="mid">🙂 Нормально</button>
+          <button class="chip" type="button" aria-pressed="false" data-v="high">😎 Добре</button>
         </div>
       </div>
       <div class="nav">
@@ -225,8 +295,8 @@ input:focus{outline:none;border-color:var(--gold)}
   </section>
 
   <section id="s-self" hidden>
-    <div class="card">
-      <h2>Теми програми НМТ</h2>
+    <div class="card anim">
+      <h2>📚 Теми програми НМТ</h2>
       <p class="lead">Познач, як почуваєшся в кожній. Відповідай чесно — це не оцінка,
         а спосіб побачити, де варто копнути глибше.</p>
       <div class="self" id="self-list"></div>
@@ -250,47 +320,85 @@ input:focus{outline:none;border-color:var(--gold)}
   </section>
 
   <section id="s-result" hidden>
-    <div class="score-box">
+    <div class="score-box anim">
       <div class="score-lbl">Орієнтовний бал НМТ</div>
       <div class="score-num" id="r-score">—</div>
       <div class="score-sub" id="r-sub"></div>
+      <div class="score-badge" id="r-badge" hidden></div>
     </div>
 
-    <div class="card" style="margin-top:16px">
-      <h3>Де це на шкалі</h3>
+    <div class="card anim">
+      <h3>📍 Де це на шкалі</h3>
       <div class="scale">
         <div class="scale-track">
           <div class="scale-band" id="sc-band"></div>
           <div class="scale-avg" id="sc-avg"></div>
         </div>
-        <div class="scale-keys"><span>100</span><span>132 · середній</span><span>200</span></div>
+        <div class="scale-keys"><span>100</span><span>131,9 · середній</span><span>200</span></div>
       </div>
       <p class="note" id="r-vs"></p>
     </div>
 
-    <div class="card">
-      <h3>Скільки коштує кожне наступне завдання</h3>
-      <div class="plateau" id="r-plateau"></div>
-      <p class="note">Шкала НМТ нерівномірна. У середині вона майже стоїть на місці, а після
-        двадцяти тестових балів кожне завдання починає коштувати вчетверо більше.</p>
-    </div>
-
-    <div class="card">
-      <h3>Карта тем</h3>
-      <div class="topics" id="r-topics"></div>
-      <div class="gap-note" id="r-gap" hidden></div>
-    </div>
-
-    <div class="card">
-      <h3>Що далі</h3>
-      <p class="lead">Результат збережено — ми бачимо твої відповіді по кожному завданню.
-        На консультації розберемо їх разом: покажемо, які саме теми зараз тримають бал
-        і з чого почати, щоб він зрушив. Розмова триває 30 хвилин.</p>
-      <div class="plateau">
-        <div class="pl-row"><span>Консультацію проводить</span><span class="pl-v">Анастасія</span></div>
-        <div class="pl-row"><span>Триватиме</span><span class="pl-v">30 хв</span></div>
+    <div class="locked anim" style="margin-top:16px">
+      <div class="locked-inner">
+        <div class="fake-row"><span class="fake-dot" style="background:var(--good)"></span>
+          <span class="fake-bar" style="width:58%"></span><span class="pl-v">усе правильно</span></div>
+        <div class="fake-row"><span class="fake-dot" style="background:var(--warn)"></span>
+          <span class="fake-bar" style="width:72%"></span><span class="pl-v">частково</span></div>
+        <div class="fake-row"><span class="fake-dot" style="background:var(--bad)"></span>
+          <span class="fake-bar" style="width:44%"></span><span class="pl-v">не вийшло</span></div>
+        <div class="fake-row"><span class="fake-dot" style="background:var(--warn)"></span>
+          <span class="fake-bar" style="width:63%"></span><span class="pl-v">частково</span></div>
       </div>
-      <p class="note">Якщо час зустрічі ще не узгоджений — ми зателефонуємо найближчим часом.</p>
+      <div class="locked-over">
+        <div>
+          <div class="ico">🗺️</div>
+          <div class="t">Карта твоїх тем готова</div>
+          <div class="s">Які теми тримають бал унизу і де ти помилився — розберемо
+            на діагностиці разом, по кожному завданню.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="locked anim" style="margin-top:16px">
+      <div class="locked-inner">
+        <div class="pl-row"><span>ще 2 завдання</span><span class="pl-v">+8 балів</span></div>
+        <div class="pl-row"><span>ще 4 завдання</span><span class="pl-v">+16 балів</span></div>
+        <div class="pl-row"><span>ще 8 завдань</span><span class="pl-v">+29 балів</span></div>
+      </div>
+      <div class="locked-over">
+        <div>
+          <div class="ico">🔓</div>
+          <div class="t">Скільки балів дасть кожна тема</div>
+          <div class="s">Шкала НМТ нерівномірна: в одній зоні завдання коштує бал,
+            в іншій — чотири. Покажемо, де саме стоїш ти.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card anim" style="margin-top:16px">
+      <h3>📅 Коли тобі зручно на діагностику</h3>
+      <p class="lead">Обери день і час — ми підтвердимо й надішлемо посилання.
+        Деталі по часу напишемо окремо.</p>
+      <div class="field">
+        <label>День</label>
+        <div class="days" id="days"></div>
+      </div>
+      <div class="field">
+        <label>Час</label>
+        <div class="times" id="times"></div>
+      </div>
+      <div class="field">
+        <label for="t-note">Хочеш щось додати? (необов'язково)</label>
+        <input type="text" id="t-note" placeholder="напр. після 18:00 у будні зручніше">
+      </div>
+      <div class="nav"><button class="btn" id="t-send" disabled>Підтвердити час →</button></div>
+    </div>
+
+    <div class="ok-box" id="ok-box">
+      <div class="ico">🎉</div>
+      <h3>Записали!</h3>
+      <p id="ok-text"></p>
     </div>
   </section>
 </div>
@@ -300,7 +408,7 @@ input:focus{outline:none;border-color:var(--gold)}
 const SHKALA={5:100,6:108,7:115,8:123,9:131,10:134,11:137,12:140,13:143,14:145,
   15:147,16:148,17:149,18:150,19:151,20:152,21:155,22:159,23:163,24:167,25:170,
   26:173,27:176,28:180,29:184,30:189,31:194,32:200};
-const MAX_NMT=32, SEREDNIY=132;
+const MAX_NMT=32, SEREDNIY=131.9;
 
 const TEMY=[
   {id:'vyrazy',n:'Числа, вирази, відсотки'},
@@ -315,7 +423,6 @@ const TEMY=[
   {id:'imovir',n:'Комбінаторика та ймовірність'}
 ];
 
-// Коло з трьома радіусами — до завдання про емблему
 const KOLO='<svg class="fig" viewBox="0 0 200 200" width="180" height="180" role="img" '+
  'aria-label="Коло з центром O і радіусами OA, OB, OC"><circle cx="100" cy="100" r="72" '+
  'fill="none" stroke="#F3CE7E" stroke-width="2"/>'+
@@ -373,23 +480,27 @@ const PYTANNYA=[
 const MAX_TESTU=PYTANNYA.reduce((s,p)=>s+p.bal,0);
 const BUKVY=['А','Б','В','Г','Д'];
 
-const stan={krok:0,profil:{},samo:{},vidpovidi:{},i:0,pochatok:null,taymer:null};
+const stan={krok:0,profil:{},samo:{},vidpovidi:{},i:0,pochatok:null,taymer:null,
+  den:null,chas:null,ostanniy:null};
 const $=s=>document.querySelector(s);
 const API='https://worker-production-0a51.up.railway.app';
-// персональне посилання від менеджера: ?t=токен
 const TOKEN=new URLSearchParams(location.search).get('t')||'';
+const EKRANY=['s-start','s-profile','s-self','s-test','s-result'];
 
 // Результат летить у воркер у фоні. Якщо не долетить — людина все одно
 // бачить свій бал, сторінка через це не ламається.
-async function nadislaty(r,rozryvy,slabki){
+async function nadislaty(dodatkovo){
+  const r=stan.ostanniy;
+  if(!r) return;
   const vidpovidi={};
   PYTANNYA.forEach((p,i)=>{
     if(stan.vidpovidi[i]!==undefined) vidpovidi[p.nmt]=stan.vidpovidi[i];
   });
   try{
-    await fetch(API+'/diag',{method:'POST',
+    const vidpovid=await fetch(API+'/diag',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
+      body:JSON.stringify(Object.assign({
+        diag_id:stan.diagId||null,
         imya:stan.profil.imya||'', telefon:stan.profil.telefon||'',
         token:TOKEN, meta_bal:stan.profil.meta||null,
         riven:stan.profil.riven||'', samo:stan.samo, vidpovidi,
@@ -399,17 +510,18 @@ async function nadislaty(r,rozryvy,slabki){
         rezultat:{nabrano:r.nabrano, max_balu:MAX_TESTU,
           test_bal:+r.test.toFixed(1),
           rejt_nyz:rejting(r.nyz), rejt_verh:rejting(r.verh),
-          po_temah:r.poTemah, rozryvy, slabki}
-      })});
+          po_temah:r.poTemah, rozryvy:r.rozryvy, slabki:r.slabki}
+      }, dodatkovo||{}))});
+    const dani=await vidpovid.json().catch(()=>null);
+    if(dani&&dani.id) stan.diagId=dani.id;
   }catch(e){}
 }
-const EKRANY=['s-start','s-profile','s-self','s-test','s-result'];
 
 function pokazaty(n){
   EKRANY.forEach((id,k)=>{document.getElementById(id).hidden=k!==n});
   stan.krok=n;
   const p=['Діагностика рівня з математики','Крок 1 з 3 · про тебе',
-    'Крок 2 з 3 · теми програми','Крок 3 з 3 · завдання','Результат'];
+    'Крок 2 з 3 · теми програми','Крок 3 з 3 · завдання','Твій результат'];
   $('#stepn').textContent=p[n];
   $('#timer').hidden=n!==3;
   $('#bar').style.width=([0,.08,.3,.55,1][n]*100)+'%';
@@ -419,7 +531,7 @@ function pokazaty(n){
 function budSamo(){
   const box=$('#self-list');
   box.innerHTML=TEMY.map(t=>'<div class="self-row"><div class="self-name">'+t.n+'</div>'+
-    '<div class="self-opts">'+['Не знаю','Плаваю','Знаю'].map((p,i)=>
+    '<div class="self-opts">'+['😕 Не знаю','😐 Плаваю','😊 Знаю'].map((p,i)=>
     '<button class="chip" type="button" aria-pressed="false" data-t="'+t.id+'" data-v="'+i+'">'+
     p+'</button>').join('')+'</div></div>').join('');
   box.addEventListener('click',e=>{
@@ -434,14 +546,14 @@ function budSamo(){
 function hotovo(i){
   const p=PYTANNYA[i], v=stan.vidpovidi[i];
   if(v===undefined) return false;
-  if(p.typ==='vidpovidnist') return v.every(x=>x!==null && x!==undefined);
+  if(p.typ==='vidpovidnist') return v.every(x=>x!==null&&x!==undefined);
   if(p.typ==='korotka') return String(v).trim()!=='';
   return true;
 }
 
 function budPytannya(){
   const p=PYTANNYA[stan.i];
-  let telo='<span class="tag">Завдання '+(stan.i+1)+' з '+PYTANNYA.length+'</span>'+
+  let telo='<span class="tag">✏️ Завдання '+(stan.i+1)+' з '+PYTANNYA.length+'</span>'+
     '<h3>'+p.q+'</h3>'+(p.fig||'');
 
   if(p.typ==='vybir'){
@@ -495,7 +607,6 @@ function startTaymer(){
   tick(); stan.taymer=setInterval(tick,1000);
 }
 
-// Коротка відповідь: порівнюємо як число, кома і крапка рівноцінні
 function chyslo(s){
   const n=parseFloat(String(s).replace(',','.').replace(/\s/g,''));
   return Number.isFinite(n)?n:null;
@@ -510,7 +621,7 @@ function rahuvaty(){
     else if(p.typ==='vidpovidnist'){
       if(Array.isArray(v)) p.ok.forEach((k,j)=>{ if(v[j]===k) vzyato++; });
     } else {
-      if(chyslo(v)!==null && Math.abs(chyslo(v)-p.ok)<1e-9) vzyato=p.bal;
+      if(chyslo(v)!==null&&Math.abs(chyslo(v)-p.ok)<1e-9) vzyato=p.bal;
     }
     nabrano+=vzyato;
     if(!poTemah[p.t]) poTemah[p.t]={bulo:0,vzyato:0};
@@ -525,31 +636,101 @@ function rahuvaty(){
     test+=(sered-1)*1.5;
   }
   test=Math.max(0,Math.min(MAX_NMT,test));
+
+  const rozryvy=TEMY.filter(t=>{
+    const d=poTemah[t.id];
+    return d&&stan.samo[t.id]===2&&d.vzyato<d.bulo;
+  }).map(t=>t.n);
+  const slabki=TEMY.filter(t=>{
+    const d=poTemah[t.id];
+    return d&&d.vzyato===0;
+  }).map(t=>t.n);
+
   return {nabrano,test,nyz:Math.max(0,Math.round(test-2)),
-    verh:Math.min(MAX_NMT,Math.round(test+2)),poTemah,netorkani};
+    verh:Math.min(MAX_NMT,Math.round(test+2)),poTemah,netorkani,rozryvy,slabki};
 }
 
 const rejting=t=>t<5?100:(SHKALA[Math.round(t)]??100);
 
+// Бал набігає, а не з'являється одразу — так його справді читають
+function nabery(el,vid,do_,suf){
+  const t0=performance.now(), tryv=900;
+  const krok=now=>{
+    const p=Math.min(1,(now-t0)/tryv);
+    const e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(vid+(do_-vid)*e)+(suf||'');
+    if(p<1) requestAnimationFrame(krok);
+  };
+  requestAnimationFrame(krok);
+}
+
+function budDni(){
+  const dni=['нд','пн','вт','ср','чт','пт','сб'];
+  const misyatsi=['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'];
+  let html='';
+  for(let k=1;k<=8;k++){
+    const d=new Date(); d.setDate(d.getDate()+k);
+    const kod=d.toISOString().slice(0,10);
+    html+='<button class="day" type="button" aria-pressed="false" data-d="'+kod+'" '+
+      'data-pidpys="'+dni[d.getDay()]+', '+d.getDate()+' '+misyatsi[d.getMonth()]+'">'+
+      '<span class="dw">'+dni[d.getDay()]+'</span>'+
+      '<span class="dd">'+d.getDate()+'</span>'+
+      '<span class="dw">'+misyatsi[d.getMonth()]+'</span></button>';
+  }
+  $('#days').innerHTML=html;
+  $('#times').innerHTML=['10:00','12:00','14:00','16:00','18:00','20:00']
+    .map(c=>'<button class="time" type="button" aria-pressed="false" data-c="'+c+'">'+c+'</button>')
+    .join('');
+}
+
+function perevirChas(){
+  $('#t-send').disabled=!(stan.den&&stan.chas);
+}
+
 function pidbyty(){
   if(stan.taymer) clearInterval(stan.taymer);
   const r=rahuvaty();
+  stan.ostanniy=r;
   const rNyz=rejting(r.nyz), rVerh=rejting(r.verh);
 
-  $('#r-score').textContent=rNyz===rVerh?rNyz:rNyz+'–'+rVerh;
+  pokazaty(4);
+  $('#bar').style.width='100%';
+
+  const el=$('#r-score');
+  if(rNyz===rVerh){ nabery(el,100,rNyz); }
+  else {
+    el.textContent='—';
+    const t0=performance.now();
+    const krok=now=>{
+      const p=Math.min(1,(now-t0)/900), e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(100+(rNyz-100)*e)+'–'+Math.round(100+(rVerh-100)*e);
+      if(p<1) requestAnimationFrame(krok);
+    };
+    requestAnimationFrame(krok);
+  }
+
   $('#r-sub').textContent='Набрано '+r.nabrano+' з '+MAX_TESTU+' балів тесту · це приблизно '+
     Math.round(r.test)+' з 32 на справжньому НМТ';
 
+  const seredina=Math.round((rNyz+rVerh)/2);
+  const badge=$('#r-badge');
+  badge.hidden=false;
+  if(seredina>=170) badge.textContent='🔥 Сильний результат';
+  else if(seredina>=SEREDNIY) badge.textContent='👍 Вище середнього по Україні';
+  else if(seredina>=120) badge.textContent='📈 Є куди рости';
+  else badge.textContent='⚠️ Варто братись уже зараз';
+
   const poz=v=>((v-100)/100)*100;
-  $('#sc-band').style.left=poz(rNyz)+'%';
-  $('#sc-band').style.width=Math.max(1.5,poz(rVerh)-poz(rNyz))+'%';
+  setTimeout(()=>{
+    $('#sc-band').style.left=poz(rNyz)+'%';
+    $('#sc-band').style.width=Math.max(1.5,poz(rVerh)-poz(rNyz))+'%';
+  },120);
   $('#sc-avg').style.left=poz(SEREDNIY)+'%';
 
-  const seredina=Math.round((rNyz+rVerh)/2);
   const meta=+($('#f-goal').value||0);
   let vs=seredina>=SEREDNIY
-    ? 'Це вище за середній бал по Україні — торік він був 132.'
-    : 'Середній бал по Україні торік — 132. Зараз ти трохи нижче.';
+    ? 'Середній бал НМТ-2026 з математики — 131,9, найнижчий серед усіх предметів. Ти вище.'
+    : 'Середній бал НМТ-2026 з математики — 131,9, і це найнижчий показник серед усіх предметів. Зараз ти трохи нижче.';
   if(meta>=100&&meta<=200){
     const d=meta-seredina;
     vs+=d>0?' До твоєї мети '+meta+' лишається '+d+' балів.'
@@ -557,46 +738,8 @@ function pidbyty(){
   }
   $('#r-vs').textContent=vs;
 
-  const bazа=Math.round(r.test);
-  $('#r-plateau').innerHTML=[[2,'ще 2 завдання'],[4,'ще 4 завдання'],[8,'ще 8 завдань']]
-    .map(([d,pidpys])=>{
-      const pryrist=rejting(Math.min(MAX_NMT,bazа+d))-rejting(bazа);
-      return '<div class="pl-row"><span>'+pidpys+'</span><span class="pl-v">+'+pryrist+' балів</span></div>';
-    }).join('');
-
-  $('#r-topics').innerHTML=TEMY.map(t=>{
-    const d=r.poTemah[t.id]; let klas,pidpys;
-    if(!d){
-      const s=stan.samo[t.id]??1;
-      klas=s===2?'g':s===1?'w':'b';
-      pidpys=['за твоєю оцінкою — не знаю','за твоєю оцінкою — плаваю','за твоєю оцінкою — знаю'][s];
-    } else {
-      const ch=d.vzyato/d.bulo;
-      klas=ch>=.99?'g':ch>0?'w':'b';
-      pidpys=ch>=.99?'усе правильно':ch>0?'частково, '+d.vzyato+' з '+d.bulo:'не вийшло';
-    }
-    return '<div class="topic"><span class="dot '+klas+'"></span><span class="nm">'+t.n+
-      '</span><span class="st">'+pidpys+'</span></div>';
-  }).join('');
-
-  const rozryvy=TEMY.filter(t=>{
-    const d=r.poTemah[t.id];
-    return d && stan.samo[t.id]===2 && d.vzyato<d.bulo;
-  });
-  if(rozryvy.length){
-    $('#r-gap').hidden=false;
-    $('#r-gap').innerHTML='Цікаве: теми <b>'+rozryvy.map(t=>t.n.toLowerCase()).join(', ')+
-      '</b> ти позначив(ла) як знайомі, але завдання з них не вийшли. Саме такі місця найчастіше '+
-      'й з’їдають бали на реальному НМТ — здається, що знаєш, а на тесті не складається.';
-  }
-  const slabki=TEMY.filter(t=>{
-    const d=r.poTemah[t.id];
-    return d && d.vzyato===0;
-  }).map(t=>t.n);
-  nadislaty(r, rozryvy.map(t=>t.n), slabki);
-
-  pokazaty(4);
-  $('#bar').style.width='100%';
+  budDni();
+  nadislaty();
 }
 
 $('#go').addEventListener('click',()=>pokazaty(1));
@@ -640,5 +783,34 @@ $('#q-next').addEventListener('click',()=>{
 $('#q-prev').addEventListener('click',()=>{
   if(stan.i>0){stan.i--; budPytannya(); scrollTo({top:0,behavior:'smooth'})}
 });
+
+$('#days').addEventListener('click',e=>{
+  const b=e.target.closest('.day'); if(!b) return;
+  $('#days').querySelectorAll('.day').forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');
+  stan.den=b.dataset.d; stan.denPidpys=b.dataset.pidpys;
+  perevirChas();
+});
+$('#times').addEventListener('click',e=>{
+  const b=e.target.closest('.time'); if(!b) return;
+  $('#times').querySelectorAll('.time').forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');
+  stan.chas=b.dataset.c;
+  perevirChas();
+});
+$('#t-send').addEventListener('click',()=>{
+  const btn=$('#t-send');
+  btn.disabled=true; btn.textContent='Надсилаємо…';
+  const bazhanyi=stan.denPidpys+' о '+stan.chas;
+  nadislaty({bazhanyi_chas:bazhanyi+($('#t-note').value.trim()
+    ? ' · '+$('#t-note').value.trim().slice(0,200) : '')}).then(()=>{
+    $('#ok-text').textContent='Чекаємо на тебе '+bazhanyi+
+      '. Підтвердимо час і надішлемо посилання на зустріч.';
+    $('#ok-box').style.display='block';
+    btn.closest('.card').hidden=true;
+    $('#ok-box').scrollIntoView({behavior:'smooth',block:'center'});
+  });
+});
+
 budSamo();
 </script>
