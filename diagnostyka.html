@@ -19,6 +19,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+/* без цього display:flex перебиває атрибут hidden */
+[hidden]{display:none!important}
 body{
   background:
     radial-gradient(1100px 620px at 50% -10%,rgba(217,169,76,.13),transparent 66%),
@@ -527,8 +529,8 @@ input:focus{outline:none;border-color:var(--gold)}
     </div>
 
     <div class="card anim" style="margin-top:16px">
-      <h3>📅 Коли тобі зручно на діагностику</h3>
-      <p class="lead">Залиш контакти й обери зручний час — ми підтвердимо
+      <h3>📅 Записатись на розбір результату</h3>
+      <p class="lead">Залиш контакти — зателефонуємо, узгодимо час
         і надішлемо посилання на зустріч.</p>
       <div class="field">
         <label for="t-imya">Як тебе звати</label>
@@ -543,18 +545,12 @@ input:focus{outline:none;border-color:var(--gold)}
         <input type="tel" id="t-tel" placeholder="+380 __ ___ __ __" inputmode="tel" autocomplete="tel">
       </div>
       <div class="field">
-        <label>День</label>
-        <div class="days" id="days"></div>
+        <label for="t-note">Коли вам зручно? (необов'язково)</label>
+        <input type="text" id="t-note" placeholder="напр. у четвер після 18:00 або на вихідних зранку">
       </div>
-      <div class="field">
-        <label>Час</label>
-        <div class="times" id="times"></div>
-      </div>
-      <div class="field">
-        <label for="t-note">Хочеш щось додати? (необов'язково)</label>
-        <input type="text" id="t-note" placeholder="напр. після 18:00 у будні зручніше">
-      </div>
-      <div class="nav"><button class="btn" id="t-send" disabled>Підтвердити час →</button></div>
+      <div class="nav"><button class="btn" id="t-send" disabled>Записатись на розбір →</button></div>
+      <p class="note">У будь-якому разі зафіналимо дату й час у переписці або на дзвінку
+        за вказаним номером — підлаштуємось під вас.</p>
     </div>
 
     <div class="ok-box" id="ok-box">
@@ -826,29 +822,10 @@ function nabery(el,vid,do_,suf){
   requestAnimationFrame(krok);
 }
 
-function budDni(){
-  const dni=['нд','пн','вт','ср','чт','пт','сб'];
-  const misyatsi=['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'];
-  let html='';
-  for(let k=1;k<=8;k++){
-    const d=new Date(); d.setDate(d.getDate()+k);
-    const kod=d.toISOString().slice(0,10);
-    html+='<button class="day" type="button" aria-pressed="false" data-d="'+kod+'" '+
-      'data-pidpys="'+dni[d.getDay()]+', '+d.getDate()+' '+misyatsi[d.getMonth()]+'">'+
-      '<span class="dw">'+dni[d.getDay()]+'</span>'+
-      '<span class="dd">'+d.getDate()+'</span>'+
-      '<span class="dw">'+misyatsi[d.getMonth()]+'</span></button>';
-  }
-  $('#days').innerHTML=html;
-  $('#times').innerHTML=['10:00','12:00','14:00','16:00','18:00','20:00']
-    .map(c=>'<button class="time" type="button" aria-pressed="false" data-c="'+c+'">'+c+'</button>')
-    .join('');
-}
-
 function perevirChas(){
   const tel=$('#t-tel').value.replace(/\D/g,'').length>=9;
   const imya=$('#t-imya').value.trim().length>1;
-  $('#t-send').disabled=!(stan.den&&stan.chas&&tel&&imya);
+  $('#t-send').disabled=!(tel&&imya);
 }
 
 function pidbyty(){
@@ -902,7 +879,6 @@ function pidbyty(){
   }
   $('#r-vs').textContent=vs;
 
-  budDni();
   nadislaty();
 }
 
@@ -948,39 +924,25 @@ $('#q-prev').addEventListener('click',()=>{
   if(stan.i>0){stan.i--; budPytannya(); scrollTo({top:0,behavior:'smooth'})}
 });
 
-$('#days').addEventListener('click',e=>{
-  const b=e.target.closest('.day'); if(!b) return;
-  $('#days').querySelectorAll('.day').forEach(x=>x.setAttribute('aria-pressed','false'));
-  b.setAttribute('aria-pressed','true');
-  stan.den=b.dataset.d; stan.denPidpys=b.dataset.pidpys;
-  perevirChas();
-});
-$('#times').addEventListener('click',e=>{
-  const b=e.target.closest('.time'); if(!b) return;
-  $('#times').querySelectorAll('.time').forEach(x=>x.setAttribute('aria-pressed','false'));
-  b.setAttribute('aria-pressed','true');
-  stan.chas=b.dataset.c;
-  perevirChas();
-});
 ['#t-imya','#t-batky','#t-tel'].forEach(s=>
   $(s).addEventListener('input',perevirChas));
 
 $('#t-send').addEventListener('click',()=>{
   const btn=$('#t-send');
   btn.disabled=true; btn.textContent='Надсилаємо…';
-  const bazhanyi=stan.denPidpys+' о '+stan.chas;
   stan.profil.imya=$('#t-imya').value.trim();
   stan.profil.telefon=$('#t-tel').value.trim();
-  nadislaty({
-    batky:$('#t-batky').value.trim(),
-    bazhanyi_chas:bazhanyi+($('#t-note').value.trim()
-      ? ' · '+$('#t-note').value.trim().slice(0,200) : '')}).then(()=>{
-    $('#ok-text').textContent='Чекаємо на тебе '+bazhanyi+
-      '. Підтвердимо час і надішлемо посилання на зустріч.';
-    $('#ok-box').style.display='block';
-    btn.closest('.card').hidden=true;
-    $('#ok-box').scrollIntoView({behavior:'smooth',block:'center'});
-  });
+  const koly=$('#t-note').value.trim().slice(0,200);
+  nadislaty({ batky:$('#t-batky').value.trim(), bazhanyi_chas:koly })
+    .then(()=>{
+      $('#ok-text').textContent=koly
+        ? 'Записали: ' + koly + '. Зателефонуємо, щоб підтвердити час і надіслати посилання.'
+        : 'Зателефонуємо найближчим часом, щоб узгодити зручний час і надіслати посилання.';
+      $('#ok-box').style.display='block';
+      const karta=btn.closest('.card');
+      karta.hidden=true; karta.style.display='none';
+      $('#ok-box').scrollIntoView({behavior:'smooth',block:'center'});
+    });
 });
 
 // Декор має крутитися без шва: дублюємо вміст, а зсув рівно на половину
