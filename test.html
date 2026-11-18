@@ -1,0 +1,678 @@
+<title>Твій бал НМТ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;700;800&display=swap">
+<style>
+/* Крок за кроком: одна картка на екрані, прогрес угорі.
+   Палітра — фірмова винно-золота «Формули знань», свідомо темна. */
+:root{
+  --ink:#120807; --wine:#2A1412; --wine-2:#45201A; --wine-3:#5E2A20;
+  --gold:#D9A94C; --gold-br:#F3CE7E; --cream:#F6EEE2; --muted:#BBA396;
+  --line:rgba(217,169,76,.22);
+  --good:#7FBF6A; --warn:#E8B44C; --bad:#D9705C;
+  --disp:'Unbounded',system-ui,sans-serif;
+  --body:'Manrope',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(900px 500px at 50% -8%,rgba(217,169,76,.10),transparent 68%),
+    var(--ink);
+  color:var(--cream); font-family:var(--body); line-height:1.55; min-height:100%;
+}
+.wrap{
+  max-width:720px; margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:clamp(18px,3vw,34px);
+}
+h1,h2,h3{font-family:var(--disp);font-weight:800;line-height:1.2;margin:0;text-wrap:balance}
+h1{font-size:clamp(26px,5vw,40px)}
+h2{font-size:clamp(20px,3.4vw,27px)}
+h3{font-size:clamp(16px,2.4vw,19px)}
+p{margin:0}
+.lead{color:var(--muted);font-size:clamp(15px,1.9vw,17px)}
+sub,sup{font-size:.72em;line-height:0}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:linear-gradient(180deg,var(--ink) 74%,transparent);padding-block:12px 16px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
+  z-index:11;background:var(--ink)}
+.top-row{display:flex;align-items:center;gap:14px;justify-content:space-between}
+.mark{font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:var(--gold-br);
+  text-transform:uppercase}
+.timer{font-family:var(--disp);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.timer.low{color:var(--warn)}
+.bar{height:5px;border-radius:99px;background:rgba(246,238,226,.1);margin-top:11px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-br));
+  transition:width .45s cubic-bezier(.2,.7,.3,1)}
+.step-n{font-size:12.5px;color:var(--muted);margin-top:7px}
+
+.card{border:1px solid var(--line);border-radius:20px;
+  background:linear-gradient(152deg,rgba(69,32,26,.6),rgba(42,20,18,.76));
+  padding:clamp(20px,3vw,30px);display:flex;flex-direction:column;gap:16px}
+.card + .card{margin-top:16px}
+
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
+  padding:14px 16px;border-radius:14px;cursor:pointer;border:1px solid var(--line);
+  background:rgba(246,238,226,.04);color:var(--cream);font:inherit;font-size:15.5px;
+  transition:border-color .22s,background .22s}
+.opt:hover{border-color:rgba(217,169,76,.48);background:rgba(246,238,226,.07)}
+.opt:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
+.opt[aria-pressed="true"]{border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(217,169,76,.2),rgba(217,169,76,.07))}
+.opt .k{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid var(--line);font-family:var(--disp);font-size:12px;color:var(--gold-br)}
+.opt[aria-pressed="true"] .k{background:var(--gold);color:var(--wine);border-color:var(--gold)}
+
+/* завдання на відповідність */
+.match{display:flex;flex-direction:column;gap:14px}
+.match-col{display:flex;flex-direction:column;gap:7px;padding:14px 16px;border-radius:14px;
+  border:1px solid var(--line);background:rgba(18,8,7,.3)}
+.match-col .ttl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:800}
+.match-col ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.match-col li{display:grid;grid-template-columns:22px 1fr;gap:9px;font-size:15px}
+.match-col li b{font-family:var(--disp);color:var(--gold-br);font-size:13px}
+.match-row{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;
+  padding:11px 0;border-top:1px solid var(--line)}
+.match-row:first-of-type{border-top:0}
+.match-row .lbl{font-family:var(--disp);font-size:15px;color:var(--gold-br);width:22px}
+.match-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.mb{padding:11px 4px;border-radius:10px;border:1px solid var(--line);cursor:pointer;
+  background:rgba(246,238,226,.04);color:var(--muted);font:inherit;font-weight:800;
+  font-size:14px;transition:all .2s}
+.mb:hover{border-color:rgba(217,169,76,.45);color:var(--cream)}
+.mb:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
+.mb[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--wine)}
+
+.self{display:grid;gap:11px}
+.self-row{display:grid;gap:9px;padding:13px 0;border-top:1px solid var(--line)}
+.self-row:first-child{border-top:0;padding-top:0}
+.self-name{font-weight:700;font-size:15.5px}
+.self-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.chip{padding:9px 6px;border-radius:11px;border:1px solid var(--line);cursor:pointer;
+  background:rgba(246,238,226,.04);color:var(--muted);font:inherit;font-size:13px;
+  font-weight:700;transition:all .2s;text-align:center}
+.chip:hover{border-color:rgba(217,169,76,.45);color:var(--cream)}
+.chip:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px}
+.chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--wine)}
+
+.field{display:flex;flex-direction:column;gap:7px}
+label{font-size:13.5px;color:var(--muted);font-weight:700}
+input[type=text],input[type=tel],input[type=number]{padding:14px 16px;border-radius:13px;
+  border:1px solid var(--line);background:rgba(18,8,7,.6);color:var(--cream);
+  font:inherit;font-size:16px}
+input:focus{outline:none;border-color:var(--gold)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:16px 26px;border-radius:14px;border:0;cursor:pointer;
+  font-family:var(--disp);font-weight:600;font-size:15.5px;
+  background:linear-gradient(135deg,var(--gold-br),var(--gold));color:#2A1412;
+  transition:transform .22s,box-shadow .22s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(217,169,76,.3)}
+.btn:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+.btn[disabled]{opacity:.42;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--muted);
+  font-size:14px;padding:13px 20px}
+.btn.ghost:hover{border-color:var(--gold);color:var(--cream);box-shadow:none}
+.nav{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.nav .spacer{flex:1 1 auto}
+
+.fig{display:block;margin:4px auto;max-width:100%;height:auto}
+
+.score-box{text-align:center;padding:clamp(22px,3.4vw,34px) 18px;border-radius:20px;
+  border:1px solid rgba(217,169,76,.4);
+  background:linear-gradient(152deg,rgba(94,42,32,.7),rgba(42,20,18,.85));
+  position:relative;overflow:hidden}
+.score-box::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(520px 200px at 50% -20%,rgba(217,169,76,.22),transparent 70%)}
+.score-lbl{position:relative;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:700}
+.score-num{position:relative;font-family:var(--disp);font-weight:800;line-height:1;
+  font-size:clamp(46px,10vw,74px);margin:10px 0 6px;
+  background:linear-gradient(135deg,#FFE3A8,var(--gold-br) 46%,var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-variant-numeric:tabular-nums}
+.score-sub{position:relative;color:var(--muted);font-size:14.5px}
+
+.scale{margin-top:20px}
+.scale-track{position:relative;height:38px;border-radius:12px;overflow:hidden;
+  background:linear-gradient(90deg,#4A231C,#6B3426 38%,#8A5A2E 62%,var(--gold) 100%)}
+.scale-band{position:absolute;top:0;bottom:0;background:rgba(246,238,226,.26);
+  border-left:1px solid rgba(246,238,226,.55);border-right:1px solid rgba(246,238,226,.55)}
+.scale-avg{position:absolute;top:0;bottom:0;width:2px;background:rgba(18,8,7,.75)}
+.scale-keys{display:flex;justify-content:space-between;margin-top:7px;font-size:12px;
+  color:var(--muted);font-variant-numeric:tabular-nums}
+
+.topics{display:flex;flex-direction:column;gap:8px}
+.topic{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+  padding:12px 14px;border-radius:13px;border:1px solid var(--line);
+  background:rgba(246,238,226,.03)}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.dot.g{background:var(--good)} .dot.w{background:var(--warn)} .dot.b{background:var(--bad)}
+.topic .nm{font-weight:700;font-size:15px}
+.topic .st{font-size:12.5px;color:var(--muted);text-align:right}
+.gap-note{padding:14px 16px;border-radius:13px;font-size:14.5px;line-height:1.55;
+  border:1px solid rgba(217,112,92,.4);background:rgba(217,112,92,.1)}
+.gap-note b{color:var(--gold-br)}
+
+.plateau{display:grid;gap:10px}
+.pl-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;
+  padding:11px 0;border-top:1px solid var(--line)}
+.pl-row:first-child{border-top:0}
+.pl-v{font-family:var(--disp);font-size:17px;color:var(--gold-br);font-variant-numeric:tabular-nums}
+
+.note{font-size:13px;color:var(--muted);line-height:1.6}
+.tag{display:inline-block;padding:5px 11px;border-radius:99px;font-size:11.5px;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
+  color:var(--gold-br);background:rgba(217,169,76,.1);align-self:flex-start}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="top-row">
+      <span class="mark">Формула знань</span>
+      <span class="timer" id="timer" hidden>30:00</span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="step-n" id="stepn">Діагностика рівня з математики</div>
+  </div>
+
+  <section id="s-start">
+    <div class="card">
+      <span class="tag">Безкоштовно · без реєстрації</span>
+      <h1>Скільки балів НМТ ти набираєш прямо зараз</h1>
+      <p class="lead">Дванадцять завдань із офіційного тесту НМТ-2025 — тих самих, що були
+        на справжньому іспиті. Покажемо твій орієнтовний бал, які теми тягнуть його вниз
+        і скільки балів додасть кожна з них.</p>
+      <div class="plateau">
+        <div class="pl-row"><span>Завдань</span><span class="pl-v">12</span></div>
+        <div class="pl-row"><span>Часу знадобиться</span><span class="pl-v">~30 хв</span></div>
+        <div class="pl-row"><span>Середній бал НМТ-2025 з математики</span><span class="pl-v">132</span></div>
+      </div>
+      <div class="nav"><button class="btn" id="go">Почати діагностику →</button></div>
+      <p class="note">Завдання взяті з офіційного тесту НМТ-2025 з ключами відповідей УЦОЯО.
+        Результат — оцінка діапазону, а не гарантія: точну шкалу МОН затверджує щороку.</p>
+    </div>
+  </section>
+
+  <section id="s-profile" hidden>
+    <div class="card">
+      <h2>Спочатку коротко про тебе</h2>
+      <div class="field">
+        <label for="f-name">Як тебе звати</label>
+        <input type="text" id="f-name" placeholder="Софія" autocomplete="given-name">
+      </div>
+      <div class="field">
+        <label for="f-goal">Скільки балів потрібно для вступу</label>
+        <input type="number" id="f-goal" placeholder="160" min="100" max="200" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Як зараз із математикою в школі</label>
+        <div class="self-opts" id="f-level">
+          <button class="chip" type="button" aria-pressed="false" data-v="low">Важко</button>
+          <button class="chip" type="button" aria-pressed="false" data-v="mid">Нормально</button>
+          <button class="chip" type="button" aria-pressed="false" data-v="high">Добре</button>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn ghost" data-back>Назад</button>
+        <span class="spacer"></span>
+        <button class="btn" id="to-self">Далі →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-self" hidden>
+    <div class="card">
+      <h2>Теми програми НМТ</h2>
+      <p class="lead">Познач, як почуваєшся в кожній. Відповідай чесно — це не оцінка,
+        а спосіб побачити, де варто копнути глибше.</p>
+      <div class="self" id="self-list"></div>
+      <div class="nav">
+        <button class="btn ghost" data-back>Назад</button>
+        <span class="spacer"></span>
+        <button class="btn" id="to-test" disabled>До завдань →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-test" hidden>
+    <div class="card" id="q-card"></div>
+    <div class="nav" style="margin-top:14px">
+      <button class="btn ghost" id="q-prev">Назад</button>
+      <span class="spacer"></span>
+      <button class="btn" id="q-next" disabled>Далі →</button>
+    </div>
+    <p class="note" style="margin-top:12px">Якщо не знаєш — краще пропустити, ніж вгадувати.
+      Чесна відповідь дає чеснішу картину.</p>
+  </section>
+
+  <section id="s-gate" hidden>
+    <div class="card">
+      <span class="tag">Готово · лишився один крок</span>
+      <h2>Результат порахований</h2>
+      <p class="lead">Покажемо бал одразу на екрані. А на телефон надішлемо запис реального
+        уроку Валентини Іванівни — саме з тієї теми, де ти спіткнувся найбільше.</p>
+      <div class="field">
+        <label for="g-phone">Телефон</label>
+        <input type="tel" id="g-phone" placeholder="+380 __ ___ __ __" inputmode="tel" autocomplete="tel">
+      </div>
+      <div class="nav"><button class="btn" id="g-send">Показати мій бал →</button></div>
+      <p class="note">Телефон потрібен, щоб надіслати запис уроку й повний розбір помилок.
+        Дзвонимо один раз, без спаму.</p>
+    </div>
+  </section>
+
+  <section id="s-result" hidden>
+    <div class="score-box">
+      <div class="score-lbl">Орієнтовний бал НМТ</div>
+      <div class="score-num" id="r-score">—</div>
+      <div class="score-sub" id="r-sub"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Де це на шкалі</h3>
+      <div class="scale">
+        <div class="scale-track">
+          <div class="scale-band" id="sc-band"></div>
+          <div class="scale-avg" id="sc-avg"></div>
+        </div>
+        <div class="scale-keys"><span>100</span><span>132 · середній</span><span>200</span></div>
+      </div>
+      <p class="note" id="r-vs"></p>
+    </div>
+
+    <div class="card">
+      <h3>Скільки коштує кожне наступне завдання</h3>
+      <div class="plateau" id="r-plateau"></div>
+      <p class="note">Шкала НМТ нерівномірна. У середині вона майже стоїть на місці, а після
+        двадцяти тестових балів кожне завдання починає коштувати вчетверо більше.</p>
+    </div>
+
+    <div class="card">
+      <h3>Карта тем</h3>
+      <div class="topics" id="r-topics"></div>
+      <div class="gap-note" id="r-gap" hidden></div>
+    </div>
+
+    <div class="card">
+      <h3>Що ти отримаєш</h3>
+      <div class="plateau">
+        <div class="pl-row"><span>🎥 Запис реального уроку</span><span class="pl-v">сьогодні</span></div>
+        <div class="pl-row"><span>📞 Розбір помилок із Анастасією</span><span class="pl-v">30 хв</span></div>
+        <div class="pl-row"><span>📋 Перелік тем, з яких починати</span><span class="pl-v">на розборі</span></div>
+      </div>
+      <p class="note">Запис уроку надішлемо на вказаний номер. Розбір безкоштовний
+        і ні до чого не зобов'язує.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+// Офіційна шкала: тестовий бал → рейтинговий (Додаток 5, наказ МОН № 373)
+const SHKALA={5:100,6:108,7:115,8:123,9:131,10:134,11:137,12:140,13:143,14:145,
+  15:147,16:148,17:149,18:150,19:151,20:152,21:155,22:159,23:163,24:167,25:170,
+  26:173,27:176,28:180,29:184,30:189,31:194,32:200};
+const MAX_NMT=32, SEREDNIY=132;
+
+const TEMY=[
+  {id:'vyrazy',n:'Числа, вирази, відсотки'},
+  {id:'rivn',  n:'Рівняння та нерівності'},
+  {id:'func',  n:'Функції та графіки'},
+  {id:'prog',  n:'Прогресії'},
+  {id:'trig',  n:'Тригонометрія'},
+  {id:'pohid', n:'Похідна та інтеграл'},
+  {id:'planim',n:'Планіметрія'},
+  {id:'stereo',n:'Стереометрія'},
+  {id:'vektor',n:'Координати та вектори'},
+  {id:'imovir',n:'Комбінаторика та ймовірність'}
+];
+
+// Коло з трьома радіусами — до завдання про емблему
+const KOLO='<svg class="fig" viewBox="0 0 200 200" width="180" height="180" role="img" '+
+ 'aria-label="Коло з центром O і радіусами OA, OB, OC"><circle cx="100" cy="100" r="72" '+
+ 'fill="none" stroke="#F3CE7E" stroke-width="2"/>'+
+ '<line x1="100" y1="100" x2="100" y2="28" stroke="#F3CE7E" stroke-width="2"/>'+
+ '<line x1="100" y1="100" x2="38" y2="136" stroke="#F3CE7E" stroke-width="2"/>'+
+ '<line x1="100" y1="100" x2="162" y2="136" stroke="#F3CE7E" stroke-width="2"/>'+
+ '<circle cx="100" cy="100" r="3" fill="#F3CE7E"/>'+
+ '<text x="100" y="18" fill="#F6EEE2" font-size="15" font-style="italic" text-anchor="middle">A</text>'+
+ '<text x="22" y="146" fill="#F6EEE2" font-size="15" font-style="italic">B</text>'+
+ '<text x="170" y="146" fill="#F6EEE2" font-size="15" font-style="italic">C</text>'+
+ '<text x="110" y="96" fill="#F6EEE2" font-size="15" font-style="italic">O</text></svg>';
+
+/* Дванадцять завдань з офіційного тесту НМТ-2025 (варіант 1).
+   nmt — номер у тому тесті, ok — ключ УЦОЯО. */
+const PYTANNYA=[
+ {nmt:4,t:'vyrazy',typ:'vybir',bal:1,q:'0,6x<sup>3</sup> · 5x<sup>4</sup> =',
+  o:['30x<sup>7</sup>','3x<sup>7</sup>','30x<sup>12</sup>','3x<sup>12</sup>','0,3x<sup>12</sup>'],ok:1},
+ {nmt:7,t:'vyrazy',typ:'vybir',bal:1,
+  q:'Під час миття рук милом із крана витікає 25 л води, з них 60 % марнують під час намилювання. Скільки літрів води можна зберегти, якщо закривати кран перед намилюванням рук?',
+  o:['19','15','12','10','6'],ok:1},
+ {nmt:2,t:'planim',typ:'vybir',bal:1,
+  q:'Емблема компанії має вигляд круга, від центра <i>O</i> якого проведено радіуси <i>OA</i>, <i>OB</i> і <i>OC</i>. Визначте градусну міру кута <i>AOB</i>, якщо радіуси поділяють круг на три рівні частини.',
+  fig:KOLO,o:['100°','90°','180°','120°','60°'],ok:3},
+ {nmt:9,t:'vyrazy',typ:'vybir',bal:1,q:'log<sub>5</sub>5<sup>10</sup> =',
+  o:['5','10','50','5<sup>10</sup>','10<sup>5</sup>'],ok:1},
+ {nmt:12,t:'prog',typ:'vybir',bal:1,
+  q:'В арифметичній прогресії (a<sub>n</sub>) відомо, що a<sub>6</sub> − a<sub>1</sub> = −30. Обчисліть значення виразу a<sub>1</sub> − a<sub>3</sub>.',
+  o:['12','10','−15','−10','−12'],ok:0},
+ {nmt:13,t:'vyrazy',typ:'vybir',bal:1,q:'x(x − 2y) − (x − y)<sup>2</sup> =',
+  o:['−y<sup>2</sup>','y<sup>2</sup>','−4xy + y<sup>2</sup>','−2xy + y<sup>2</sup>','−4xy − y<sup>2</sup>'],ok:0},
+ {nmt:8,t:'vektor',typ:'vybir',bal:1,
+  q:'У прямокутній системі координат у просторі задано точки <i>A</i>(5; −4; 0) і <i>B</i>(7; 2; −2). Визначте точку <i>C</i>, симетричну точці <i>A</i> відносно точки <i>B</i>.',
+  o:['C(1; 3; −1)','C(2; 6; −2)','C(6; −1; −1)','C(3; −10; 2)','C(9; 8; −4)'],ok:4},
+ {nmt:14,t:'rivn',typ:'vybir',bal:1,
+  q:'Позначте проміжок, якому належить корінь рівняння 1 − log<sub>0,5</sub>x = 3.',
+  o:['(−∞; −3)','[−3; 0)','[0; 3)','[3; 10)','[10; +∞)'],ok:3},
+ {nmt:17,t:'trig',typ:'vidpovidnist',bal:3,
+  q:'Доберіть до числового виразу (1–3) його значення (А–Д).',
+  livi:['sin(−π/6)','π − |π + 2|','(−1/√2)<sup>2</sup>'],
+  pravi:['1/2','−2','2','−1/2','√2'],ok:[3,1,0]},
+ {nmt:16,t:'func',typ:'vidpovidnist',bal:3,
+  q:'Доберіть до функції (1–3) її властивість (А–Д).',
+  livi:['y = −x<sup>3</sup>','y = √x','y = cos x'],
+  pravi:['графік функції розміщено лише у другій координатній чверті',
+    'графік функції має з графіком рівняння x<sup>2</sup> + y<sup>2</sup> = 9 лише одну спільну точку',
+    'є парною','набуває всіх значень з проміжку (−∞; +∞)',
+    'графік функції не має спільних точок із прямою x = 0'],ok:[3,1,2]},
+ {nmt:20,t:'imovir',typ:'korotka',bal:2,
+  q:'У салоні пасажирського літака налічується <i>n</i> рядів, у кожному з яких розташовано по 6 крісел (обабіч проходу по 3). Реєструючи пасажира, електронна система навмання вибирає для нього посадкове місце. Імовірність того, що першому зареєстрованому пасажиру дістанеться місце <b>біля проходу в першому або останньому ряду</b>, дорівнює 1/45. Визначте <i>n</i>.',
+  ok:30},
+ {nmt:21,t:'stereo',typ:'korotka',bal:2,
+  q:'Циліндр і пряма чотирикутна призма мають рівні висоти. Основою призми є ромб, діагоналі якого дорівнюють 12 см і 16 см. Радіус основи циліндра дорівнює стороні ромба. Обчисліть об’єм (см<sup>3</sup>) заданої призми, якщо площа бічної поверхні циліндра дорівнює 400π см<sup>2</sup>.',
+  ok:1920}
+];
+const MAX_TESTU=PYTANNYA.reduce((s,p)=>s+p.bal,0);
+const BUKVY=['А','Б','В','Г','Д'];
+
+const stan={krok:0,profil:{},samo:{},vidpovidi:{},i:0,pochatok:null,taymer:null};
+const $=s=>document.querySelector(s);
+const API='https://worker-production-0a51.up.railway.app';
+const TOKEN=new URLSearchParams(location.search).get('t')||'';
+
+// Заявка й результат летять у воркер одним запитом: там створиться лід
+// у воронці «diagnostyka» і менеджери одразу побачать розбір.
+async function nadislaty(r,rozryvy,slabki){
+  const vidpovidi={};
+  PYTANNYA.forEach((p,i)=>{
+    if(stan.vidpovidi[i]!==undefined) vidpovidi[p.nmt]=stan.vidpovidi[i];
+  });
+  try{
+    await fetch(API+'/diag',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        imya:stan.profil.imya||'', telefon:stan.profil.telefon||'',
+        token:TOKEN, meta_bal:stan.profil.meta||null,
+        riven:stan.profil.riven||'', samo:stan.samo, vidpovidi,
+        source:stan.profil.source||'',
+        hvylyn:stan.pochatok?Math.round((Date.now()-stan.pochatok)/60000):null,
+        url:location.href.slice(0,512),
+        rezultat:{nabrano:r.nabrano, max_balu:MAX_TESTU,
+          test_bal:+r.test.toFixed(1),
+          rejt_nyz:rejting(r.nyz), rejt_verh:rejting(r.verh),
+          po_temah:r.poTemah, rozryvy, slabki}
+      })});
+  }catch(e){}
+}
+const EKRANY=['s-start','s-profile','s-self','s-test','s-gate','s-result'];
+
+// мітка реклами з адреси — щоб бачити, з якої кампанії прийшов лід
+stan.profil.source=new URLSearchParams(location.search).get('fz_source')||'';
+
+function pokazaty(n){
+  EKRANY.forEach((id,k)=>{document.getElementById(id).hidden=k!==n});
+  stan.krok=n;
+  const p=['Тест рівня НМТ з математики','Крок 1 з 3 · про тебе',
+    'Крок 2 з 3 · теми програми','Крок 3 з 3 · завдання',
+    'Майже готово','Твій результат'];
+  $('#stepn').textContent=p[n];
+  $('#timer').hidden=n!==3;
+  $('#bar').style.width=([0,.08,.3,.55,.95,1][n]*100)+'%';
+  scrollTo({top:0,behavior:'smooth'});
+}
+
+function budSamo(){
+  const box=$('#self-list');
+  box.innerHTML=TEMY.map(t=>'<div class="self-row"><div class="self-name">'+t.n+'</div>'+
+    '<div class="self-opts">'+['Не знаю','Плаваю','Знаю'].map((p,i)=>
+    '<button class="chip" type="button" aria-pressed="false" data-t="'+t.id+'" data-v="'+i+'">'+
+    p+'</button>').join('')+'</div></div>').join('');
+  box.addEventListener('click',e=>{
+    const b=e.target.closest('.chip'); if(!b) return;
+    b.parentElement.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');
+    stan.samo[b.dataset.t]=+b.dataset.v;
+    $('#to-test').disabled=Object.keys(stan.samo).length<TEMY.length;
+  });
+}
+
+function hotovo(i){
+  const p=PYTANNYA[i], v=stan.vidpovidi[i];
+  if(v===undefined) return false;
+  if(p.typ==='vidpovidnist') return v.every(x=>x!==null && x!==undefined);
+  if(p.typ==='korotka') return String(v).trim()!=='';
+  return true;
+}
+
+function budPytannya(){
+  const p=PYTANNYA[stan.i];
+  let telo='<span class="tag">Завдання '+(stan.i+1)+' з '+PYTANNYA.length+'</span>'+
+    '<h3>'+p.q+'</h3>'+(p.fig||'');
+
+  if(p.typ==='vybir'){
+    const obrane=stan.vidpovidi[stan.i];
+    telo+='<div class="opts">'+p.o.map((o,k)=>
+      '<button class="opt" type="button" aria-pressed="'+(obrane===k)+'" data-k="'+k+'">'+
+      '<span class="k">'+BUKVY[k]+'</span><span>'+o+'</span></button>').join('')+'</div>';
+  }
+  else if(p.typ==='vidpovidnist'){
+    const obrane=stan.vidpovidi[stan.i]||[null,null,null];
+    telo+='<div class="match">'+
+      '<div class="match-col"><span class="ttl">Умова</span><ul>'+
+      p.livi.map((l,k)=>'<li><b>'+(k+1)+'</b><span>'+l+'</span></li>').join('')+'</ul></div>'+
+      '<div class="match-col"><span class="ttl">Варіанти</span><ul>'+
+      p.pravi.map((r,k)=>'<li><b>'+BUKVY[k]+'</b><span>'+r+'</span></li>').join('')+'</ul></div>'+
+      '<div>'+p.livi.map((_,k)=>
+        '<div class="match-row"><span class="lbl">'+(k+1)+'</span>'+
+        '<div class="match-pick">'+BUKVY.map((b,j)=>
+          '<button class="mb" type="button" aria-pressed="'+(obrane[k]===j)+'" '+
+          'data-row="'+k+'" data-col="'+j+'">'+b+'</button>').join('')+'</div></div>').join('')+
+      '</div></div>';
+  }
+  else {
+    const v=stan.vidpovidi[stan.i]??'';
+    telo+='<div class="field"><label for="q-in">Відповідь — число</label>'+
+      '<input type="text" id="q-in" inputmode="decimal" value="'+v+'" placeholder="наприклад, 12,5"></div>';
+  }
+
+  $('#q-card').innerHTML=telo;
+  if(p.typ==='korotka'){
+    const inp=$('#q-in');
+    inp.addEventListener('input',()=>{
+      stan.vidpovidi[stan.i]=inp.value;
+      $('#q-next').disabled=!hotovo(stan.i);
+    });
+  }
+  $('#q-next').disabled=!hotovo(stan.i);
+  $('#q-next').textContent=stan.i===PYTANNYA.length-1?'Побачити результат →':'Далі →';
+  $('#q-prev').disabled=stan.i===0;
+  $('#bar').style.width=((.55+.45*(stan.i/PYTANNYA.length))*100)+'%';
+}
+
+function startTaymer(){
+  stan.pochatok=Date.now();
+  const tick=()=>{
+    const l=30*60-Math.floor((Date.now()-stan.pochatok)/1000);
+    if(l<=0){clearInterval(stan.taymer);pokazaty(4);return}
+    $('#timer').textContent=String(Math.floor(l/60)).padStart(2,'0')+':'+String(l%60).padStart(2,'0');
+    $('#timer').classList.toggle('low',l<300);
+  };
+  tick(); stan.taymer=setInterval(tick,1000);
+}
+
+// Коротка відповідь: порівнюємо як число, кома і крапка рівноцінні
+function chyslo(s){
+  const n=parseFloat(String(s).replace(',','.').replace(/\s/g,''));
+  return Number.isFinite(n)?n:null;
+}
+
+function rahuvaty(){
+  let nabrano=0; const poTemah={};
+  PYTANNYA.forEach((p,i)=>{
+    const v=stan.vidpovidi[i];
+    let vzyato=0;
+    if(p.typ==='vybir'){ if(v===p.ok) vzyato=1; }
+    else if(p.typ==='vidpovidnist'){
+      if(Array.isArray(v)) p.ok.forEach((k,j)=>{ if(v[j]===k) vzyato++; });
+    } else {
+      if(chyslo(v)!==null && Math.abs(chyslo(v)-p.ok)<1e-9) vzyato=p.bal;
+    }
+    nabrano+=vzyato;
+    if(!poTemah[p.t]) poTemah[p.t]={bulo:0,vzyato:0};
+    poTemah[p.t].bulo+=p.bal;
+    poTemah[p.t].vzyato+=vzyato;
+  });
+
+  let test=(nabrano/MAX_TESTU)*MAX_NMT;
+  const netorkani=TEMY.filter(t=>!poTemah[t.id]);
+  if(netorkani.length){
+    const sered=netorkani.reduce((s,t)=>s+(stan.samo[t.id]??1),0)/netorkani.length;
+    test+=(sered-1)*1.5;
+  }
+  test=Math.max(0,Math.min(MAX_NMT,test));
+  return {nabrano,test,nyz:Math.max(0,Math.round(test-2)),
+    verh:Math.min(MAX_NMT,Math.round(test+2)),poTemah,netorkani};
+}
+
+const rejting=t=>t<5?100:(SHKALA[Math.round(t)]??100);
+
+function pidbyty(){
+  if(stan.taymer) clearInterval(stan.taymer);
+  const r=rahuvaty();
+  const rNyz=rejting(r.nyz), rVerh=rejting(r.verh);
+
+  $('#r-score').textContent=rNyz===rVerh?rNyz:rNyz+'–'+rVerh;
+  $('#r-sub').textContent='Набрано '+r.nabrano+' з '+MAX_TESTU+' балів тесту · це приблизно '+
+    Math.round(r.test)+' з 32 на справжньому НМТ';
+
+  const poz=v=>((v-100)/100)*100;
+  $('#sc-band').style.left=poz(rNyz)+'%';
+  $('#sc-band').style.width=Math.max(1.5,poz(rVerh)-poz(rNyz))+'%';
+  $('#sc-avg').style.left=poz(SEREDNIY)+'%';
+
+  const seredina=Math.round((rNyz+rVerh)/2);
+  const meta=+($('#f-goal').value||0);
+  let vs=seredina>=SEREDNIY
+    ? 'Це вище за середній бал по Україні — торік він був 132.'
+    : 'Середній бал по Україні торік — 132. Зараз ти трохи нижче.';
+  if(meta>=100&&meta<=200){
+    const d=meta-seredina;
+    vs+=d>0?' До твоєї мети '+meta+' лишається '+d+' балів.'
+           :' Твоя мета '+meta+' уже в межах досяжного — варто закріпити.';
+  }
+  $('#r-vs').textContent=vs;
+
+  const bazа=Math.round(r.test);
+  $('#r-plateau').innerHTML=[[2,'ще 2 завдання'],[4,'ще 4 завдання'],[8,'ще 8 завдань']]
+    .map(([d,pidpys])=>{
+      const pryrist=rejting(Math.min(MAX_NMT,bazа+d))-rejting(bazа);
+      return '<div class="pl-row"><span>'+pidpys+'</span><span class="pl-v">+'+pryrist+' балів</span></div>';
+    }).join('');
+
+  $('#r-topics').innerHTML=TEMY.map(t=>{
+    const d=r.poTemah[t.id]; let klas,pidpys;
+    if(!d){
+      const s=stan.samo[t.id]??1;
+      klas=s===2?'g':s===1?'w':'b';
+      pidpys=['за твоєю оцінкою — не знаю','за твоєю оцінкою — плаваю','за твоєю оцінкою — знаю'][s];
+    } else {
+      const ch=d.vzyato/d.bulo;
+      klas=ch>=.99?'g':ch>0?'w':'b';
+      pidpys=ch>=.99?'усе правильно':ch>0?'частково, '+d.vzyato+' з '+d.bulo:'не вийшло';
+    }
+    return '<div class="topic"><span class="dot '+klas+'"></span><span class="nm">'+t.n+
+      '</span><span class="st">'+pidpys+'</span></div>';
+  }).join('');
+
+  const rozryvy=TEMY.filter(t=>{
+    const d=r.poTemah[t.id];
+    return d && stan.samo[t.id]===2 && d.vzyato<d.bulo;
+  });
+  if(rozryvy.length){
+    $('#r-gap').hidden=false;
+    $('#r-gap').innerHTML='Цікаве: теми <b>'+rozryvy.map(t=>t.n.toLowerCase()).join(', ')+
+      '</b> ти позначив(ла) як знайомі, але завдання з них не вийшли. Саме такі місця найчастіше '+
+      'й з’їдають бали на реальному НМТ — здається, що знаєш, а на тесті не складається.';
+  }
+  const slabki=TEMY.filter(t=>{
+    const d=r.poTemah[t.id];
+    return d && d.vzyato===0;
+  }).map(t=>t.n);
+  nadislaty(r, rozryvy.map(t=>t.n), slabki);
+
+  pokazaty(5);
+  $('#bar').style.width='100%';
+}
+
+$('#go').addEventListener('click',()=>pokazaty(1));
+$('#f-level').addEventListener('click',e=>{
+  const b=e.target.closest('.chip'); if(!b) return;
+  $('#f-level').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');
+  stan.profil.riven=b.dataset.v;
+});
+$('#to-self').addEventListener('click',()=>{
+  stan.profil.imya=$('#f-name').value.trim();
+  stan.profil.meta=$('#f-goal').value;
+  pokazaty(2);
+});
+$('#g-send').addEventListener('click',()=>{
+  const cyfry=$('#g-phone').value.replace(/\D/g,'');
+  if(cyfry.length<9){$('#g-phone').focus();return}
+  stan.profil.telefon=$('#g-phone').value.trim();
+  // тут заявка піде у воркер разом із відповідями й міткою реклами
+  pidbyty();
+});
+$('#to-test').addEventListener('click',()=>{pokazaty(3);budPytannya();startTaymer()});
+document.querySelectorAll('[data-back]').forEach(b=>
+  b.addEventListener('click',()=>pokazaty(Math.max(0,stan.krok-1))));
+
+$('#q-card').addEventListener('click',e=>{
+  const o=e.target.closest('.opt');
+  if(o){
+    $('#q-card').querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed','false'));
+    o.setAttribute('aria-pressed','true');
+    stan.vidpovidi[stan.i]=+o.dataset.k;
+    $('#q-next').disabled=false;
+    return;
+  }
+  const m=e.target.closest('.mb');
+  if(m){
+    const row=+m.dataset.row, col=+m.dataset.col;
+    if(!Array.isArray(stan.vidpovidi[stan.i])) stan.vidpovidi[stan.i]=[null,null,null];
+    stan.vidpovidi[stan.i][row]=col;
+    m.parentElement.querySelectorAll('.mb').forEach(x=>x.setAttribute('aria-pressed','false'));
+    m.setAttribute('aria-pressed','true');
+    $('#q-next').disabled=!hotovo(stan.i);
+  }
+});
+$('#q-next').addEventListener('click',()=>{
+  if(stan.i===PYTANNYA.length-1){
+    if(stan.taymer) clearInterval(stan.taymer);
+    pokazaty(4);
+    return;
+  }
+  stan.i++; budPytannya(); scrollTo({top:0,behavior:'smooth'});
+});
+$('#q-prev').addEventListener('click',()=>{
+  if(stan.i>0){stan.i--; budPytannya(); scrollTo({top:0,behavior:'smooth'})}
+});
+budSamo();
+</script>
