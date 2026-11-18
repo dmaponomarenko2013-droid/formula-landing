@@ -1,0 +1,497 @@
+<title>Панель діагностик</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;700;800&display=swap">
+<style>
+/* Робочий інструмент: зліва список учнів, справа розгорнута картка.
+   На телефоні — список, картка відкривається поверх. */
+:root{
+  --ink:#120807; --wine:#2A1412; --wine-2:#45201A;
+  --gold:#D9A94C; --gold-br:#F3CE7E; --gold-hi:#FFE3A8;
+  --cream:#F6EEE2; --muted:#BBA396; --line:rgba(217,169,76,.2);
+  --good:#7FBF6A; --warn:#E8B44C; --bad:#D9705C;
+  --disp:'Unbounded',system-ui,sans-serif; --body:'Manrope',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(900px 500px at 50% -10%,rgba(217,169,76,.08),transparent 68%),var(--ink);
+  color:var(--cream);font-family:var(--body);line-height:1.5;min-height:100%}
+h1,h2,h3{font-family:var(--disp);font-weight:800;margin:0;line-height:1.2}
+h1{font-size:clamp(20px,2.6vw,26px)}
+h2{font-size:clamp(17px,2.2vw,21px)}
+h3{font-size:15px}
+p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:clamp(16px,2.4vw,28px)}
+
+.head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.head .mark{font-family:var(--disp);font-size:12px;letter-spacing:.08em;
+  color:var(--gold-br);text-transform:uppercase}
+.head .sp{flex:1 1 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 18px;border-radius:11px;border:0;cursor:pointer;font-family:var(--disp);
+  font-weight:600;font-size:13.5px;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:#2A1412;
+  transition:transform .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.g{background:none;border:1px solid var(--line);color:var(--muted)}
+.btn.g:hover{border-color:var(--gold);color:var(--cream)}
+input,select{padding:11px 14px;border-radius:11px;border:1px solid var(--line);
+  background:rgba(18,8,7,.6);color:var(--cream);font:inherit;font-size:14.5px}
+input:focus,select:focus{outline:none;border-color:var(--gold)}
+
+/* вхід */
+.gate{max-width:420px;margin:12vh auto;display:flex;flex-direction:column;gap:14px;
+  padding:30px;border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(152deg,rgba(69,32,26,.6),rgba(42,20,18,.8))}
+.gate .err{color:var(--bad);font-size:13.5px;display:none}
+
+/* зведення */
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:11px;
+  margin-bottom:18px}
+.kpi .c{padding:15px 16px;border-radius:15px;border:1px solid var(--line);
+  background:linear-gradient(152deg,rgba(69,32,26,.52),rgba(42,20,18,.72))}
+.kpi .l{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);font-weight:800}
+.kpi .v{font-family:var(--disp);font-size:clamp(21px,2.6vw,28px);margin-top:6px;
+  color:var(--gold-br);font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:3px}
+
+.cols{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:1000px){.cols{grid-template-columns:352px 1fr;align-items:start}}
+
+.panel{border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  background:linear-gradient(152deg,rgba(69,32,26,.42),rgba(42,20,18,.66))}
+.panel-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;
+  align-items:center;gap:10px}
+.panel-h .t{font-family:var(--disp);font-size:13px;color:var(--gold-br)}
+.panel-h .sp{flex:1 1 auto}
+.panel-b{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+
+.filters{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);
+  flex-wrap:wrap}
+.filters input{flex:1 1 150px;font-size:13.5px;padding:9px 12px}
+.filters select{font-size:13px;padding:9px 10px}
+
+.spysok{max-height:min(62vh,640px);overflow-y:auto;display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;
+  padding:12px 16px;cursor:pointer;border-bottom:1px solid rgba(217,169,76,.1);
+  transition:background .16s}
+.row:hover{background:rgba(246,238,226,.05)}
+.row.on{background:linear-gradient(90deg,rgba(217,169,76,.17),transparent)}
+.row .bal{font-family:var(--disp);font-size:14px;color:var(--gold-br);
+  font-variant-numeric:tabular-nums;min-width:58px}
+.row .nm{font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.row .meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+.row .pin{font-size:15px}
+
+.empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:14px}
+
+/* картка учня */
+.kartka{display:flex;flex-direction:column;gap:14px}
+.k-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.k-head .big{font-family:var(--disp);font-size:clamp(30px,4.6vw,44px);line-height:1;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-variant-numeric:tabular-nums}
+.k-head .who{flex:1 1 180px}
+.k-head .who h2{margin-bottom:3px}
+.k-head .who .c{font-size:13.5px;color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:99px;
+  font-size:11.5px;font-weight:800;border:1px solid var(--line);color:var(--gold-br);
+  background:rgba(217,169,76,.1)}
+
+.blok{border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  background:rgba(18,8,7,.3);display:flex;flex-direction:column;gap:9px}
+.blok .ttl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);font-weight:800}
+.say{border-left:2px solid var(--gold);padding-left:13px;font-size:14.5px;
+  line-height:1.6;color:var(--cream)}
+.say em{color:var(--gold-br);font-style:normal;font-weight:700}
+
+.temy{display:flex;flex-wrap:wrap;gap:7px}
+.tema{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:10px;
+  font-size:13px;border:1px solid var(--line);background:rgba(246,238,226,.04)}
+.dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.dot.g{background:var(--good)} .dot.w{background:var(--warn)} .dot.b{background:var(--bad)}
+.dot.n{background:rgba(187,163,150,.45)}
+
+.pom{display:flex;flex-direction:column;gap:10px}
+.pom .i{padding:11px 13px;border-radius:12px;border:1px solid rgba(217,112,92,.3);
+  background:rgba(217,112,92,.08)}
+.pom .i .h{font-weight:800;font-size:13.5px;color:var(--cream)}
+.pom .i .v{font-size:12.5px;color:var(--muted);margin-top:3px}
+.pom .i .x{font-size:13.5px;color:var(--gold-br);margin-top:5px}
+
+.plan{display:grid;gap:7px;counter-reset:p}
+.plan div{display:grid;grid-template-columns:auto 1fr;gap:10px;font-size:14px;
+  align-items:baseline}
+.plan div::before{counter-increment:p;content:counter(p);font-family:var(--disp);
+  font-size:11.5px;color:var(--gold-br);width:19px;height:19px;border-radius:50%;
+  border:1px solid var(--line);display:grid;place-items:center}
+
+.pryrist{display:grid;gap:8px}
+.pryrist div{display:grid;grid-template-columns:1fr auto;gap:10px;font-size:14px;
+  padding:9px 0;border-top:1px solid var(--line)}
+.pryrist div:first-child{border-top:0}
+.pryrist b{font-family:var(--disp);color:var(--gold-br);font-weight:600}
+
+.note{font-size:12.5px;color:var(--muted);line-height:1.6}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <!-- вхід -->
+  <section id="s-gate">
+    <div class="gate">
+      <span class="mark" style="font-family:var(--disp);font-size:12px;letter-spacing:.08em;color:var(--gold-br);text-transform:uppercase">Формула знань</span>
+      <h1>Панель діагностик</h1>
+      <p class="note">Введи ключ доступу — він запам'ятається в цьому браузері.</p>
+      <input type="password" id="g-key" placeholder="ключ доступу" autocomplete="off">
+      <span class="err" id="g-err">Ключ не підійшов</span>
+      <button class="btn" id="g-in">Увійти</button>
+    </div>
+  </section>
+
+  <!-- робоча частина -->
+  <section id="s-work" class="hidden">
+    <div class="head">
+      <span class="mark">Формула знань</span>
+      <h1>Діагностики</h1>
+      <span class="sp"></span>
+      <button class="btn g" id="onov">↻ Оновити</button>
+      <button class="btn g" id="vyity">Вийти</button>
+    </div>
+
+    <div class="kpi" id="kpi"></div>
+
+    <div class="cols">
+      <div class="panel">
+        <div class="filters">
+          <input type="search" id="poshuk" placeholder="ім'я або телефон">
+          <select id="sort">
+            <option value="new">спершу нові</option>
+            <option value="bal">за балом</option>
+            <option value="chas">хто обрав час</option>
+          </select>
+        </div>
+        <div class="spysok" id="spysok"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><span class="t" id="k-title">Картка учня</span>
+          <span class="sp"></span>
+          <span class="note" id="k-id"></span></div>
+        <div class="panel-b" id="kartka">
+          <div class="empty">Обери учня зі списку — тут буде все для розмови</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const API='https://worker-production-0a51.up.railway.app';
+const SHKALA={5:100,6:108,7:115,8:123,9:131,10:134,11:137,12:140,13:143,14:145,
+  15:147,16:148,17:149,18:150,19:151,20:152,21:155,22:159,23:163,24:167,25:170,
+  26:173,27:176,28:180,29:184,30:189,31:194,32:200};
+const SEREDNIY=131.9;
+
+const TEMY={vyrazy:'Числа, вирази, відсотки',rivn:'Рівняння та нерівності',
+  func:'Функції та графіки',prog:'Прогресії',trig:'Тригонометрія',
+  pohid:'Похідна та інтеграл',planim:'Планіметрія',stereo:'Стереометрія',
+  vektor:'Координати та вектори',imovir:'Комбінаторика та ймовірність'};
+
+const NASLIDKY={
+  vyrazy:'тягне за собою всі інші теми — без базових перетворень ламаються і рівняння, і похідна',
+  rivn:'дає найбільше завдань у першій частині тесту',
+  func:'потрібні і для похідної, і для графічних завдань',
+  prog:'окрема коротка тема, закривається швидко',
+  trig:'зазвичай з’їдає кілька завдань поспіль',
+  pohid:'це завдання з короткою відповіддю, тобто по 2 бали кожне',
+  planim:'присутня і в першій частині, і в логічних парах',
+  stereo:'дорогі завдання наприкінці тесту',
+  vektor:'технічна тема, закривається тренуванням',
+  imovir:'дає 2 бали за одне завдання і вчиться за кілька занять'};
+
+/* Розбір помилок за варіантами офіційного тесту НМТ-2025 */
+const ROZBIR={
+ 4:{tema:'Дії зі степенями',prav:'3x⁷',ok:1,
+   0:'помножив коефіцієнти неправильно: 0,6 · 5 = 3, а не 30',
+   2:'і коефіцієнти, і показники — показники при множенні додаються',
+   3:'показники перемножені замість додавання: 3 + 4 = 7',
+   4:'коефіцієнти поділені замість множення'},
+ 7:{tema:'Відсотки',prav:'15',ok:1,
+   0:'узято 25 − 6 замість 60 % від 25',
+   2:'відсоток порахований від іншого числа',
+   3:'переплутано, яку частину шукаємо',
+   4:'узято 60 % навпаки — це те, що витікає, а не те, що економимо'},
+ 2:{tema:'Кути в колі',prav:'120°',ok:3,
+   0:'кут названий навмання',
+   1:'прийнято за прямий, хоча три рівні частини дають 360 : 3',
+   2:'180° — це половина кола, а не третина',
+   4:'60° — удвічі менше за правильне, поділено на 6'},
+ 9:{tema:'Логарифми',prav:'10',ok:1,
+   0:'переплутано основу з показником',
+   2:'основу помножено на показник',
+   3:'логарифм не обчислено взагалі',
+   4:'основа й показник помінялись місцями'},
+ 12:{tema:'Арифметична прогресія',prav:'12',ok:0,
+   1:'різниця знайдена неточно: a₆ − a₁ = 5d, отже d = −6',
+   2:'узято −15 замість −2d',
+   3:'знак загублено',
+   4:'знак переплутано: a₁ − a₃ = −2d = +12'},
+ 13:{tema:'Формули скороченого множення',prav:'−y²',ok:0,
+   1:'знак загублено при розкритті дужок',
+   2:'квадрат різниці розкрито неправильно',
+   3:'не всі доданки зведені',
+   4:'помилка і в знаку, і в доданку з xy'},
+ 8:{tema:'Координати в просторі',prav:'C(9; 8; −4)',ok:4,
+   0:'віднято замість додавання: C = 2B − A',
+   1:'узято просто подвоєний B',
+   2:'координати переплутані місцями',
+   3:'знак при відніманні загублено'},
+ 14:{tema:'Логарифмічні рівняння',prav:'[3; 10)',ok:3,
+   0:'знак логарифма з основою менше одиниці переплутано',
+   1:'корінь вийшов від’ємний, хоча основа 0,5 дає x = 4',
+   2:'обчислено 0,5², а треба 0,5 у мінус другому',
+   4:'корінь завеликий — варто перевірити степінь'},
+ 17:{tema:'Числові вирази й тригонометрія',prav:'Г Б А'},
+ 16:{tema:'Властивості функцій',prav:'Г Б В'},
+ 20:{tema:'Ймовірність',prav:'30'},
+ 21:{tema:'Об’єм призми',prav:'1920'}};
+const BUKVY=['А','Б','В','Г','Д'];
+
+const $=s=>document.querySelector(s);
+let KEY='', DANI=[], OBRANE=null;
+
+const rejting=t=>{t=Math.round(+t||0);return t<5?100:(SHKALA[Math.min(32,t)]??100)};
+const sklo=(n,a,b,c)=>{n=Math.abs(+n);
+  if(n%10===1&&n%100!==11)return a;
+  if(n%10>=2&&n%10<=4&&!(n%100>=12&&n%100<=14))return b; return c};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nine=p=>String(p??'').replace(/\D/g,'').slice(-9);
+
+function koly(iso){
+  if(!iso) return '—';
+  const d=new Date(iso);
+  return d.toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',
+    hour:'2-digit',minute:'2-digit'});
+}
+
+async function zavantazhyty(){
+  const r=await fetch(API+'/diag/list?k='+encodeURIComponent(KEY));
+  if(r.status===403) throw new Error('403');
+  const j=await r.json();
+  DANI=(j.dani||[]);
+  return DANI;
+}
+
+function zvedennya(){
+  const n=DANI.length;
+  const bal=DANI.filter(d=>d.rejt_nyz).map(d=>(d.rejt_nyz+d.rejt_verh)/2);
+  const sered=bal.length?Math.round(bal.reduce((a,b)=>a+b,0)/bal.length):0;
+  const zChasom=DANI.filter(d=>d.bazhanyi_chas).length;
+  const zLidom=DANI.filter(d=>d.lead_id).length;
+  // найчастіші провали
+  const provaly={};
+  DANI.forEach(d=>{
+    const pt=d.po_temah||{};
+    Object.keys(pt).forEach(k=>{
+      if(pt[k] && pt[k].bulo && !pt[k].vzyato) provaly[k]=(provaly[k]||0)+1;
+    });
+  });
+  const top=Object.entries(provaly).sort((a,b)=>b[1]-a[1])[0];
+  const hv=DANI.filter(d=>d.hvylyn).map(d=>d.hvylyn);
+  const seredHv=hv.length?Math.round(hv.reduce((a,b)=>a+b,0)/hv.length):0;
+
+  $('#kpi').innerHTML=[
+    ['Пройшли діагностику',n,''],
+    ['Середній бал',sered||'—',sered?(sered>=SEREDNIY?'вище країни':'нижче країни'):''],
+    ['Обрали час',zChasom,n?Math.round(zChasom/n*100)+'% від усіх':''],
+    ['Є заявка в CRM',zLidom,''],
+    ['Найчастіше просідає',top?TEMY[top[0]]||top[0]:'—',top?top[1]+' '+sklo(top[1],'учень','учні','учнів'):''],
+    ['Середній час',seredHv?seredHv+' хв':'—','']
+  ].map(([l,v,s])=>'<div class="c"><div class="l">'+l+'</div>'+
+    '<div class="v">'+esc(v)+'</div>'+(s?'<div class="s">'+esc(s)+'</div>':'')+'</div>').join('');
+}
+
+function spysok(){
+  const q=nine($('#poshuk').value)||$('#poshuk').value.trim().toLowerCase();
+  const rezhym=$('#sort').value;
+  let d=DANI.slice();
+  if(q){
+    d=d.filter(x=>(x.imya||'').toLowerCase().includes(q)
+      || nine(x.telefon||x.lead_phone).includes(nine(q))
+      || (x.lead_name||'').toLowerCase().includes(q));
+  }
+  if(rezhym==='bal') d.sort((a,b)=>(b.rejt_nyz||0)-(a.rejt_nyz||0));
+  if(rezhym==='chas') d=d.filter(x=>x.bazhanyi_chas);
+
+  if(!d.length){ $('#spysok').innerHTML='<div class="empty">Нічого не знайшлося</div>'; return; }
+  $('#spysok').innerHTML=d.map(x=>{
+    const imya=x.imya||x.lead_name||'без імені';
+    const bal=x.rejt_nyz?(x.rejt_nyz+'–'+x.rejt_verh):'—';
+    const pin=x.bazhanyi_chas?'📅':(x.lead_id?'📞':'');
+    return '<div class="row'+(OBRANE===x.id?' on':'')+'" data-id="'+x.id+'">'+
+      '<span class="bal">'+bal+'</span>'+
+      '<span><div class="nm">'+esc(imya)+'</div>'+
+      '<div class="meta">'+koly(x.created_at)+' · '+esc(x.source||'без мітки')+'</div></span>'+
+      '<span class="pin">'+pin+'</span></div>';
+  }).join('');
+}
+
+function kartka(x){
+  const pt=x.po_temah||{}, samo=x.samo||{}, vid=x.vidpovidi||{};
+  const rozryvy=Array.isArray(x.rozryvy)?x.rozryvy:[];
+  const sered=x.rejt_nyz?Math.round((x.rejt_nyz+x.rejt_verh)/2):0;
+  const baza=Math.round(+x.test_bal||0);
+
+  // теми
+  const sylni=[],chast=[],slab=[],netork=[];
+  Object.keys(TEMY).forEach(k=>{
+    const d=pt[k];
+    if(!d||!d.bulo){ netork.push(k); return; }
+    const ch=(d.vzyato||0)/d.bulo;
+    (ch>=.99?sylni:ch>0?chast:slab).push(k);
+  });
+
+  // що сказати про бал
+  let pro=sered>=SEREDNIY
+    ? 'Зараз ти в зоні <em>'+x.rejt_nyz+'–'+x.rejt_verh+'</em>. Це вже вище за середній бал по країні — торік він був 131,9.'
+    : 'Зараз ти в зоні <em>'+x.rejt_nyz+'–'+x.rejt_verh+'</em>. Середній по Україні торік — 131,9, тобто ми трохи нижче. Хороша новина — видно, за рахунок чого підняти.';
+  if(x.meta_bal) pro+=' Мета — '+x.meta_bal+', різниця '+(x.meta_bal-sered>0?'+':'')+(x.meta_bal-sered)+'.';
+
+  // приріст
+  const pryrist=[2,4,8].map(dd=>{
+    const nov=Math.min(32,baza+dd), p=rejting(nov)-rejting(baza);
+    return '<div><span>ще '+dd+' '+sklo(dd,'завдання','завдання','завдань')+
+      '</span><b>+'+p+' '+sklo(p,'бал','бали','балів')+'</b></div>';
+  }).join('');
+
+  // помилки
+  const pom=Object.keys(vid).map(k=>{
+    const n=+k, rb=ROZBIR[n]; if(!rb) return '';
+    const v=vid[k];
+    const poyasn=(typeof v==='number')?rb[v]:null;
+    if(!poyasn) return '';
+    const prav=rb.ok!==undefined?BUKVY[rb.ok]+' ('+rb.prav+')':rb.prav;
+    return '<div class="i"><div class="h">НМТ №'+n+' · '+rb.tema+'</div>'+
+      '<div class="v">обрано '+(BUKVY[v]||'?')+', правильно '+esc(prav)+'</div>'+
+      '<div class="x">→ '+esc(poyasn)+'</div></div>';
+  }).filter(Boolean).join('');
+
+  const tema=(k,klas,pidpys)=>'<span class="tema"><span class="dot '+klas+'"></span>'+
+    TEMY[k]+(pidpys?' · '+pidpys:'')+'</span>';
+
+  $('#k-title').textContent=x.imya||x.lead_name||'Картка учня';
+  $('#k-id').textContent='#'+x.id+(x.lead_id?' · заявка #'+x.lead_id:'');
+
+  $('#kartka').innerHTML=
+    '<div class="kartka">'+
+      '<div class="k-head">'+
+        '<div class="big">'+(x.rejt_nyz?x.rejt_nyz+'–'+x.rejt_verh:'—')+'</div>'+
+        '<div class="who"><h2>'+esc(x.imya||x.lead_name||'без імені')+'</h2>'+
+          '<div class="c">'+esc(x.telefon||x.lead_phone||'телефону немає')+'</div>'+
+          '<div class="c">'+koly(x.created_at)+' · '+(x.hvylyn?x.hvylyn+' хв · ':'')+
+            esc(x.source||'без мітки')+'</div></div>'+
+        (x.bazhanyi_chas?'<span class="tag">📅 '+esc(x.bazhanyi_chas)+'</span>':'')+
+      '</div>'+
+
+      '<div class="blok"><span class="ttl">Що сказати про бал</span>'+
+        '<div class="say">'+pro+'</div>'+
+        '<div class="note">Набрано '+(x.nabrano??'—')+' з '+(x.max_balu??'—')+
+          ' · це ~'+baza+' з 32 на справжньому НМТ</div></div>'+
+
+      '<div class="blok"><span class="ttl">Скільки дасть приріст</span>'+
+        '<div class="pryrist">'+pryrist+'</div>'+
+        (baza<20?'<div class="note">⚠️ Учень на плато: до 20 тестових балів шкала майже стоїть. '+
+          'Аргумент — «варто перейти цю межу, далі кожне завдання коштує вчетверо більше».</div>':'')+
+      '</div>'+
+
+      '<div class="blok"><span class="ttl">Карта тем</span><div class="temy">'+
+        sylni.map(k=>tema(k,'g','усе правильно')).join('')+
+        chast.map(k=>tema(k,'w','частково')).join('')+
+        slab.map(k=>tema(k,'b','не вийшло')).join('')+
+        netork.map(k=>tema(k,'n',['не знає','плаває','каже, що знає'][samo[k]??1])).join('')+
+      '</div><div class="note">Сірі теми завданнями не перевірялись — це самооцінка учня.</div></div>'+
+
+      (rozryvy.length?'<div class="blok"><span class="ttl">Розрив між «знаю» і фактом</span>'+
+        '<div class="say">Теми <em>'+rozryvy.map(esc).join(', ').toLowerCase()+
+        '</em> учень позначив як знайомі, але завдання з них не вийшли. '+
+        'Саме такі місця з’їдають бали — здається, що знаєш, а на тесті не складається.</div></div>':'')+
+
+      (pom?'<div class="blok"><span class="ttl">Конкретні помилки</span>'+
+        '<div class="pom">'+pom+'</div></div>':'')+
+
+      (slab.length?'<div class="blok"><span class="ttl">З чого починати</span>'+
+        '<div class="plan">'+slab.map(k=>'<div><span><b style="color:var(--cream)">'+
+        TEMY[k]+'</b> — '+NASLIDKY[k]+'</span></div>').join('')+'</div></div>':'')+
+
+      '<div class="blok"><span class="ttl">План розмови</span><div class="plan">'+
+        ['Запит батьків: що турбує, чого чекають від підготовки',
+         'Бал: де зараз, де середній по країні, де мета',
+         'Почати з сильних — '+(sylni.length?sylni.map(k=>TEMY[k]).slice(0,2).join(', '):'що вийшло'),
+         'Потім просідання і розрив самооцінки',
+         'Плато: чому зусилля зараз дають мало, а після межі — багато',
+         'Формат груп, графік, пакети'].map(t=>'<div><span>'+esc(t)+'</span></div>').join('')+
+      '</div></div>'+
+    '</div>';
+}
+
+async function onovyty(){
+  try{
+    await zavantazhyty();
+    zvedennya(); spysok();
+    if(OBRANE){ const x=DANI.find(d=>d.id===OBRANE); if(x) kartka(x); }
+  }catch(e){
+    if(String(e.message)==='403'){ vyity(); $('#g-err').style.display='block'; }
+  }
+}
+
+function uviyty(k){
+  KEY=k;
+  try{ localStorage.setItem('fz_panel_key',k); }catch(e){}
+  $('#s-gate').classList.add('hidden');
+  $('#s-work').classList.remove('hidden');
+  onovyty();
+}
+function vyity(){
+  KEY='';
+  try{ localStorage.removeItem('fz_panel_key'); }catch(e){}
+  $('#s-work').classList.add('hidden');
+  $('#s-gate').classList.remove('hidden');
+}
+
+$('#g-in').addEventListener('click',async()=>{
+  const k=$('#g-key').value.trim();
+  if(!k) return;
+  $('#g-err').style.display='none';
+  try{
+    const r=await fetch(API+'/diag/list?k='+encodeURIComponent(k));
+    if(r.status===403){ $('#g-err').style.display='block'; return; }
+    uviyty(k);
+  }catch(e){ $('#g-err').style.display='block'; }
+});
+$('#g-key').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#g-in').click(); });
+$('#onov').addEventListener('click',onovyty);
+$('#vyity').addEventListener('click',vyity);
+$('#poshuk').addEventListener('input',spysok);
+$('#sort').addEventListener('change',spysok);
+$('#spysok').addEventListener('click',e=>{
+  const r=e.target.closest('.row'); if(!r) return;
+  OBRANE=+r.dataset.id;
+  const x=DANI.find(d=>d.id===OBRANE);
+  if(x){ kartka(x); spysok();
+    if(innerWidth<1000) $('#kartka').scrollIntoView({behavior:'smooth',block:'start'}); }
+});
+
+// ключ міг лишитись із минулого разу
+let zberezhenyi=null;
+try{ zberezhenyi=localStorage.getItem('fz_panel_key'); }catch(e){}
+if(zberezhenyi) uviyty(zberezhenyi);
+</script>
