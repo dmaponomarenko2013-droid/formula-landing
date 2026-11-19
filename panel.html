@@ -108,6 +108,10 @@ input:focus,select:focus{outline:none;border-color:var(--gold)}
   background:rgba(217,169,76,.1)}
 
 .k-act{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.dash-wrap{background:#F3E7D3;border:1px solid #E7D8C0;border-radius:16px;
+  padding:10px;margin-top:2px}
+.dash-wrap canvas{display:block;width:100%;height:auto;border-radius:8px}
+.dash-pid{font-size:12px;color:var(--muted);margin-top:-2px}
 .k-act .btn{font-size:12.5px;padding:9px 14px}
 .k-act .note{font-size:12px;color:var(--muted);flex:1 1 180px;min-width:0}
 .blok{border:1px solid var(--line);border-radius:14px;padding:14px 16px;
@@ -425,10 +429,14 @@ function kartka(x){
       '</div>'+
 
       '<div class="k-act">'+
-        '<button class="btn" data-act="png">🖼 Картинка для презентації</button>'+
+        '<button class="btn" data-act="png">🖼 Зберегти картинку</button>'+
         '<button class="btn g" data-act="txt">📋 Текст у чат</button>'+
         '<span class="note" id="k-act-n"></span>'+
       '</div>'+
+
+      '<div class="dash-wrap"><canvas id="k-dash"></canvas></div>'+
+      '<div class="dash-pid">Саме так воно ляже на слайд «Ось що показала діагностика».'+
+        ' Можна зберегти кнопкою або просто зняти скриншот цієї картки.</div>'+
 
       '<div class="blok"><span class="ttl">Що сказати про бал</span>'+
         '<div class="say">'+pro+'</div>'+
@@ -468,12 +476,26 @@ function kartka(x){
          'Формат груп, графік, пакети'].map(t=>'<div><span>'+esc(t)+'</span></div>').join('')+
       '</div></div>'+
     '</div>';
+
+  prevyu(x);
+}
+
+/* Прев'ю дашборда в картці. Той самий malyuy(), що йде у файл,
+   тому показане й збережене не можуть розʼїхатись. */
+async function prevyu(x){
+  const cv=$('#k-dash'); if(!cv) return;
+  try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
+  if($('#k-dash')!==cv) return;           // встигли клікнути іншого учня
+  const got=malyuy(x);
+  cv.width=got.width; cv.height=got.height;
+  cv.getContext('2d').drawImage(got,0,0);
 }
 
 /* ─────────── картинка-дашборд для слайда презентації ─────────── */
-const PAL={card1:'#2C1513',card2:'#1C0E0B',gold:'#D9A94C',goldBr:'#F3CE7E',
-  goldHi:'#FFE3A8',cream:'#F6EEE2',muted:'#BBA396',line:'rgba(217,169,76,.30)',
-  g:'#7FBF6A',w:'#E8B44C',b:'#D9705C',n:'#8C7B71'};
+const PAL={
+  paper:'#FFFDF8', sand:'#F6EDDE', ink:'#2A1510', dim:'#7A6054',
+  wine:'#7B2D27', gold:'#A9762B', goldSoft:'#C79A4E', line:'#E7D8C0',
+  g:'#4E8C45', w:'#B8860F', b:'#B4453A', n:'#9A8578'};
 
 function rr(c,x,y,w,h,r){
   c.beginPath(); c.moveTo(x+r,y);
@@ -483,8 +505,8 @@ function rr(c,x,y,w,h,r){
 function disp(c,px,w){ c.font=(w||800)+' '+px+'px Unbounded, Georgia, serif' }
 function body(c,px,w){ c.font=(w||500)+' '+px+'px Manrope, Verdana, sans-serif' }
 function kapslok(c,t,x,y,col,px){
-  disp(c,px||19,600); c.fillStyle=col;
-  try{ c.letterSpacing='2.4px' }catch(e){}
+  body(c,px||19,800); c.fillStyle=col;
+  try{ c.letterSpacing='2.2px' }catch(e){}
   c.fillText(t.toUpperCase(),x,y);
   try{ c.letterSpacing='0px' }catch(e){}
 }
@@ -507,36 +529,41 @@ function temyStany(x){
   return out;
 }
 
+/* Малює картку 1664×680 у кольорах презентації: кремовий папір,
+   винні цифри, золоті підписи. Прозорі поля по краях — щоб на слайді
+   вона лежала як окрема картка з мʼякою тінню. */
 function malyuy(x){
-  const W=1664,H=680,P=52;
+  const W=1664,H=680,P=58, L=16, T=12, CW=W-L*2, CH=H-T-22;
   const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   const c=cv.getContext('2d');
 
-  // підложка: картка з теплим світлом у правому верхньому куті
-  const gr=c.createLinearGradient(0,0,W*.4,H);
-  gr.addColorStop(0,PAL.card1); gr.addColorStop(1,PAL.card2);
-  rr(c,3,3,W-6,H-6,32); c.fillStyle=gr; c.fill();
-  c.save(); rr(c,3,3,W-6,H-6,32); c.clip();
-  const sv=c.createRadialGradient(W-120,-60,0,W-120,-60,620);
-  sv.addColorStop(0,'rgba(217,169,76,.20)'); sv.addColorStop(1,'rgba(217,169,76,0)');
+  // мʼяка тінь + кремова картка
+  c.save();
+  c.shadowColor='rgba(42,21,16,.16)'; c.shadowBlur=26; c.shadowOffsetY=9;
+  rr(c,L,T,CW,CH,30); c.fillStyle=PAL.paper; c.fill();
+  c.restore();
+  // тепле світло у правому верхньому куті
+  c.save(); rr(c,L,T,CW,CH,30); c.clip();
+  const sv=c.createRadialGradient(W-160,-40,0,W-160,-40,640);
+  sv.addColorStop(0,'rgba(169,118,43,.13)'); sv.addColorStop(1,'rgba(169,118,43,0)');
   c.fillStyle=sv; c.fillRect(0,0,W,H);
   c.restore();
-  rr(c,3,3,W-6,H-6,32); c.strokeStyle=PAL.line; c.lineWidth=3; c.stroke();
+  rr(c,L,T,CW,CH,30); c.strokeStyle=PAL.line; c.lineWidth=3; c.stroke();
 
   // шапка
   const imya=x.imya||x.lead_name||'Без імені';
-  let ips=44; disp(c,ips);
-  while(c.measureText(imya).width>840&&ips>24){ ips-=2; disp(c,ips) }
-  c.fillStyle=PAL.cream; c.fillText(imya,P,P+62);
-  body(c,21); c.fillStyle=PAL.muted;
+  let ips=42; disp(c,ips);
+  while(c.measureText(imya).width>820&&ips>24){ ips-=2; disp(c,ips) }
+  c.fillStyle=PAL.ink; c.fillText(imya,P,T+78);
+  body(c,20); c.fillStyle=PAL.dim;
   const meta=[koly(x.created_at),x.hvylyn?x.hvylyn+' хв':null,'діагностика #'+x.id]
     .filter(Boolean).join('  ·  ');
-  c.fillText(meta,P,P+98);
+  c.fillText(meta,P,T+112);
   c.textAlign='right';
-  kapslok(c,'Формула знань · НМТ математика',W-P,P+30,PAL.goldBr,18);
+  kapslok(c,'Формула знань · НМТ математика',W-P,T+44,PAL.goldSoft,17);
   c.textAlign='left';
 
-  c.beginPath(); c.moveTo(P,186); c.lineTo(W-P,186);
+  c.beginPath(); c.moveTo(P,T+148); c.lineTo(W-P,T+148);
   c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
 
   /* ── ліва колонка: бал ── */
@@ -544,67 +571,63 @@ function malyuy(x){
   const sered=nyz?Math.round((nyz+verh)/2):0;
   const baza=Math.round(+x.test_bal||0);
 
-  kapslok(c,'Бал НМТ зараз',P,232,PAL.goldBr);
+  kapslok(c,'Бал НМТ зараз',P,228,PAL.gold);
   const bal=nyz?nyz+'–'+verh:'—';
-  disp(c,92);
-  const bw=c.measureText(bal).width;
-  const bg=c.createLinearGradient(P,0,P+bw,0);
-  bg.addColorStop(0,PAL.goldHi); bg.addColorStop(1,PAL.gold);
-  c.fillStyle=bg; c.fillText(bal,P,322);
+  disp(c,90); c.fillStyle=PAL.wine; c.fillText(bal,P,318);
 
-  body(c,21); c.fillStyle=PAL.muted;
+  body(c,20); c.fillStyle=PAL.dim;
   c.fillText(sered>=SEREDNIY
     ? 'вище за середній по Україні — торік 131,9'
-    : 'середній по Україні торік — 131,9',P,364);
-  body(c,20); c.fillStyle=PAL.muted;
+    : 'середній по Україні торік — 131,9',P,358);
+  body(c,19); c.fillStyle=PAL.dim;
   c.fillText('набрано '+(x.nabrano??'—')+' з '+(x.max_balu??'—')+
-    '  ·  це ≈'+baza+' з 32 на справжньому НМТ',P,398);
+    '  ·  це ≈'+baza+' з 32 на справжньому НМТ',P,390);
 
   if(x.meta_bal){
     const txt='мета '+x.meta_bal+'  ·  різниця '+(x.meta_bal-sered>0?'+':'')+(x.meta_bal-sered);
-    body(c,20,700); const tw=c.measureText(txt).width;
-    rr(c,P,420,tw+40,46,23); c.fillStyle='rgba(217,169,76,.12)'; c.fill();
+    body(c,19,800); const tw=c.measureText(txt).width;
+    rr(c,P,412,tw+40,44,22); c.fillStyle=PAL.sand; c.fill();
     c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
-    c.fillStyle=PAL.goldBr; c.fillText(txt,P+20,450);
+    c.fillStyle=PAL.gold; c.fillText(txt,P+20,440);
   }
 
-  kapslok(c,'Що дасть приріст',P,x.meta_bal?516:486,PAL.goldBr);
-  let py=x.meta_bal?554:524;
+  kapslok(c,'Що дасть приріст',P,x.meta_bal?506:476,PAL.gold);
+  let py=x.meta_bal?544:514;
   [2,4,8].forEach(dd=>{
     const nov=Math.min(32,baza+dd), pr=rejting(nov)-rejting(baza);
-    body(c,21); c.fillStyle=PAL.muted;
+    body(c,20); c.fillStyle=PAL.dim;
     c.fillText('ще '+dd+' '+sklo(dd,'завдання','завдання','завдань'),P,py);
-    disp(c,24); c.fillStyle=PAL.goldBr;
+    disp(c,22); c.fillStyle=PAL.wine;
     c.fillText('+'+pr+' '+sklo(pr,'бал','бали','балів'),P+250,py);
     py+=40;
   });
 
   // вертикальний розділювач
-  c.beginPath(); c.moveTo(636,218); c.lineTo(636,H-P);
+  c.beginPath(); c.moveTo(640,210); c.lineTo(640,H-54);
   c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
 
   /* ── права колонка: карта тем ── */
-  const X1=684, X2=1168;
-  kapslok(c,'Карта тем',X1,232,PAL.goldBr);
+  const X1=690, X2=1172;
+  kapslok(c,'Карта тем',X1,228,PAL.gold);
   const st=temyStany(x);
   st.forEach((it,i)=>{
-    const col=i<5?X1:X2, y=268+(i%5)*44;
+    const col=i<5?X1:X2, y=264+(i%5)*44;
     dot(c,col+7,y-6,PAL[it.st],7);
-    body(c,21,700); c.fillStyle=it.st==='n'?PAL.muted:PAL.cream;
+    body(c,20,800); c.fillStyle=it.st==='n'?PAL.dim:PAL.ink;
     c.fillText(it.t,col+26,y);
-    body(c,18); c.fillStyle=PAL.muted;
+    body(c,17); c.fillStyle=PAL.dim;
     c.fillText(it.p,col+26,y+21);
   });
 
   // легенда
   let lx=X1;
   [['g','вийшло'],['w','частково'],['b','не вийшло'],['n','самооцінка']].forEach(([k,t])=>{
-    dot(c,lx+5,494,PAL[k],6);
-    body(c,18); c.fillStyle=PAL.muted; c.fillText(t,lx+20,500);
-    lx+=c.measureText(t).width+58;
+    dot(c,lx+5,490,PAL[k],6);
+    body(c,17); c.fillStyle=PAL.dim; c.fillText(t,lx+20,496);
+    lx+=c.measureText(t).width+56;
   });
 
-  c.beginPath(); c.moveTo(X1,528); c.lineTo(W-P,528);
+  c.beginPath(); c.moveTo(X1,522); c.lineTo(W-P,522);
   c.strokeStyle=PAL.line; c.lineWidth=2; c.stroke();
 
   // з чого починаємо — або, якщо просідань немає, розрив самооцінки
@@ -613,22 +636,22 @@ function malyuy(x){
   const kluch=o=>Object.keys(TEMY).find(k=>TEMY[k]===o.t);
   let ryad=[];
   if(slabki.length){
-    kapslok(c,'З чого починаємо',X1,566,PAL.goldBr);
+    kapslok(c,'З чого починаємо',X1,560,PAL.gold);
     ryad=slabki.slice(0,2).map(s=>[s.t,NASLIDKY[kluch(s)]||'']);
   }else if(rozr.length){
-    kapslok(c,'На що звернути увагу',X1,566,PAL.goldBr);
+    kapslok(c,'На що звернути увагу',X1,560,PAL.gold);
     ryad=[[rozr.join(', '),'учень вважає тему знайомою, але завдання з неї не вийшли']];
   }else{
-    kapslok(c,'Сильний старт',X1,566,PAL.goldBr);
+    kapslok(c,'Сильний старт',X1,560,PAL.gold);
     ryad=[['Просідань у тесті немає','далі дивимось на теми, які завданнями не перевірялись']];
   }
   ryad.forEach(([nz,ch],i)=>{
-    const y=600+i*32;
+    const y=594+i*32;
     dot(c,X1+7,y-6,PAL.b,6);
-    body(c,19,700); c.fillStyle=PAL.cream; c.fillText(nz,X1+26,y);
+    body(c,18,800); c.fillStyle=PAL.ink; c.fillText(nz,X1+26,y);
     const nw=c.measureText(nz).width;
     if(ch){
-      body(c,19); c.fillStyle=PAL.muted;
+      body(c,18); c.fillStyle=PAL.dim;
       let t=' — '+ch, max=W-P-(X1+26+nw);
       while(c.measureText(t).width>max&&t.length>8) t=t.slice(0,-2)+'…';
       c.fillText(t,X1+26+nw,y);
