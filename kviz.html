@@ -450,9 +450,10 @@ input:focus{outline:none;border-color:var(--gold)}
     <div class="card anim">
       <span class="tag">⏱ Перед консультацією · 30 хвилин</span>
       <h1>Діагностика рівня з математики</h1>
-      <p class="lead">Дванадцять завдань у форматі НМТ плюс коротке опитування по темах
-        програми. Пройди до консультації — щоб розмова була не загальною, а про твої
-        конкретні прогалини. Свій орієнтовний бал побачиш одразу.</p>
+      <p class="lead">Дванадцять завдань у форматі НМТ плюс коротке опитування
+        по темах програми. Це робиться до консультації — щоб розмова була не
+        загальною, а про конкретні прогалини дитини. Орієнтовний бал видно
+        одразу після завершення.</p>
       <div class="plateau">
         <div class="pl-row"><span>📝 Завдань</span><span class="pl-v">12</span></div>
         <div class="pl-row"><span>⏳ Часу знадобиться</span><span class="pl-v">~30 хв</span></div>
@@ -467,15 +468,15 @@ input:focus{outline:none;border-color:var(--gold)}
       <div class="kroky">
         <div class="krok">
           <span class="n">1</span>
-          <div><b>Відповідаєш на 12 завдань</b>
-            <div class="d">Справжні завдання НМТ — ті самі, що були на іспиті.
-              Не знаєш — пропускай, це нормально.</div></div>
+          <div><b>12 завдань із реального НМТ</b>
+            <div class="d">Ті самі, що були на іспиті. Незнайоме завдання
+              можна пропустити — це нормально.</div></div>
         </div>
         <div class="krok">
           <span class="n">2</span>
-          <div><b>Одразу бачиш свій бал</b>
+          <div><b>Бал одразу після завершення</b>
             <div class="d">Рахуємо за офіційною шкалою МОН і показуємо,
-              де ти відносно середнього по Україні.</div></div>
+              де результат відносно середнього по Україні.</div></div>
         </div>
         <div class="krok">
           <span class="n">3</span>
@@ -779,6 +780,68 @@ const stan={krok:0,profil:{},samo:{},vidpovidi:{},i:0,pochatok:null,taymer:null,
 const $=s=>document.querySelector(s);
 const API='https://worker-production-0a51.up.railway.app';
 const TOKEN=new URLSearchParams(location.search).get('t')||'';
+
+/* Нижче — та сама розмітка, що на index.html. Без неї заявки з квіза
+   приходять без мітки кампанії, а серверні події Meta нема з чим звести. */
+function cookie(name){
+  const m=document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
+  return m?m.pop():'';
+}
+
+/* мітка джерела: G_s<канал>[_c<id>] — як у решті воронки */
+const FZ_SOURCE=(()=>{
+  const q=new URLSearchParams(location.search);
+  const CH={facebook:'sfb',fb:'sfb',ig:'sig',instagram:'sig',tiktok:'stt',tt:'stt'};
+  let tag=q.get('fz_source');
+  if(!tag){
+    const src=(q.get('utm_source')||'').toLowerCase();
+    const camp=q.get('utm_campaign')||q.get('campaign_id')||'';
+    const ch=CH[src]||(q.get('fbclid')?'sfb':'sdr');
+    tag='G_'+ch+(/^\d{6,}$/.test(camp)?'_c'+camp:'');
+  }
+  return tag.slice(0,64);
+})();
+
+/* ttclid живе довше за візит: клік увечері, заявка наступного дня */
+const TTCLID=(()=>{
+  try{
+    const z=new URLSearchParams(location.search).get('ttclid');
+    if(z){localStorage.setItem('fz_ttclid',JSON.stringify({v:z,t:Date.now()}));return z}
+    const s=JSON.parse(localStorage.getItem('fz_ttclid')||'null');
+    if(s&&s.v&&Date.now()-s.t<30*864e5) return s.v;
+  }catch(e){}
+  return '';
+})();
+
+/* Токен кліка: 8 символів [a-z0-9]. Шлемо одразу при заході, щоб fbc/fbp
+   уже лежали в базі, коли людина дозріє і залишить номер. */
+const FZ_TOKEN=(()=>{
+  try{
+    let tk=sessionStorage.getItem('fz_tok');
+    if(tk) return tk;
+    const abc='abcdefghijklmnopqrstuvwxyz0123456789';
+    tk=Array.from({length:8},()=>abc[Math.floor(Math.random()*abc.length)]).join('');
+    sessionStorage.setItem('fz_tok',tk);
+    const fbclid=new URLSearchParams(location.search).get('fbclid');
+    const send=()=>{
+      // fbclid із посилання головніший за куку: стара кука псує атрибуцію
+      let fbc=fbclid?'':cookie('_fbc');
+      if(!fbc&&fbclid) fbc='fb.1.'+Date.now()+'.'+fbclid;
+      fetch(API+'/click',{method:'POST',keepalive:true,
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token:tk,fbc:fbc||null,fbp:cookie('_fbp')||null,
+          ttclid:TTCLID||null,ttp:cookie('_ttp')||null,
+          source:FZ_SOURCE,url:location.href.slice(0,512)})}).catch(()=>{});
+    };
+    // даємо пікселям до 2 с поставити свої куки
+    let tries=0;
+    (function wait(){
+      if((cookie('_fbp')&&cookie('_ttp'))||tries>=10) return send();
+      tries++; setTimeout(wait,200);
+    })();
+    return tk;
+  }catch(e){ return ''; }
+})();
 const EKRANY=['s-start','s-kviz','s-contact','s-dyakuyu','s-self','s-test',
   's-result','s-komu'];
 
@@ -1101,7 +1164,7 @@ async function ranniaZayavka(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         name:stan.profil.imya||'', phone:stan.profil.telefon||'',
-        source:stan.profil.source||'diagnostyka', token:TOKEN,
+        source:FZ_SOURCE||'diagnostyka', token:TOKEN||FZ_TOKEN,
         grade:stan.kviz.klas||'', url:location.href.slice(0,512)})});
     const dani=await vidpovid.json().catch(()=>null);
     if(dani&&dani.lead_id) stan.leadId=dani.lead_id;
@@ -1113,7 +1176,8 @@ async function ranniaZayavka(){
 function lankNaTest(){
   const p=new URLSearchParams();
   if(stan.leadId) p.set('lead',stan.leadId);
-  if(TOKEN) p.set('t',TOKEN);
+  if(TOKEN||FZ_TOKEN) p.set('t',TOKEN||FZ_TOKEN);
+  if(FZ_SOURCE) p.set('fz_source',FZ_SOURCE);
   const q=p.toString();
   return location.origin+'/diagnostyka.html'+(q?'?'+q:'');
 }
