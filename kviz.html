@@ -572,9 +572,8 @@ input:focus{outline:none;border-color:var(--gold)}
         </div>
         <button class="btn" id="lank-kopi" disabled
           style="width:100%;margin-top:10px">Скопіювати посилання</button>
-        <p class="kv-dribno">Відкривається будь-коли і скільки завгодно разів.
-          Результат прийде до нас уже підписаним вашим імʼям — повторно
-          залишати номер дитині не треба.</p>
+        <p class="kv-dribno">Відкривається будь-коли і скільки
+          завгодно разів.</p>
         <div class="nav" style="margin-top:14px">
           <span class="spacer"></span>
           <button class="btn ghost" id="lank-gotovo">Готово →</button>
@@ -1145,12 +1144,16 @@ $('#k-dali').addEventListener('click',()=>{
     .then(()=>{ if(!$('#komu-lank').hidden) pokazhyLank(); });
 });
 
-$('#komu-zaraz').addEventListener('click',()=>pokazaty(4));
+$('#komu-zaraz').addEventListener('click',()=>{
+  $('#komu-lank').hidden=true;          // ховаємо посилання, якщо встигли відкрити
+  pokazaty(4);
+});
 
-$('#komu-pizn').addEventListener('click',()=>{
+$('#komu-pizn').addEventListener('click',e=>{
   $('#komu-lank').hidden=false;
-  document.querySelectorAll('#s-komu .kv-opts .chip')
-    .forEach(c=>c.disabled=true);
+  // підсвічуємо вибір, але не блокуємо: передумати можна будь-коли
+  $('#komu-zaraz').setAttribute('aria-pressed','false');
+  e.currentTarget.setAttribute('aria-pressed','true');
   pokazhyLank();
   $('#komu-lank').scrollIntoView({behavior:'smooth',block:'nearest'});
 });
