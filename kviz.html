@@ -358,6 +358,32 @@ input:focus{outline:none;border-color:var(--gold)}
 .kv-opts .chip{width:100%;text-align:left;padding:16px 18px;font-size:17px}
 .kv-pid{margin-top:-6px}
 .kv-dribno{font-size:13px;opacity:.6;margin:10px 0 0}
+.shema{list-style:none;counter-reset:sh;margin:20px 0 6px;padding:16px 16px 4px;
+  display:flex;flex-direction:column;gap:0;
+  background:linear-gradient(180deg,rgba(233,192,120,.07),rgba(233,192,120,.02));
+  border:1px solid rgba(233,192,120,.14);border-radius:16px}
+.shema li{counter-increment:sh;display:grid;grid-template-columns:34px 1fr;
+  column-gap:14px;align-items:start;padding-bottom:18px;position:relative}
+.shema li:last-child{padding-bottom:14px}
+/* нитка, що веде від кружечка до наступного */
+.shema li::after{content:'';position:absolute;left:17px;top:32px;bottom:4px;
+  width:2px;background:linear-gradient(180deg,rgba(233,192,120,.34),
+    rgba(233,192,120,.08))}
+.shema li:last-child::after{display:none}
+.shema li::before{content:counter(sh);grid-row:1 / span 2;
+  width:34px;height:34px;border-radius:50%;z-index:1;
+  display:grid;place-items:center;font-size:14px;font-weight:800;
+  color:#2a1510;background:linear-gradient(145deg,#f0cd8e,#c9983f);
+  box-shadow:0 2px 10px rgba(201,152,63,.3)}
+.lank-box{margin-top:18px;padding:14px 16px;border-radius:14px;
+  background:rgba(0,0,0,.26);border:1px solid rgba(233,192,120,.18)}
+.lank-pid{display:block;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:800;opacity:.55;margin-bottom:6px}
+.lank-box code{display:block;font-size:13.5px;line-height:1.5;
+  word-break:break-all;opacity:.9}
+.shema b{grid-column:2;font-size:15.5px;line-height:1.3;padding-top:7px}
+.shema span{grid-column:2;font-size:13px;opacity:.64;margin-top:4px;
+  line-height:1.45}
 @media(max-width:480px){.kv-opts .chip{font-size:16px;padding:14px 16px}}
 </style>
 
@@ -480,8 +506,13 @@ input:focus{outline:none;border-color:var(--gold)}
   <section id="s-contact" hidden>
     <div class="card anim">
       <h2>📩 Куди надіслати результат</h2>
-      <p class="lead">Залиште контакт — збережемо розбір і надішлемо посилання
-        на зустріч. Далі буде дванадцять завдань, приблизно на 30 хвилин.</p>
+      <p class="lead">Телефон потрібен, щоб надіслати розбір і домовитись
+        про консультацію — без нього результат нікуди надіслати.</p>
+      <ol class="shema" id="k-shema">
+        <li><b>Ви лишаєте контакт</b><span>імʼя і номер, більше нічого</span></li>
+        <li><b>Дитина проходить завдання</b><span>12 задач, приблизно 30 хвилин</span></li>
+        <li><b>Консультація разом</b><span>розбираємо результат з вами і дитиною</span></li>
+      </ol>
       <div class="field">
         <label for="k-imya">Ім'я</label>
         <input type="text" id="k-imya" placeholder="Ірина" autocomplete="name">
@@ -491,8 +522,8 @@ input:focus{outline:none;border-color:var(--gold)}
         <input type="tel" id="k-tel" placeholder="+380 __ ___ __ __"
                inputmode="tel" autocomplete="tel">
       </div>
-      <p class="kv-dribno">Телефон потрібен, щоб узгодити час консультації.
-        Нікому не передаємо й не розсилаємо рекламу.</p>
+      <p class="kv-dribno">Номер нікому не передаємо й реклами
+        не розсилаємо.</p>
       <div class="nav">
         <button class="btn ghost" data-back>Назад</button>
         <span class="spacer"></span>
@@ -505,8 +536,8 @@ input:focus{outline:none;border-color:var(--gold)}
     <div class="card anim">
       <span class="tag">✅ Заявку прийнято</span>
       <h2>Дякуємо, ми вас записали</h2>
-      <p class="lead">Найближчим часом зателефонує Анастасія — узгодить час
-        консультації й надішле посилання на діагностику.</p>
+      <p class="lead">Найближчим часом зателефонуємо — узгодимо час
+        консультації й надішлемо посилання на діагностику.</p>
       <div class="plateau">
         <div class="pl-row"><span>📞 Зателефонуємо</span><span class="pl-v">сьогодні</span></div>
         <div class="pl-row"><span>📝 Діагностика</span><span class="pl-v">12 завдань</span></div>
@@ -518,6 +549,36 @@ input:focus{outline:none;border-color:var(--gold)}
       <div class="nav">
         <span class="spacer"></span>
         <button class="btn" id="d-test">Пройти діагностику зараз →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-komu" hidden>
+    <div class="card anim">
+      <h2>Дитина зараз поруч?</h2>
+      <p class="lead">Завдання має робити саме дитина — інакше результат
+        не покаже її справжній рівень, і консультація буде ні про що.</p>
+      <div class="kv-opts">
+        <button class="chip" type="button" id="komu-zaraz">
+          Так — почнемо зараз</button>
+        <button class="chip" type="button" id="komu-pizn">
+          Ні — передам посилання дитині</button>
+      </div>
+
+      <div id="komu-lank" hidden>
+        <div class="lank-box">
+          <span class="lank-pid">Посилання на завдання</span>
+          <code id="lank-url">готуємо…</code>
+        </div>
+        <button class="btn" id="lank-kopi" disabled
+          style="width:100%;margin-top:10px">Скопіювати посилання</button>
+        <p class="kv-dribno">Відкривається будь-коли і скільки завгодно разів.
+          Результат прийде до нас уже підписаним вашим імʼям — повторно
+          залишати номер дитині не треба.</p>
+        <div class="nav" style="margin-top:14px">
+          <span class="spacer"></span>
+          <button class="btn ghost" id="lank-gotovo">Готово →</button>
+        </div>
       </div>
     </div>
   </section>
@@ -719,7 +780,8 @@ const stan={krok:0,profil:{},samo:{},vidpovidi:{},i:0,pochatok:null,taymer:null,
 const $=s=>document.querySelector(s);
 const API='https://worker-production-0a51.up.railway.app';
 const TOKEN=new URLSearchParams(location.search).get('t')||'';
-const EKRANY=['s-start','s-kviz','s-contact','s-dyakuyu','s-self','s-test','s-result'];
+const EKRANY=['s-start','s-kviz','s-contact','s-dyakuyu','s-self','s-test',
+  's-result','s-komu'];
 
 // Результат летить у воркер у фоні. Якщо не долетить — людина все одно
 // бачить свій бал, сторінка через це не ламається.
@@ -757,10 +819,10 @@ function pokazaty(n){
   stan.krok=n;
   const p=['Діагностика рівня з математики','Крок 1 з 4 · знайомство',
     'Крок 2 з 4 · контакти','Заявку прийнято','Крок 3 з 4 · теми програми',
-    'Крок 4 з 4 · завдання','Твій результат'];
+    'Крок 4 з 4 · завдання','Твій результат','Крок 3 з 4 · хто проходитиме'];
   $('#stepn').textContent=p[n];
   $('#timer').hidden=n!==5;
-  $('#bar').style.width=([0,.10,.26,1,.40,.62,1][n]*100)+'%';
+  $('#bar').style.width=([0,.10,.26,1,.40,.62,1,.34][n]*100)+'%';
   scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -972,25 +1034,21 @@ $('#go').addEventListener('click',()=>{pokazaty(1);budKviz()});
    Шість питань в один клік. Відповіді йдуть у поле samo,
    тому бекенд і панель діагностик міняти не довелось. */
 const KVIZ=[
- {id:'hto', q:'Хто проходить діагностику?',
-  pid:'Від цього залежить, кому ми зателефонуємо після результату',
+ {id:'hto', q:'Хто зараз заповнює?',
+  pid:'Щоб знати, до кого звертатись і кому телефонувати',
   o:[['batky','Я батько або мати'],['uchen','Я учень або учениця']]},
  {id:'klas', q:'Який зараз клас?',
   o:[['10','10 клас'],['11','11 клас'],['vypusk','Школу вже закінчив']]},
- {id:'bolyt', q:'Що турбує найбільше?',
-  pid:'Оберіть те, що найближче — про це й говоритимемо на консультації',
-  o:[['bal','Бал не росте, хоч займається'],
-     ['prohalyny','Прогалини з минулих років'],
-     ['systema','Готується хаотично, без системи'],
-     ['chas','Лишилось мало часу до НМТ']]},
- {id:'meta', q:'Скільки балів потрібно для вступу?',
+  {id:'meta', q:'Скільки балів потрібно для вступу?',
   o:[['150','Від 150'],['160','Від 160'],['170','Від 170'],
      ['180','Від 180'],['0','Ще не вирішили']]},
  {id:'riven', q:'Як зараз із математикою в школі?',
-  o:[['low','Важко'],['mid','Нормально'],['high','Добре']]},
+  o:[['low','Важко'],['mid','Нормально'],['high','Добре'],
+     ['nezn','Не знаю']]},
  {id:'zaraz', q:'Як готується зараз?',
   o:[['sam','Самостійно'],['repetytor','З репетитором'],
-     ['kursy','На курсах'],['nijak','Поки ніяк']]},
+     ['kursy','На курсах'],['nijak','Поки ніяк'],
+     ['nezn','Не знаю']]},
 ];
 stan.kviz={};
 let kvI=0;
@@ -1015,7 +1073,7 @@ $('#kv-opts').addEventListener('click',e=>{
   $('#kv-opts').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
   b.setAttribute('aria-pressed','true');
   stan.kviz[p.id]=b.dataset.v;
-  if(p.id==='riven') stan.profil.riven=b.dataset.v;
+  if(p.id==='riven') stan.profil.riven=b.dataset.v==='nezn'?null:b.dataset.v;
   if(p.id==='meta')  stan.profil.meta=b.dataset.v==='0'?null:b.dataset.v;
   if(kvI===0) podiya('ViewContent');
   setTimeout(()=>{                      // пауза, щоб вибір було видно
@@ -1040,18 +1098,37 @@ function perevirKontakt(){
 // заявка летить одразу після номера: хто кине завдання — лишається лідом
 async function ranniaZayavka(){
   try{
-    await fetch(API+'/lead',{method:'POST',
+    const vidpovid=await fetch(API+'/lead',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         name:stan.profil.imya||'', phone:stan.profil.telefon||'',
         source:stan.profil.source||'diagnostyka', token:TOKEN,
         grade:stan.kviz.klas||'', url:location.href.slice(0,512)})});
+    const dani=await vidpovid.json().catch(()=>null);
+    if(dani&&dani.lead_id) stan.leadId=dani.lead_id;
   }catch(e){}
+}
+
+/* Посилання для дитини. Номер заявки робить результат підписаним батьком;
+   якщо воркер не відповів, посилання все одно робоче — просто без звʼязку. */
+function lankNaTest(){
+  const p=new URLSearchParams();
+  if(stan.leadId) p.set('lead',stan.leadId);
+  if(TOKEN) p.set('t',TOKEN);
+  const q=p.toString();
+  return location.origin+'/diagnostyka.html'+(q?'?'+q:'');
+}
+
+function pokazhyLank(){
+  const u=lankNaTest();
+  $('#lank-url').textContent=u.replace(/^https?:\/\//,'');
+  const k=$('#lank-kopi');
+  k.disabled=false; k.dataset.url=u;
 }
 
 /* Два режими однієї сторінки:
    kviz.html      — людина проходить тест одразу;
-   kviz.html?v=k  — коротка воронка: заявка, далі телефонує Настя.
+   kviz.html?v=k  — коротка воронка: заявка, далі телефонує менеджер.
    Код і пікселі ті самі, різниця лише в тому, що показуємо після номера. */
 const KOROTKO=new URLSearchParams(location.search).get('v')==='k';
 
@@ -1059,8 +1136,45 @@ $('#k-dali').addEventListener('click',()=>{
   stan.profil.imya=$('#k-imya').value.trim();
   stan.profil.telefon=$('#k-tel').value.trim();
   podiya('Lead');
-  ranniaZayavka();
-  pokazaty(KOROTKO?3:4);
+  const zayavka=ranniaZayavka();
+  if(KOROTKO){ pokazaty(3); return; }
+  if(stan.kviz.hto!=='batky'){ pokazaty(4); return; }
+  pokazaty(7);                      // спершу спитати, чи дитина поруч
+  // номер заявки доїде за мить; якщо ні — посилання буде без нього
+  Promise.race([zayavka,new Promise(r=>setTimeout(r,3000))])
+    .then(()=>{ if(!$('#komu-lank').hidden) pokazhyLank(); });
+});
+
+$('#komu-zaraz').addEventListener('click',()=>pokazaty(4));
+
+$('#komu-pizn').addEventListener('click',()=>{
+  $('#komu-lank').hidden=false;
+  document.querySelectorAll('#s-komu .kv-opts .chip')
+    .forEach(c=>c.disabled=true);
+  pokazhyLank();
+  $('#komu-lank').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+
+$('#lank-kopi').addEventListener('click',async e=>{
+  const b=e.currentTarget, u=b.dataset.url||lankNaTest();
+  try{
+    await navigator.clipboard.writeText(u);
+    b.textContent='Скопійовано ✓';
+  }catch(err){
+    // буває на старих браузерах — тоді просто виділяємо, людина скопіює сама
+    const r=document.createRange(); r.selectNode($('#lank-url'));
+    getSelection().removeAllRanges(); getSelection().addRange(r);
+    b.textContent='Виділено — натисніть «копіювати»';
+  }
+  setTimeout(()=>{b.textContent='Скопіювати посилання'},2600);
+});
+
+$('#lank-gotovo').addEventListener('click',()=>{
+  const l=document.querySelector('#s-dyakuyu .lead');
+  if(l) l.textContent='Передайте дитині посилання — вона пройде завдання '+
+    'у зручний час. Ми побачимо результат і зателефонуємо, щоб узгодити '+
+    'консультацію.';
+  pokazaty(3);
 });
 
 $('#d-test').addEventListener('click',()=>pokazaty(4));
@@ -1068,9 +1182,16 @@ $('#d-test').addEventListener('click',()=>pokazaty(4));
 if(KOROTKO){
   // у короткому варіанті тест не обіцяємо одразу — інакше це обман
   const l=document.querySelector('#s-contact .lead');
-  if(l) l.textContent='Залиште контакт — Анастасія зателефонує, узгодить час '+
-    'консультації й надішле посилання на діагностику.';
+  if(l) l.textContent='Телефон потрібен, щоб ми зателефонували, пояснили, '+
+    'як проходить діагностика, і надіслали посилання на завдання.';
   const b=$('#k-dali'); if(b) b.textContent='Відправити заявку →';
+  const sh=$('#k-shema');
+  if(sh) sh.innerHTML='<li><b>Ви лишаєте контакт</b><span>імʼя і номер,'+
+    ' більше нічого</span></li>'+
+    '<li><b>Телефонуємо й пояснюємо</b><span>як влаштована діагностика'+
+    ' і скільки часу займе</span></li>'+
+    '<li><b>Дитина проходить завдання</b><span>далі — консультація'+
+    ' з вами і дитиною</span></li>';
 }
 $('#to-test').addEventListener('click',()=>{pokazaty(5);budPytannya();startTaymer()});
 document.querySelectorAll('[data-back]').forEach(b=>

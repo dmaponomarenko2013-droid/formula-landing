@@ -666,6 +666,8 @@ const stan={krok:0,profil:{},samo:{},vidpovidi:{},i:0,pochatok:null,taymer:null,
 const $=s=>document.querySelector(s);
 const API='https://worker-production-0a51.up.railway.app';
 const TOKEN=new URLSearchParams(location.search).get('t')||'';
+// номер заявки батька: прийшов у посиланні, яке він передав дитині
+const LEAD=+(new URLSearchParams(location.search).get('lead')||0)||null;
 const EKRANY=['s-start','s-profile','s-self','s-test','s-result'];
 
 // Результат летить у воркер у фоні. Якщо не долетить — людина все одно
@@ -681,7 +683,7 @@ async function nadislaty(dodatkovo){
     const vidpovid=await fetch(API+'/diag',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(Object.assign({
-        diag_id:stan.diagId||null,
+        diag_id:stan.diagId||null, lead_id:LEAD,
         imya:stan.profil.imya||'', telefon:stan.profil.telefon||'',
         token:TOKEN, meta_bal:stan.profil.meta||null,
         riven:stan.profil.riven||'', samo:stan.samo, vidpovidi,
