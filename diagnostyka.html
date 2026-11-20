@@ -668,6 +668,20 @@ const API='https://worker-production-0a51.up.railway.app';
 const TOKEN=new URLSearchParams(location.search).get('t')||'';
 // номер заявки батька: прийшов у посиланні, яке він передав дитині
 const LEAD=+(new URLSearchParams(location.search).get('lead')||0)||null;
+
+/* мітка джерела: G_s<канал>[_c<id>] — той самий вигляд, що в решті воронки */
+const FZ_SOURCE=(()=>{
+  const q=new URLSearchParams(location.search);
+  const CH={facebook:'sfb',fb:'sfb',ig:'sig',instagram:'sig',tiktok:'stt',tt:'stt'};
+  let tag=q.get('fz_source');
+  if(!tag){
+    const src=(q.get('utm_source')||'').toLowerCase();
+    const camp=q.get('utm_campaign')||q.get('campaign_id')||'';
+    const ch=CH[src]||(q.get('fbclid')?'sfb':'sdr');
+    tag='G_'+ch+(/^\d{6,}$/.test(camp)?'_c'+camp:'');
+  }
+  return tag.slice(0,64);
+})();
 const EKRANY=['s-start','s-profile','s-self','s-test','s-result'];
 
 // Результат летить у воркер у фоні. Якщо не долетить — людина все одно
@@ -687,7 +701,7 @@ async function nadislaty(dodatkovo){
         imya:stan.profil.imya||'', telefon:stan.profil.telefon||'',
         token:TOKEN, meta_bal:stan.profil.meta||null,
         riven:stan.profil.riven||'', samo:stan.samo, vidpovidi,
-        source:stan.profil.source||'',
+        source:stan.profil.source||FZ_SOURCE||'',
         hvylyn:stan.pochatok?Math.round((Date.now()-stan.pochatok)/60000):null,
         url:location.href.slice(0,512),
         rezultat:{nabrano:r.nabrano, max_balu:MAX_TESTU,

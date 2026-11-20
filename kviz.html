@@ -1182,6 +1182,20 @@ function lankNaTest(){
   return location.origin+'/diagnostyka.html'+(q?'?'+q:'');
 }
 
+/* Lead — єдина подія, у якої є серверна пара. Щоб Meta не порахувала
+   заявку двічі, eventID мусить збігатися з "lead-<id>" із воркера. */
+function podiyaLead(){
+  if(POSLANO['Lead']) return; POSLANO['Lead']=1;
+  const p={content_name:'diagnostyka',content_category:FZ_SOURCE};
+  try{
+    if(window.fbq){
+      if(stan.leadId) fbq('track','Lead',p,{eventID:'lead-'+stan.leadId});
+      else            fbq('track','Lead',p);
+    }
+  }catch(e){}
+  try{ if(window.clarity) clarity('set','krok','Lead'); }catch(e){}
+}
+
 function pokazhyLank(){
   const u=lankNaTest();
   $('#lank-url').textContent=u.replace(/^https?:\/\//,'');
@@ -1198,14 +1212,14 @@ const KOROTKO=new URLSearchParams(location.search).get('v')==='k';
 $('#k-dali').addEventListener('click',()=>{
   stan.profil.imya=$('#k-imya').value.trim();
   stan.profil.telefon=$('#k-tel').value.trim();
-  podiya('Lead');
-  const zayavka=ranniaZayavka();
+  // чекаємо на номер заявки, але не довше трьох секунд: подія важливіша
+  const zayavka=Promise.race([ranniaZayavka(),
+                              new Promise(r=>setTimeout(r,3000))]);
+  zayavka.then(podiyaLead);
   if(KOROTKO){ pokazaty(3); return; }
   if(stan.kviz.hto!=='batky'){ pokazaty(4); return; }
   pokazaty(7);                      // спершу спитати, чи дитина поруч
-  // номер заявки доїде за мить; якщо ні — посилання буде без нього
-  Promise.race([zayavka,new Promise(r=>setTimeout(r,3000))])
-    .then(()=>{ if(!$('#komu-lank').hidden) pokazhyLank(); });
+  zayavka.then(()=>{ if(!$('#komu-lank').hidden) pokazhyLank(); });
 });
 
 $('#komu-zaraz').addEventListener('click',()=>{
