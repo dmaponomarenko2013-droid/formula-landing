@@ -257,10 +257,12 @@ input:focus{outline:none;border-color:var(--gold)}
 .ok-box p{color:var(--muted);font-size:14.5px;margin-top:7px}
 
 .plateau{display:grid;gap:10px}
-.pl-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;
-  padding:11px 0;border-top:1px solid var(--line)}
+.pl-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;
+  align-items:baseline;padding:11px 0;border-top:1px solid var(--line)}
+.pl-row>span:first-child{min-width:0}
 .pl-row:first-child{border-top:0}
-.pl-v{font-family:var(--disp);font-size:17px;color:var(--gold-br);font-variant-numeric:tabular-nums}
+.pl-v{font-family:var(--disp);font-size:17px;color:var(--gold-br);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* три кроки на старті */
 .kroky{display:grid;gap:13px}
@@ -882,7 +884,8 @@ function pokazaty(n){
   const p=['Діагностика рівня з математики','Крок 1 з 4 · знайомство',
     'Крок 2 з 4 · контакти','Заявку прийнято','Крок 3 з 4 · теми програми',
     'Крок 4 з 4 · завдання','Твій результат','Крок 3 з 4 · хто проходитиме'];
-  $('#stepn').textContent=p[n];
+  // у короткій воронці завдань на цій сторінці не буде — кроків три
+  $('#stepn').textContent=KOROTKO ? (p[n]||'').replace(' з 4',' з 2') : p[n];
   $('#timer').hidden=n!==5;
   $('#bar').style.width=([0,.10,.26,1,.40,.62,1,.34][n]*100)+'%';
   scrollTo({top:0,behavior:'smooth'});
@@ -1256,15 +1259,15 @@ $('#d-test').addEventListener('click',()=>pokazaty(4));
 if(KOROTKO){
   // у короткому варіанті тест не обіцяємо одразу — інакше це обман
   const l=document.querySelector('#s-contact .lead');
-  if(l) l.textContent='Телефон потрібен, щоб ми зателефонували, пояснили, '+
-    'як проходить діагностика, і надіслали посилання на завдання.';
+  if(l) l.textContent='Залиште контакт — надішлемо посилання на завдання '+
+    'і домовимось про розбір результату.';
   const b=$('#k-dali'); if(b) b.textContent='Відправити заявку →';
   const sh=$('#k-shema');
   if(sh) sh.innerHTML='<li><b>Ви лишаєте контакт</b><span>імʼя і номер,'+
     ' більше нічого</span></li>'+
-    '<li><b>Телефонуємо й пояснюємо</b><span>як влаштована діагностика'+
-    ' і скільки часу займе</span></li>'+
-    '<li><b>Дитина проходить завдання</b><span>далі — консультація'+
+    '<li><b>Надсилаємо посилання на тестування</b><span>дитина пройде'+
+    ' його у зручний час</span></li>'+
+    '<li><b>Розбираємо результат разом</b><span>зустріч на 30 хвилин'+
     ' з вами і дитиною</span></li>';
 }
 $('#to-test').addEventListener('click',()=>{pokazaty(5);budPytannya();startTaymer()});
