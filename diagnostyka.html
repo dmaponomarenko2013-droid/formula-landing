@@ -449,6 +449,22 @@ input:focus{outline:none;border-color:var(--gold)}
   <section id="s-profile" hidden>
     <div class="card anim">
       <h2>🎯 Спочатку коротко про тебе</h2>
+
+      <div id="f-kontakt" hidden>
+        <div class="field">
+          <label for="f-imya">Як тебе звати</label>
+          <input type="text" id="f-imya" placeholder="Софія"
+                 autocomplete="given-name">
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label for="f-tel">Телефон — свій або батьків</label>
+          <input type="tel" id="f-tel" placeholder="+380 __ ___ __ __"
+                 inputmode="tel" autocomplete="tel">
+        </div>
+        <p style="margin:9px 0 18px;font-size:13px;line-height:1.5;color:var(--muted)">Потрібен, щоб надіслати
+          результат і розібрати його з тобою. Реклами не шлемо.</p>
+      </div>
+
       <div class="field">
         <label for="f-goal">Скільки балів потрібно для вступу</label>
         <input type="number" id="f-goal" placeholder="160" min="100" max="200" inputmode="numeric">
@@ -697,7 +713,7 @@ async function nadislaty(dodatkovo){
     const vidpovid=await fetch(API+'/diag',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(Object.assign({
-        diag_id:stan.diagId||null, lead_id:LEAD,
+        diag_id:stan.diagId||null, lead_id:LEAD||stan.leadId||null,
         imya:stan.profil.imya||'', telefon:stan.profil.telefon||'',
         token:TOKEN, meta_bal:stan.profil.meta||null,
         riven:stan.profil.riven||'', samo:stan.samo, vidpovidi,
@@ -929,8 +945,45 @@ $('#f-level').addEventListener('click',e=>{
   b.setAttribute('aria-pressed','true');
   stan.profil.riven=b.dataset.v;
 });
+/* Прийшов прямим посиланням — контактів ще немає, треба спитати.
+   Прийшов із квіза (?lead=N) — вони вже у нас, мовчимо. */
+const PYTAEM_KONTAKT=!LEAD;
+if(PYTAEM_KONTAKT) $('#f-kontakt').hidden=false;
+
+function kontaktOk(){
+  if(!PYTAEM_KONTAKT) return true;
+  return $('#f-tel').value.replace(/\D/g,'').length>=9 &&
+         $('#f-imya').value.trim().length>1;
+}
+function perevirKontakt(){ $('#to-self').disabled=!kontaktOk(); }
+if(PYTAEM_KONTAKT){
+  ['#f-imya','#f-tel'].forEach(s=>
+    $(s).addEventListener('input',perevirKontakt));
+  perevirKontakt();
+}
+
+/* Заявка йде одразу, а не в кінці: хто кине тест на середині,
+   все одно лишиться контактом, з яким можна звʼязатись. */
+async function rannyaZayavka(){
+  if(!PYTAEM_KONTAKT) return;
+  const imya=$('#f-imya').value.trim(), tel=$('#f-tel').value.trim();
+  stan.profil.imya=imya; stan.profil.telefon=tel;
+  if(stan.leadPoslano) return;
+  stan.leadPoslano=true;
+  try{
+    const v=await fetch(API+'/lead',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:imya,phone:tel,source:FZ_SOURCE||'',
+        token:TOKEN,url:location.href.slice(0,512)})});
+    const d=await v.json().catch(()=>null);
+    if(d&&d.lead_id) stan.leadId=d.lead_id;
+  }catch(e){}
+}
+
 $('#to-self').addEventListener('click',()=>{
+  if(!kontaktOk()) return;
   stan.profil.meta=$('#f-goal').value;
+  rannyaZayavka();
   pokazaty(2);
 });
 $('#to-test').addEventListener('click',()=>{podiya('InitiateCheckout');pokazaty(3);budPytannya();startTaymer()});
