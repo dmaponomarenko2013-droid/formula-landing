@@ -1183,6 +1183,28 @@ $('#k-klas').addEventListener('click',e=>{
   perevirKontakt();
 });
 
+/* Технічний режим: ?dbg=1. Показує, що відбувається з надсиланням.
+   Без параметра не вмикається і нічого не малює. */
+const DBG=new URLSearchParams(location.search).get('dbg')==='1';
+function dbg(txt){
+  if(!DBG) return;
+  let el=document.getElementById('dbg-stan');
+  if(!el){
+    el=document.createElement('pre');
+    el.id='dbg-stan';
+    el.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;'+
+      'background:#000;color:#5f5;font:11px/1.45 ui-monospace,monospace;'+
+      'padding:10px;border-radius:10px;max-height:46vh;overflow:auto;'+
+      'white-space:pre-wrap;margin:0';
+    document.body.appendChild(el);
+  }
+  const t=new Date().toISOString().slice(11,23);
+  el.textContent+=t+'  '+txt+'\n';
+  el.scrollTop=el.scrollHeight;
+}
+if(DBG) addEventListener('error',e=>dbg('✗ ПОМИЛКА JS: '+e.message));
+if(DBG) addEventListener('unhandledrejection',e=>dbg('✗ ОБІРВАНА ОБІЦЯНКА: '+e.reason));
+
 /* Заявка мусить дійти, навіть якщо сторінку закрили одразу після
    «Дякуємо» — саме там її і закривають. keepalive тримає запит живим
    після вивантаження сторінки; якщо все-таки не вийшло, заявка лягає
@@ -1205,19 +1227,28 @@ function vidklasty(tilo){
 }
 
 async function poslatyZayavku(tilo){
+  dbg('→ POST '+API+'/lead');
+  dbg('  тіло: '+tilo);
   const r=await fetch(API+'/lead',{method:'POST',keepalive:true,
     headers:{'Content-Type':'application/json'},body:tilo});
-  const dani=await r.json().catch(()=>null);
+  dbg('← HTTP '+r.status+' '+(r.ok?'ok':'НЕ ok')+' type='+r.type);
+  const syre=await r.text().catch(e=>'(тіло не прочиталось: '+e.message+')');
+  dbg('  відповідь: '+String(syre).slice(0,200));
+  let dani=null;
+  try{ dani=JSON.parse(syre); }catch(e){}
   return {ok:r.ok,status:r.status,dani:dani};
 }
 
 async function ranniaZayavka(){
   const tilo=tiloZayavky();
+  dbg('=== надсилаємо заявку ===');
   for(let sproba=0;sproba<2;sproba++){
     try{
+      dbg('спроба '+(sproba+1));
       const v=await poslatyZayavku(tilo);
       if(v.ok){
         if(v.dani&&v.dani.lead_id) stan.leadId=v.dani.lead_id;
+        dbg('✅ ЗАЯВКА ПРИЙНЯТА, номер '+(v.dani&&v.dani.lead_id));
         try{ if(window.clarity) clarity('set','zayavka','ok'); }catch(e){}
         return;
       }
@@ -1226,9 +1257,12 @@ async function ranniaZayavka(){
         try{ if(window.clarity) clarity('set','zayavka','vidmova'+v.status); }catch(e){}
         return;
       }
-    }catch(e){ /* мережа мовчить — спробуємо ще раз */ }
-    if(sproba===0) await new Promise(r=>setTimeout(r,1200));
+    }catch(e){
+      dbg('✗ ЗАПИТ НЕ ВИЙШОВ: '+(e&&e.name)+' — '+(e&&e.message));
+    }
+    if(sproba===0){ dbg('чекаємо 1,2 с і пробуємо ще'); await new Promise(r=>setTimeout(r,1200)); }
   }
+  dbg('↩ не вийшло — кладемо в чергу до наступного заходу');
   try{ if(window.clarity) clarity('set','zayavka','vidkladeno'); }catch(e){}
   vidklasty(tilo);
 }
@@ -1236,7 +1270,9 @@ async function ranniaZayavka(){
 /* Недослані заявки з попередніх заходів — тихо досилаємо. */
 (function doslaty(){
   let ch=[];
-  try{ ch=JSON.parse(localStorage.getItem(CHERGA)||'[]'); }catch(e){ return; }
+  try{ ch=JSON.parse(localStorage.getItem(CHERGA)||'[]'); }
+  catch(e){ dbg('черга не читається: '+e.message); return; }
+  dbg('у черзі з минулих заходів: '+ch.length);
   if(!ch.length) return;
   try{ localStorage.removeItem(CHERGA); }catch(e){}
   ch.forEach(z=>{
