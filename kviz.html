@@ -1183,19 +1183,69 @@ $('#k-klas').addEventListener('click',e=>{
   perevirKontakt();
 });
 
-// заявка летить одразу після номера: хто кине завдання — лишається лідом
-async function ranniaZayavka(){
+/* Заявка мусить дійти, навіть якщо сторінку закрили одразу після
+   «Дякуємо» — саме там її і закривають. keepalive тримає запит живим
+   після вивантаження сторінки; якщо все-таки не вийшло, заявка лягає
+   в чергу й дошлеться при наступному заході. */
+const CHERGA='fz_lead_cherga';
+
+function tiloZayavky(){
+  return JSON.stringify({
+    name:stan.profil.imya||'', phone:stan.profil.telefon||'',
+    source:FZ_SOURCE||'diagnostyka', token:TOKEN||FZ_TOKEN,
+    grade:stan.kviz.klas||'', url:location.href.slice(0,512)});
+}
+
+function vidklasty(tilo){
   try{
-    const vidpovid=await fetch(API+'/lead',{method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        name:stan.profil.imya||'', phone:stan.profil.telefon||'',
-        source:FZ_SOURCE||'diagnostyka', token:TOKEN||FZ_TOKEN,
-        grade:stan.kviz.klas||'', url:location.href.slice(0,512)})});
-    const dani=await vidpovid.json().catch(()=>null);
-    if(dani&&dani.lead_id) stan.leadId=dani.lead_id;
+    const ch=JSON.parse(localStorage.getItem(CHERGA)||'[]');
+    ch.push({tilo:tilo,t:Date.now()});
+    localStorage.setItem(CHERGA,JSON.stringify(ch.slice(-5)));
   }catch(e){}
 }
+
+async function poslatyZayavku(tilo){
+  const r=await fetch(API+'/lead',{method:'POST',keepalive:true,
+    headers:{'Content-Type':'application/json'},body:tilo});
+  const dani=await r.json().catch(()=>null);
+  return {ok:r.ok,status:r.status,dani:dani};
+}
+
+async function ranniaZayavka(){
+  const tilo=tiloZayavky();
+  for(let sproba=0;sproba<2;sproba++){
+    try{
+      const v=await poslatyZayavku(tilo);
+      if(v.ok){
+        if(v.dani&&v.dani.lead_id) stan.leadId=v.dani.lead_id;
+        try{ if(window.clarity) clarity('set','zayavka','ok'); }catch(e){}
+        return;
+      }
+      // воркер відповів і відмовив — повторювати нема сенсу
+      if(v.status>=400&&v.status<500){
+        try{ if(window.clarity) clarity('set','zayavka','vidmova'+v.status); }catch(e){}
+        return;
+      }
+    }catch(e){ /* мережа мовчить — спробуємо ще раз */ }
+    if(sproba===0) await new Promise(r=>setTimeout(r,1200));
+  }
+  try{ if(window.clarity) clarity('set','zayavka','vidkladeno'); }catch(e){}
+  vidklasty(tilo);
+}
+
+/* Недослані заявки з попередніх заходів — тихо досилаємо. */
+(function doslaty(){
+  let ch=[];
+  try{ ch=JSON.parse(localStorage.getItem(CHERGA)||'[]'); }catch(e){ return; }
+  if(!ch.length) return;
+  try{ localStorage.removeItem(CHERGA); }catch(e){}
+  ch.forEach(z=>{
+    if(!z||!z.tilo||Date.now()-(z.t||0)>7*864e5) return;   // тиждень — і вже пізно
+    poslatyZayavku(z.tilo)
+      .then(v=>{ if(!v.ok&&v.status>=500) vidklasty(z.tilo); })
+      .catch(()=>vidklasty(z.tilo));
+  });
+})();
 
 /* Посилання для дитини. Номер заявки робить результат підписаним батьком;
    якщо воркер не відповів, посилання все одно робоче — просто без звʼязку. */
