@@ -360,6 +360,11 @@ input:focus{outline:none;border-color:var(--gold)}
 .kv-opts .chip{width:100%;text-align:left;padding:16px 18px;font-size:17px}
 .kv-pid{margin-top:-6px}
 .kv-dribno{font-size:13px;opacity:.6;margin:10px 0 0}
+.k-err{font-size:13px;line-height:1.45;color:#FF9B8A;margin:7px 0 0}
+.k-err-vel{margin:14px 0 0;padding:11px 13px;border-radius:12px;
+  background:rgba(255,120,98,.1);border:1px solid rgba(255,120,98,.3)}
+.field input[aria-invalid="true"]{border-color:rgba(255,120,98,.6)}
+.btn[data-shle="1"]{opacity:.75;pointer-events:none}
 .k-klas{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
 .k-klas .chip{flex:1 1 auto;min-width:120px}
 #kv-shapka{margin:0 0 16px}
@@ -524,11 +529,13 @@ input:focus{outline:none;border-color:var(--gold)}
       <div class="field">
         <label for="k-imya">Ваше імʼя</label>
         <input type="text" id="k-imya" placeholder="Ірина" autocomplete="name">
+        <p class="k-err" id="k-imya-err" hidden></p>
       </div>
       <div class="field">
         <label for="k-tel">Телефон</label>
         <input type="tel" id="k-tel" placeholder="+380 __ ___ __ __"
-               inputmode="tel" autocomplete="tel">
+               inputmode="tel" autocomplete="tel" maxlength="19">
+        <p class="k-err" id="k-tel-err" hidden></p>
       </div>
       <div class="field">
         <label>У якому класі навчається дитина</label>
@@ -539,6 +546,7 @@ input:focus{outline:none;border-color:var(--gold)}
       </div>
       <p class="kv-dribno">Номер нікому не передаємо й реклами
         не розсилаємо.</p>
+      <p class="k-err k-err-vel" id="k-zahalna" hidden></p>
       <div class="nav">
         <span class="spacer"></span>
         <button class="btn" id="k-dali" disabled>Записатися →</button>
@@ -1163,14 +1171,78 @@ $('#kv-nazad').addEventListener('click',()=>{
 });
 
 /* ── контакти: беремо до тесту, а не після ── */
+/* Український мобільний — це 380 і девʼять цифр, де перші дві
+   позначають оператора. Усе інше воркер відхиляє, тож ловимо тут,
+   поки людина ще на формі й може виправити. */
+const KODY_OPERATORIV=['39','50','63','66','67','68','73',
+                       '91','92','93','94','95','96','97','98','99'];
+
+function normTel(syre){
+  let c=String(syre||'').replace(/\D/g,'');
+  if(c.slice(0,3)==='380') c=c.slice(3);
+  else if(c.slice(0,2)==='80') c=c.slice(2);
+  // Нуль знімаємо й після коду країни: автозаповнення любить
+  // дописати «0671234567» до вже набраного «+380».
+  if(c.charAt(0)==='0') c=c.slice(1);
+  return c;
+}
+
+function bidaTel(syre){
+  const c=normTel(syre);
+  if(!c) return 'Вкажіть номер телефону';
+  if(c.length<9)
+    return 'У номері бракує '+(9-c.length)+
+           (9-c.length===1?' цифри':' цифр')+' — має бути як 067 123 45 67';
+  if(c.length>9) return 'У номері забагато цифр — перевірте, будь ласка';
+  if(KODY_OPERATORIV.indexOf(c.slice(0,2))<0)
+    return 'Такого коду оператора немає — перевірте перші цифри';
+  return '';
+}
+
+function bidaImya(syre){
+  const s=String(syre||'').trim();
+  if(s.length<2) return 'Вкажіть, як до вас звертатися';
+  return '';
+}
+
+function krasyvyTel(syre){
+  const c=normTel(syre);
+  if(c.length!==9) return syre;
+  return '+380 '+c.slice(0,2)+' '+c.slice(2,5)+' '+c.slice(5,7)+' '+c.slice(7);
+}
+
+function pokazhyBidu(selektor, tekst, pole){
+  const el=$(selektor); if(!el) return;
+  el.textContent=tekst||'';
+  el.hidden=!tekst;
+  if(pole) $(pole).setAttribute('aria-invalid', tekst?'true':'false');
+}
+
 function perevirKontakt(){
-  const tel=$('#k-tel').value.replace(/\D/g,'').length>=9;
+  const tel=normTel($('#k-tel').value).length>0;
   const imya=$('#k-imya').value.trim().length>1;
   const klas=!!stan.kviz.klas;
+  // Кнопку лишаємо живою, щойно все заповнено: про помилку краще
+  // сказати словами, ніж мовчки тримати кнопку сірою.
   $('#k-dali').disabled=!(tel&&imya&&klas);
 }
 ['#k-imya','#k-tel'].forEach(s=>
   $(s).addEventListener('input',perevirKontakt));
+
+/* Поки людина друкує — не чіпаємо. Пішла з поля — підказуємо. */
+$('#k-tel').addEventListener('blur',()=>{
+  const v=$('#k-tel').value;
+  if(normTel(v).length===9) $('#k-tel').value=krasyvyTel(v);
+  pokazhyBidu('#k-tel-err', v.trim()&&v.trim()!=='+380' ? bidaTel(v) : '', '#k-tel');
+});
+$('#k-imya').addEventListener('blur',()=>{
+  const v=$('#k-imya').value;
+  pokazhyBidu('#k-imya-err', v.trim() ? bidaImya(v) : '', '#k-imya');
+});
+['#k-imya','#k-tel'].forEach(s=>$(s).addEventListener('input',()=>{
+  pokazhyBidu(s+'-err','',s);
+  const z=$('#k-zahalna'); if(z) z.hidden=true;
+}));
 
 /* Клас — такі самі чіпи, як були в питаннях, лише всередині форми. */
 $('#k-klas').addEventListener('click',e=>{
@@ -1250,12 +1322,15 @@ async function ranniaZayavka(){
         if(v.dani&&v.dani.lead_id) stan.leadId=v.dani.lead_id;
         dbg('✅ ЗАЯВКА ПРИЙНЯТА, номер '+(v.dani&&v.dani.lead_id));
         try{ if(window.clarity) clarity('set','zayavka','ok'); }catch(e){}
-        return;
+        return {ok:true};
       }
       // воркер відповів і відмовив — повторювати нема сенсу
       if(v.status>=400&&v.status<500){
         try{ if(window.clarity) clarity('set','zayavka','vidmova'+v.status); }catch(e){}
-        return;
+        return {ok:false, status:v.status,
+                tekst:POYASNENNYA[(v.dani&&v.dani.error)||''] ||
+                      'Не вдалося надіслати заявку. Перевірте дані або '+
+                      'спробуйте ще раз за хвилину.'};
       }
     }catch(e){
       dbg('✗ ЗАПИТ НЕ ВИЙШОВ: '+(e&&e.name)+' — '+(e&&e.message));
@@ -1265,7 +1340,16 @@ async function ranniaZayavka(){
   dbg('↩ не вийшло — кладемо в чергу до наступного заходу');
   try{ if(window.clarity) clarity('set','zayavka','vidkladeno'); }catch(e){}
   vidklasty(tilo);
+  // Мережа підвела, але заявка збережена й піде при наступному заході —
+  // людину цим не вантажимо, показуємо подяку.
+  return {ok:true, vidkladeno:true};
 }
+
+/* Відмови воркера — людською мовою. */
+const POYASNENNYA={
+  'bad_phone':'Перевірте номер телефону: здається, у ньому бракує цифри.',
+  'empty':'Заповніть, будь ласка, імʼя й телефон.'
+};
 
 /* Недослані заявки з попередніх заходів — тихо досилаємо. */
 (function doslaty(){
@@ -1321,16 +1405,44 @@ function pokazhyLank(){
    Код і пікселі ті самі, різниця лише в тому, що показуємо після номера. */
 const KOROTKO=new URLSearchParams(location.search).get('v')==='k';
 
-$('#k-dali').addEventListener('click',()=>{
+$('#k-dali').addEventListener('click',async()=>{
+  const bidaT=bidaTel($('#k-tel').value);
+  const bidaI=bidaImya($('#k-imya').value);
+  pokazhyBidu('#k-tel-err', bidaT, '#k-tel');
+  pokazhyBidu('#k-imya-err', bidaI, '#k-imya');
+  if(bidaT||bidaI){
+    ($('#'+(bidaI?'k-imya':'k-tel'))).focus();
+    return;                       // лишаємо людину на формі — хай виправить
+  }
+
+  const b=$('#k-dali'), buv=b.textContent;
+  b.dataset.shle='1'; b.textContent='Надсилаємо…';
+  $('#k-zahalna').hidden=true;
+
   stan.profil.imya=$('#k-imya').value.trim();
-  stan.profil.telefon=$('#k-tel').value.trim();
-  // чекаємо на номер заявки, але не довше трьох секунд: подія важливіша
-  const zayavka=Promise.race([ranniaZayavka(),
-                              new Promise(r=>setTimeout(r,3000))]);
-  zayavka.then(podiyaLead);
-  // Тест дитині дає менеджер, тож зі сторінки шлях один — подяка.
-  podiya('CompleteRegistration');
-  pokazaty(3);
+  // воркер чекає повний номер — шлемо вже нормалізований
+  stan.profil.telefon='+380'+normTel($('#k-tel').value);
+
+  let v;
+  try{ v=await ranniaZayavka(); }
+  catch(e){ v={ok:false, tekst:'Не вдалося надіслати заявку. '+
+                              'Спробуйте ще раз за хвилину.'}; }
+
+  if(v&&v.ok){
+    // Події Meta — лише за справжньою заявкою, інакше реклама
+    // оптимізується на заявки, яких не існує.
+    podiya('CompleteRegistration');
+    podiyaLead();
+    pokazaty(3);
+    try{ if(location.hash!=='#dyakuyu') history.replaceState(null,'','#dyakuyu'); }catch(e){}
+    return;
+  }
+
+  b.dataset.shle=''; b.textContent=buv;
+  const z=$('#k-zahalna');
+  z.textContent=(v&&v.tekst)||'Не вдалося надіслати заявку. Спробуйте ще раз.';
+  z.hidden=false;
+  if(v&&v.status===400) $('#k-tel').focus();
 });
 
 $('#komu-zaraz').addEventListener('click',()=>{
